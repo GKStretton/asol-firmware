@@ -14,9 +14,6 @@ void SetupSwitches() {
     // led
 	InitPin(LED_BUILTIN, LOW);
 
-    // mains, init off as low because single channel relay.
-	InitPin(MAINS_RELAY_PIN, LOW);
-
     // todo: ring light setup
 }
 
@@ -33,7 +30,7 @@ void SetRingLightState(bool on) {
 }
 
 void SetMainsState(bool on) {
-    SetSingleRelay(MAINS_RELAY_PIN, on);
+    //SetSingleRelay(MAINS_RELAY_PIN, on);
 }
 
 void SetLED(bool on) {
