@@ -31,13 +31,13 @@ void setup() {
 	InitPin(STEPPER_SLEEP, LOW);
 
 	pitchStepper.setMaxSpeed(600);
-	pitchStepper.setAcceleration(3000);
+	pitchStepper.setAcceleration(1500);
 
-	yawStepper.setMaxSpeed(800);
-	yawStepper.setAcceleration(3000);
+	yawStepper.setMaxSpeed(600);
+	yawStepper.setAcceleration(1500);
 
-	zStepper.setMaxSpeed(2000);
-	zStepper.setAcceleration(5000);
+	zStepper.setMaxSpeed(1000);
+	zStepper.setAcceleration(2000);
 }
 
 void printRXChannelsLoop() {
