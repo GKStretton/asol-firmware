@@ -4,7 +4,6 @@
 #define FS_I6_CHANNELS 6
 
 namespace FS_I6 {
-
     enum Channel {
         // Right Horizontal stick
         RH=1,
@@ -25,7 +24,7 @@ namespace FS_I6 {
     int GetChannelRaw(enum Channel c);
 
     float GetStick(enum Channel c);
-    bool GetSwitch(enum Channel c);
+    int GetSwitch(enum Channel c);
 
     void PrintRawChannels();
     void PrintProcessedChannels();

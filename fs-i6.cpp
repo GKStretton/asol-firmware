@@ -74,9 +74,19 @@ namespace FS_I6 {
         return transformed;
     }
 
-    bool GetSwitch(enum Channel c) {
+    int GetSwitch(enum Channel c) {
         int raw = GetChannelRaw(c);
-        return raw > 1600;
+        if (c == S1) {
+            return raw > 1600;
+        } else {
+            if (raw < 1250) {
+                return 0;
+            } else if (raw < 1750) {
+                return 1;
+            } else {
+                return 2;
+            }
+        }
     }
 
     void PrintRawChannels() {
@@ -92,7 +102,7 @@ namespace FS_I6 {
         for (int i = 1; i <= FS_I6_CHANNELS; i++) {
             String name = GetChannelName((enum Channel) i) + "_proc";
             if (i == S1 || i == S2) { // The switch channels
-                bool val = GetSwitch((enum Channel) i);
+                int val = GetSwitch((enum Channel) i);
                 Logger::PrintDataEntry(name, String(val));
             } else {
                 float val = GetStick((enum Channel) i);

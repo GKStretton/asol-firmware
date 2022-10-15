@@ -105,6 +105,7 @@ void dataUpdate() {
 	Logger::PrintDataEntry("V5_C", String(analogRead(V5_CURRENT)));
 
 	// RX Controller data
+	FS_I6::PrintRawChannels();
 	FS_I6::PrintProcessedChannels();
 
 	// stepper raw position
@@ -260,8 +261,8 @@ void pipetteModeUpdate() {
 void controlUpdate() {
 	// Get inputs
 
-	bool sw1 = FS_I6::GetSwitch(FS_I6::S1);
-	bool sw2 = FS_I6::GetSwitch(FS_I6::S2);
+	int sw1 = FS_I6::GetSwitch(FS_I6::S1);
+	int sw2 = FS_I6::GetSwitch(FS_I6::S2);
 
 	bool boardSwitchA = digitalRead(SWITCH_A);
 
@@ -285,15 +286,8 @@ void controlUpdate() {
 
 	float speedMult = 400.0;
 
-	if (sw2) {
-
-		ikModeUpdate();
-
-		float left_h = FS_I6::GetStick(FS_I6::LH);
-		pipetteStepper.setSpeed(speedMult*left_h);
-
-		pitchStepper.moveTo(pitchStepper.UnitToPosition(CENTRE_PITCH));
-	} else {
+	if (sw2 == 0) {
+		// manual
 		ringStepper.stop();
 		yawStepper.stop();
 		pitchStepper.stop();
@@ -304,6 +298,17 @@ void controlUpdate() {
 		yawStepper.setSpeed(speedMult*right_h);
 		float right_v = FS_I6::GetStick(FS_I6::RV);
 		pitchStepper.setSpeed(speedMult*right_v);
+	} else if (sw2 == 1) {
+		// ik
+
+		ikModeUpdate();
+
+		float left_h = FS_I6::GetStick(FS_I6::LH);
+		pipetteStepper.setSpeed(speedMult*left_h);
+
+		pitchStepper.moveTo(pitchStepper.UnitToPosition(CENTRE_PITCH));
+	} else if (sw2 == 2) {
+		// pipette
 	}
 
 	float left_v = FS_I6::GetStick(FS_I6::LV);
@@ -348,18 +353,24 @@ void maxStepperLimits() {
 
 void runSteppers() {
 	// seriously sort this out
-	if (FS_I6::GetSwitch(FS_I6::S2)) {
-		ringStepper.run();
-		pitchStepper.run();
-		yawStepper.run();
-		zStepper.runSpeed();
-		pipetteStepper.runSpeed();
-	} else {
+	int sw2 = FS_I6::GetSwitch(FS_I6::S2);
+	if (sw2 == 0) {
+		// manual
 		ringStepper.runSpeed();
 		pitchStepper.runSpeed();
 		yawStepper.runSpeed();
 		zStepper.runSpeed();
 		pipetteStepper.runSpeed();
+	}
+	if (sw2 == 1) {
+		// ik
+		ringStepper.run();
+		pitchStepper.run();
+		yawStepper.run();
+		zStepper.runSpeed();
+		pipetteStepper.runSpeed();
+	} else if (sw2 == 2) {
+		// pipette
 	}
 }
 
