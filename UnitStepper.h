@@ -23,12 +23,19 @@ public:
     float GetMinUnit();
     float GetMaxUnit();
 
+    void SetMinUnit(float val);
+    void SetMaxUnit(float val);
+
     float PositionToUnit(float position);
     float UnitToPosition(float unit);
+
+    void MarkAsCalibrated();
+    bool IsCalibrated();
 
 private:
     float microStepFactor_;
     float unitsPerFullStep_;
     float minUnit_;
     float maxUnit_;
+    bool calibrated_;
 };

@@ -7,3 +7,4 @@
 #define RING_ZERO_OFFSET 23.8
 
 #define CENTRE_PITCH 48.95
+#define MIN_BOWL_Z 32.5

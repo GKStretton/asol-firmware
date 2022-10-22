@@ -25,10 +25,26 @@ float UnitStepper::GetMaxUnit() {
     return maxUnit_;
 }
 
+void UnitStepper::SetMinUnit(float val) {
+    minUnit_ = val;
+}
+
+void UnitStepper::SetMaxUnit(float val) {
+    maxUnit_ = val;
+}
+
 float UnitStepper::PositionToUnit(float position) {
     return position / microStepFactor_ * unitsPerFullStep_;
 }
 
 float UnitStepper::UnitToPosition(float unit) {
     return unit / unitsPerFullStep_ * microStepFactor_;
+}
+
+void UnitStepper::MarkAsCalibrated() {
+    calibrated_ = true;
+}
+
+bool UnitStepper::IsCalibrated() {
+    return calibrated_;
 }

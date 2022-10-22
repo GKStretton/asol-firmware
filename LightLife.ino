@@ -13,11 +13,11 @@
 
 #include "UnitStepper.h"
 
-UnitStepper pitchStepper(PITCH_STEPPER_STEP, PITCH_STEPPER_DIR, 4, 0.44, 0, 180);
-UnitStepper yawStepper(YAW_STEPPER_STEP, YAW_STEPPER_DIR, 4, 0.36, YAW_ZERO_OFFSET, 198);
-UnitStepper zStepper(Z_STEPPER_STEP, Z_STEPPER_DIR, 2, 0.04078, 0, 75);
-UnitStepper ringStepper(RING_STEPPER_STEP, RING_STEPPER_DIR, 8, 0.4, RING_ZERO_OFFSET, 239);
-UnitStepper pipetteStepper(PIPETTE_STEPPER_STEP, PIPETTE_STEPPER_DIR, 8, 2.74, 100, 700);
+UnitStepper pitchStepper(PITCH_STEPPER_STEP, PITCH_STEPPER_DIR, 16, 0.44, 0, 90);
+UnitStepper yawStepper(YAW_STEPPER_STEP, YAW_STEPPER_DIR, 16, 0.36, YAW_ZERO_OFFSET, 198);
+UnitStepper zStepper(Z_STEPPER_STEP, Z_STEPPER_DIR, 8, 0.04078, 0, 75);
+UnitStepper ringStepper(RING_STEPPER_STEP, RING_STEPPER_DIR, 32, 0.4, RING_ZERO_OFFSET, 239);
+UnitStepper pipetteStepper(PIPETTE_STEPPER_STEP, PIPETTE_STEPPER_DIR, 32, 2.74, 100, 700);
 
 unsigned long lastControlUpdate;
 unsigned long lastDataUpdate;
@@ -57,23 +57,25 @@ void setup() {
 	InitPin(LIGHT_MODE, HIGH);
 	InitPin(LIGHT_RGB, HIGH);
 
-	pitchStepper.setMaxSpeed(600);
-	pitchStepper.setAcceleration(1500);
+	InitPin(STEP_INDICATOR_PIN, LOW);
+
+	pitchStepper.setMaxSpeed(1250);
+	pitchStepper.setAcceleration(1600);
 	pitchStepper.setPinsInverted(true);
 
-	yawStepper.setMaxSpeed(600);
-	yawStepper.setAcceleration(1500);
+	yawStepper.setMaxSpeed(1250);
+	yawStepper.setAcceleration(1600);
 	yawStepper.setPinsInverted(true);
 
-	zStepper.setMaxSpeed(1000);
-	zStepper.setAcceleration(2000);
+	zStepper.setMaxSpeed(1250);
+	zStepper.setAcceleration(800);
 
 	ringStepper.setPinsInverted(true);
-	ringStepper.setMaxSpeed(1000);
-	ringStepper.setAcceleration(200);
+	ringStepper.setMaxSpeed(1250);
+	ringStepper.setAcceleration(800);
 
-	pipetteStepper.setMaxSpeed(500);
-	pipetteStepper.setAcceleration(500);
+	pipetteStepper.setMaxSpeed(1250);
+	pipetteStepper.setAcceleration(800);
 	pipetteStepper.setPinsInverted(true);
 
 	// Turn on 5V
@@ -87,25 +89,25 @@ void setup() {
 void dataUpdate() {
 	Serial.println();
 	// Board input
-	Logger::PrintDataEntry("S_A", String(digitalRead(SWITCH_A)));
-	Logger::PrintDataEntry("S_B", String(digitalRead(SWITCH_B)));
-	Logger::PrintDataEntry("B_A", String(digitalRead(BUTTON_A)));
+	// Logger::PrintDataEntry("S_A", String(digitalRead(SWITCH_A)));
+	// Logger::PrintDataEntry("S_B", String(digitalRead(SWITCH_B)));
+	// Logger::PrintDataEntry("B_A", String(digitalRead(BUTTON_A)));
 	
 	// Limit switches
-	Logger::PrintDataEntry("P_LS", String(digitalRead(PITCH_LIMIT_SWITCH)));
-	Logger::PrintDataEntry("Y_LS", String(digitalRead(YAW_LIMIT_SWITCH)));
-	Logger::PrintDataEntry("Z_LS", String(digitalRead(Z_LIMIT_SWITCH)));
-	Logger::PrintDataEntry("R_LS", String(digitalRead(RING_LIMIT_SWITCH)));
+	// Logger::PrintDataEntry("P_LS", String(digitalRead(PITCH_LIMIT_SWITCH)));
+	// Logger::PrintDataEntry("Y_LS", String(digitalRead(YAW_LIMIT_SWITCH)));
+	// Logger::PrintDataEntry("Z_LS", String(digitalRead(Z_LIMIT_SWITCH)));
+	// Logger::PrintDataEntry("R_LS", String(digitalRead(RING_LIMIT_SWITCH)));
 	// Logger::PrintDataEntry("PIP_LS", String(digitalRead(PIPETTE_LIMIT_SWITCH)));
 	// Logger::PrintDataEntry("BWL_LS", String(digitalRead(BOWL_LIMIT_SWITCH)));
 
 	// Power
-	Logger::PrintDataEntry("V12_C", String(analogRead(V12_CURRENT)));
-	Logger::PrintDataEntry("V5_C", String(analogRead(V5_CURRENT)));
+	// Logger::PrintDataEntry("V12_C", String(analogRead(V12_CURRENT)));
+	// Logger::PrintDataEntry("V5_C", String(analogRead(V5_CURRENT)));
 
 	// RX Controller data
-	FS_I6::PrintRawChannels();
-	FS_I6::PrintProcessedChannels();
+	// FS_I6::PrintRawChannels();
+	// FS_I6::PrintProcessedChannels();
 
 	// stepper raw position
 	Logger::PrintDataEntry("R_POS", String(ringStepper.currentPosition()));
@@ -283,7 +285,7 @@ void controlUpdate() {
 	// Main control
 	// bool assistedMode = boardSwitchA;
 
-	float speedMult = 400.0;
+	float speedMult = 1600.0;
 
 	if (sw2 == 0 || sw2 == 1) {
 		// manual + pipette
@@ -297,21 +299,26 @@ void controlUpdate() {
 		if (sw2 == 0) {
 			ringStepper.setSpeed(speedMult*left_h);
 		} else if (sw2 == 1) {
-			pipetteStepper.setSpeed(speedMult*left_h);
+			pipetteStepper.setSpeed(-speedMult*left_h);
 		}
 		float right_h = FS_I6::GetStick(FS_I6::RH);
 		yawStepper.setSpeed(speedMult*right_h);
 		float right_v = FS_I6::GetStick(FS_I6::RV);
 		pitchStepper.setSpeed(speedMult*right_v);
+		zStepper.SetMinUnit(0);
 	} else if (sw2 == 2) {
 		// ik
+		// block mode if pitch is low
+		if (pitchStepper.PositionToUnit(pitchStepper.currentPosition()) >= CENTRE_PITCH - 1 &&
+			zStepper.PositionToUnit(zStepper.currentPosition()) >= MIN_BOWL_Z) {
+			ikModeUpdate();
 
-		ikModeUpdate();
+			float left_h = FS_I6::GetStick(FS_I6::LH);
+			pipetteStepper.setSpeed(-speedMult*left_h);
 
-		float left_h = FS_I6::GetStick(FS_I6::LH);
-		pipetteStepper.setSpeed(speedMult*left_h);
-
-		pitchStepper.moveTo(pitchStepper.UnitToPosition(CENTRE_PITCH));
+			pitchStepper.moveTo(pitchStepper.UnitToPosition(CENTRE_PITCH));
+			zStepper.SetMinUnit(MIN_BOWL_Z);
+		}
 	}
 
 	float left_v = FS_I6::GetStick(FS_I6::LV);
@@ -328,13 +335,25 @@ void processLimitSwitch(uint8_t limitSw, UnitStepper *stepper) {
 		if (oldSpeed > 0) {
 			stepper->setSpeed(oldSpeed);
 		}
+		stepper->MarkAsCalibrated();
 	}
 }
 
-void processMaxStepperLimit(UnitStepper *stepper) {
-	// if limit switch is pressed, reset position and only allow positive speeds
+void processStepperLimits(UnitStepper *stepper) {
+	if (!stepper->IsCalibrated()) {
+		// Limits are meaningless without known position
+		return;
+	}
+
+	// Block speeds if over max position
 	if (stepper->PositionToUnit(stepper->currentPosition()) >= stepper->GetMaxUnit()) {
 		if (stepper->speed() > 0) {
+			stepper->setSpeed(0);
+		}
+	}
+	// Block speeds if under min position
+	if (stepper->PositionToUnit(stepper->currentPosition()) <= stepper->GetMinUnit()) {
+		if (stepper->speed() < 0) {
 			stepper->setSpeed(0);
 		}
 	}
@@ -348,17 +367,18 @@ void limitSwitchUpdate() {
 	processLimitSwitch(PIPETTE_LIMIT_SWITCH, &pipetteStepper);
 }
 
-void maxStepperLimits() {
-	processMaxStepperLimit(&ringStepper);
-	processMaxStepperLimit(&zStepper);
-	processMaxStepperLimit(&yawStepper);
-	processMaxStepperLimit(&pitchStepper);
-	processMaxStepperLimit(&pipetteStepper);
+void stepperLimits() {
+	processStepperLimits(&ringStepper);
+	processStepperLimits(&zStepper);
+	processStepperLimits(&yawStepper);
+	processStepperLimits(&pitchStepper);
+	processStepperLimits(&pipetteStepper);
 }
 
 //end todo for unitstepper refactor
 
 void runSteppers() {
+	digitalWrite(STEP_INDICATOR_PIN, HIGH);
 	// seriously sort this out
 	int sw2 = FS_I6::GetSwitch(FS_I6::S2);
 	if (sw2 == 0 || sw2 == 1) {
@@ -377,7 +397,12 @@ void runSteppers() {
 		zStepper.runSpeed();
 		pipetteStepper.runSpeed();
 	}
+	digitalWrite(STEP_INDICATOR_PIN, LOW);
 }
+
+int updatesInLastSecond;
+unsigned long lastUpdatesPerSecondTime = millis();
+int updatesPerSecond;
 
 void loop() {
 	Sleep::Update();
@@ -401,7 +426,7 @@ void loop() {
 	// Bounding / collision detection
 	//? Maybe this should be a check in controller so it's aware of the limits
 	//todo: integrate to UnitStepper
-	maxStepperLimits();
+	stepperLimits();
 
 	// actuation 
 	runSteppers();
@@ -410,8 +435,15 @@ void loop() {
 		unsigned long now = millis();
 		dataUpdate();
 		Logger::PrintDataEntry("DATA_MS", String(millis() - now));
+		Logger::PrintDataEntry("UPS", String(updatesPerSecond));
 		Serial.println();
 		lastDataUpdate = millis();
 	}
 
+	updatesInLastSecond++;
+	if (millis() - lastUpdatesPerSecondTime > 1000) {
+		updatesPerSecond = updatesInLastSecond;
+		updatesInLastSecond = 0;
+		lastUpdatesPerSecondTime = millis();
+	}
 }

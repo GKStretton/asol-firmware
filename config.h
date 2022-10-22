@@ -14,6 +14,8 @@
 // if 0, do not sleep
 #define SLEEP_WAIT 0
 
+#define STEP_INDICATOR_PIN 27
+
 #define LIGHT_TOGGLE 29
 #define LIGHT_MODE 31
 #define LIGHT_RGB 33
