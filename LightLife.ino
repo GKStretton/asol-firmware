@@ -13,7 +13,6 @@
 
 #include "UnitStepper.h"
 
-//todo: calibrate last two values for each of these
 UnitStepper pitchStepper(PITCH_STEPPER_STEP, PITCH_STEPPER_DIR, 4, 0.44, 0, 180);
 UnitStepper yawStepper(YAW_STEPPER_STEP, YAW_STEPPER_DIR, 4, 0.36, YAW_ZERO_OFFSET, 198);
 UnitStepper zStepper(Z_STEPPER_STEP, Z_STEPPER_DIR, 2, 0.04078, 0, 75);
@@ -286,19 +285,25 @@ void controlUpdate() {
 
 	float speedMult = 400.0;
 
-	if (sw2 == 0) {
-		// manual
+	if (sw2 == 0 || sw2 == 1) {
+		// manual + pipette
+		// speed <> position bug workaround
 		ringStepper.stop();
 		yawStepper.stop();
 		pitchStepper.stop();
+		pipetteStepper.stop();
 
 		float left_h = FS_I6::GetStick(FS_I6::LH);
-		ringStepper.setSpeed(speedMult*left_h);
+		if (sw2 == 0) {
+			ringStepper.setSpeed(speedMult*left_h);
+		} else if (sw2 == 1) {
+			pipetteStepper.setSpeed(speedMult*left_h);
+		}
 		float right_h = FS_I6::GetStick(FS_I6::RH);
 		yawStepper.setSpeed(speedMult*right_h);
 		float right_v = FS_I6::GetStick(FS_I6::RV);
 		pitchStepper.setSpeed(speedMult*right_v);
-	} else if (sw2 == 1) {
+	} else if (sw2 == 2) {
 		// ik
 
 		ikModeUpdate();
@@ -307,13 +312,13 @@ void controlUpdate() {
 		pipetteStepper.setSpeed(speedMult*left_h);
 
 		pitchStepper.moveTo(pitchStepper.UnitToPosition(CENTRE_PITCH));
-	} else if (sw2 == 2) {
-		// pipette
 	}
 
 	float left_v = FS_I6::GetStick(FS_I6::LV);
 	zStepper.setSpeed(speedMult*left_v);
 }
+
+//todo: move the following 4 functions to inside UnitStepper
 
 void processLimitSwitch(uint8_t limitSw, UnitStepper *stepper) {
 	// if limit switch is pressed, reset position and only allow positive speeds
@@ -351,10 +356,12 @@ void maxStepperLimits() {
 	processMaxStepperLimit(&pipetteStepper);
 }
 
+//end todo for unitstepper refactor
+
 void runSteppers() {
 	// seriously sort this out
 	int sw2 = FS_I6::GetSwitch(FS_I6::S2);
-	if (sw2 == 0) {
+	if (sw2 == 0 || sw2 == 1) {
 		// manual
 		ringStepper.runSpeed();
 		pitchStepper.runSpeed();
@@ -362,15 +369,13 @@ void runSteppers() {
 		zStepper.runSpeed();
 		pipetteStepper.runSpeed();
 	}
-	if (sw2 == 1) {
+	if (sw2 == 2) {
 		// ik
 		ringStepper.run();
 		pitchStepper.run();
 		yawStepper.run();
 		zStepper.runSpeed();
 		pipetteStepper.runSpeed();
-	} else if (sw2 == 2) {
-		// pipette
 	}
 }
 
@@ -410,20 +415,3 @@ void loop() {
 	}
 
 }
-
-/*
-	interface(
-		Serial,
-
-		SetCameraState, "SetCameraState: turns the DSLR on or off. @on: state",
-		SetRingLightState, "SetRingLightState: turns the ring light on or off. @on: state",
-		SetMainsState, "SetMainsState: switches the AC power input. @on: state",
-		SetLED, "SetLED: Turn the on-board led on or off. @on: boolean on or off.",
-
-		Drain, "Drain: Set drainage state. @drain: boolean for whether to be draining",
-
-		SetAirFlow,   "SetAirFlow: Turn the flow of air or off in the tubing @flow: boolean for flow",
-		SetFlushFlow,  "SetFlushFlow: Turn the dispension of the flushing fluid on or off @flow: boolean for flow",
-		SetCanvasFlow, "SetCanvasFlow: Turn the dispension of the canvas fluid on or off @flow: boolean for flow"
-	);
-*/
