@@ -1,22 +1,28 @@
 #include "ringlight.h"
 #include "config.h"
+#include "util.h"
 #include <Arduino.h>
 
+void setLightPin(uint8_t pin, bool state) {
+    // digitalWrite(pin, state ? LOW: HIGH);
+    SetDualRelay(pin, state);
+}
+
 void RingLight::Toggle() {
-    digitalWrite(LIGHT_TOGGLE, LOW);
+    setLightPin(LIGHT_TOGGLE, true);
     delay(LIGHT_BUTTON_WAIT_MS);
-    digitalWrite(LIGHT_TOGGLE, HIGH);
+    setLightPin(LIGHT_TOGGLE, false);
 
     delay(500);
 
     // Mode twice gets to brighter white
-    digitalWrite(LIGHT_MODE, LOW);
+    setLightPin(LIGHT_MODE, true);
     delay(LIGHT_BUTTON_WAIT_MS);
-    digitalWrite(LIGHT_MODE, HIGH);
+    setLightPin(LIGHT_MODE, false);
 
     delay(500);
 
-    digitalWrite(LIGHT_MODE, LOW);
+    setLightPin(LIGHT_MODE, true);
     delay(LIGHT_BUTTON_WAIT_MS);
-    digitalWrite(LIGHT_MODE, HIGH);
+    setLightPin(LIGHT_MODE, false);
 }

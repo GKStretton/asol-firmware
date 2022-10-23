@@ -32,6 +32,9 @@ public:
     void MarkAsCalibrated();
     bool IsCalibrated();
 
+    // (relative) Move the target position by an amount
+    void MoveTarget(float d);
+
 private:
     float microStepFactor_;
     float unitsPerFullStep_;

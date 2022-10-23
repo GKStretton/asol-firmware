@@ -29,7 +29,7 @@ namespace FS_I6 {
     }
 
     int GetChannelRaw(enum Channel c) {
-        return (int) ppm.latestValidChannelValue(c, 1000);
+        return (int) ppm.latestValidChannelValue(c, 1500);
     }
 
     float GetStick(enum Channel c) {

@@ -1,25 +1,20 @@
 #pragma once
 
-// Mode to operate in:
-// - data: just display sensor values
-// - manual: use controller input
-// - auto: standard auto mode
-#define MODE "data"
-
-#define PRINT_DATA 1
+#define PRINT_DATA 0
 
 #define ENABLE_IK_ACTUATION 1
 
-// time in seconds to wait before going into sleep mode
-// if 0, do not sleep
-#define SLEEP_WAIT 0
+// 0 disables sleep
+#define SLEEP_TIME_MINUTES 0
+
 
 #define STEP_INDICATOR_PIN 27
 
-#define LIGHT_TOGGLE 29
-#define LIGHT_MODE 31
+// temporarily using relays
+#define LIGHT_TOGGLE 41//29
+#define LIGHT_MODE 39//31
 #define LIGHT_RGB 33
-#define LIGHT_BUTTON_WAIT_MS 50
+#define LIGHT_BUTTON_WAIT_MS 100
 
 #define V5_RELAY_PIN 25
 

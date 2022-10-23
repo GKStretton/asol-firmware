@@ -14,9 +14,9 @@
 #include "UnitStepper.h"
 
 UnitStepper pitchStepper(PITCH_STEPPER_STEP, PITCH_STEPPER_DIR, 16, 0.44, 0, 90);
-UnitStepper yawStepper(YAW_STEPPER_STEP, YAW_STEPPER_DIR, 16, 0.36, YAW_ZERO_OFFSET, 198);
-UnitStepper zStepper(Z_STEPPER_STEP, Z_STEPPER_DIR, 8, 0.04078, 0, 75);
-UnitStepper ringStepper(RING_STEPPER_STEP, RING_STEPPER_DIR, 32, 0.4, RING_ZERO_OFFSET, 239);
+UnitStepper yawStepper(YAW_STEPPER_STEP, YAW_STEPPER_DIR, 8, 0.36, YAW_ZERO_OFFSET, 198);
+UnitStepper zStepper(Z_STEPPER_STEP, Z_STEPPER_DIR, 4, 0.04078, 0, 73);
+UnitStepper ringStepper(RING_STEPPER_STEP, RING_STEPPER_DIR, 32, 0.4, RING_ZERO_OFFSET, 280);
 UnitStepper pipetteStepper(PIPETTE_STEPPER_STEP, PIPETTE_STEPPER_DIR, 32, 2.74, 100, 700);
 
 unsigned long lastControlUpdate;
@@ -78,12 +78,9 @@ void setup() {
 	pipetteStepper.setAcceleration(800);
 	pipetteStepper.setPinsInverted(true);
 
-	// Turn on 5V
-	SetDualRelay(V5_RELAY_PIN, true);
-	delay(100);
-	RingLight::Toggle();
+	Logger::SetLevel(Logger::INFO);
 
-	Logger::SetLevel(Logger::VERBOSE);
+	Sleep::Wake();
 }
 
 void dataUpdate() {
@@ -106,8 +103,8 @@ void dataUpdate() {
 	// Logger::PrintDataEntry("V5_C", String(analogRead(V5_CURRENT)));
 
 	// RX Controller data
-	// FS_I6::PrintRawChannels();
-	// FS_I6::PrintProcessedChannels();
+	FS_I6::PrintRawChannels();
+	FS_I6::PrintProcessedChannels();
 
 	// stepper raw position
 	Logger::PrintDataEntry("R_POS", String(ringStepper.currentPosition()));
@@ -215,6 +212,9 @@ void updateRingAndYaw(float x, float y, float lastRing, float *ring, float *yaw)
 	Logger::Debug("Set ring=" + String(*ring) + " and newYaw=" + String(newYaw));
 }
 
+float x = 0;
+float y = 0;
+
 // ikModeUpdate does ik logic on an x and y in range (-1,1).
 void ikModeUpdate() {
 	//! write this
@@ -223,8 +223,12 @@ void ikModeUpdate() {
 	// 	return;
 	// }
 
-	float x = FS_I6::GetStick(FS_I6::RH);
-	float y = FS_I6::GetStick(FS_I6::RV);
+	float dx = FS_I6::GetStick(FS_I6::RH);
+	float dy = FS_I6::GetStick(FS_I6::RV);
+
+	float sf = 0.05;
+	x += sf * dx;
+	y += sf * dy;
 
 	float ring, yaw;
 	updateRingAndYaw(x, y,
@@ -273,13 +277,9 @@ void controlUpdate() {
 		Sleep::Wake();
 	}
 
-	// Power
-
-	SetDualRelay(V12_RELAY_PIN1, sw1);
-	SetDualRelay(V12_RELAY_PIN2, sw1);
 	digitalWrite(STEPPER_SLEEP, sw1 ? HIGH : LOW);
 
-	// Nothing to do if 12V is off.
+	// Nothing to do if steppers asleep
 	if (!sw1) return;
 
 	// Main control
@@ -400,11 +400,42 @@ void runSteppers() {
 	digitalWrite(STEP_INDICATOR_PIN, LOW);
 }
 
+void handleInput() {
+	//todo: read individual characters to a buffer, only process buffer after \n
+	//todo: mqtt-relay-based system
+	if (Serial.available() > 0) {
+		String data = Serial.readStringUntil('\n');
+		data.trim();
+		
+		Serial.println("received '" + data + "'");
+		if (data == "wake") {
+			Sleep::Wake();
+			return;
+		}
+		if (Sleep::IsSleeping()) {
+			// only listen for wake if asleep
+			return;
+		}
+
+		if (data == "sleep") {
+			Sleep::Sleep();
+		} else if (data == "open-drain") {
+			SetDualRelay(DRAINAGE_VALVE_RELAY, true);
+			Serial.println("draining...");
+		} else if (data == "close-drain") {
+			SetDualRelay(DRAINAGE_VALVE_RELAY, false);
+			Serial.println("closing drain.");
+		} 
+	}
+}
+
 int updatesInLastSecond;
 unsigned long lastUpdatesPerSecondTime = millis();
 int updatesPerSecond;
 
 void loop() {
+	handleInput();
+
 	Sleep::Update();
 	if (Sleep::IsSleeping()) {
 		delay(50);
@@ -424,7 +455,7 @@ void loop() {
 	limitSwitchUpdate();
 
 	// Bounding / collision detection
-	//? Maybe this should be a check in controller so it's aware of the limits
+	//? Maybe this shold be a check in controller so it's aware of the limits
 	//todo: integrate to UnitStepper
 	stepperLimits();
 

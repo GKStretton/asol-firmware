@@ -48,3 +48,7 @@ void UnitStepper::MarkAsCalibrated() {
 bool UnitStepper::IsCalibrated() {
     return calibrated_;
 }
+
+void UnitStepper::MoveTarget(float d) {
+    moveTo(targetPosition() + d);
+}
