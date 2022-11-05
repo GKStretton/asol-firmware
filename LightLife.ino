@@ -400,6 +400,69 @@ void runSteppers() {
 	digitalWrite(STEP_INDICATOR_PIN, LOW);
 }
 
+/*
+handlers can use this to parse payload:
+bool(err) splitString(args**) {
+
+}
+*/
+
+void processInputBuffer() {
+	/*
+	topic = ""
+	ptr=0
+	while {
+		if ptr >= bufferIndex {
+			ERROR, out of buffer length without delimiter (shouldn't happen)
+		}
+		char = buffer[ptr]
+		if char == "\n" {
+			ERR, no topic end char
+		}
+
+		ptr++
+		if char == ';' {
+			break
+		} else {
+			topic += char
+		}
+	}
+
+	payload = ""
+	while ptr < bufferIndex {
+		c = buffer[ptr]
+		if c == "\n" {
+			break
+		}
+		payload += c
+	}
+
+	// reset buffer
+	bufferIndex = 0
+
+	handlers[topic](payload)
+	*/
+}
+
+/*
+Same as the data sender in Logger::, which prob needs modifying to suit topics
+void publish(string topic, string payload) {
+	'>'+topic+';'+payload+\n
+}
+*/
+
+void handleInput2() {
+	if (Serial.available() > 0) {
+		/*
+		char = Serial.readChar()
+		buffer[bufferIndex++] = char
+		if char == \n {
+			processInputBuffer()
+		}
+		*/
+	}
+}
+
 void handleInput() {
 	//todo: read individual characters to a buffer, only process buffer after \n
 	//todo: mqtt-relay-based system
