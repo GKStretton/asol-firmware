@@ -440,9 +440,23 @@ void processInputBuffer() {
 	// reset buffer
 	bufferIndex = 0
 
-	handlers[topic](payload)
+	handleParsedInput(topic, payload)
 	*/
 }
+
+/*
+or... do some kind of map[string]func*(payload). Then the bridge can be a class
+and this file just a single call and some handler registration
+void handleParsedInput(topic, payload) {
+	if topic == "dothing1/" {
+		doThing1(payload)
+	} else if topic == "dothing2/" {
+		doThing2(payload)
+	} else {
+		NO HANDLER FOR [topic]
+	}
+}
+*/
 
 /*
 Same as the data sender in Logger::, which prob needs modifying to suit topics
