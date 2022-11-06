@@ -7,7 +7,10 @@
 // 0 disables sleep
 #define SLEEP_TIME_MINUTES 0
 
+#define SERIAL_MQTT_BUFFER_SIZE 1024
+#define SERIAL_MQTT_SEND_PREFIX "mega/"
 
+// Used with logic analyser
 #define STEP_INDICATOR_PIN 27
 
 // temporarily using relays

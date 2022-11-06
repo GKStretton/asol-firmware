@@ -2,6 +2,7 @@
 #include <PPMReader.h>
 #include "config.h"
 #include "logger.h"
+#include "serialmqtt.h"
 
 namespace FS_I6 {
 
@@ -94,7 +95,7 @@ namespace FS_I6 {
             String name = GetChannelName((enum Channel) i) + "_raw";
             int raw = GetChannelRaw((enum Channel) i);
 
-            Logger::PrintDataEntry(name, String(raw));
+            SerialMQTT::Publish(name, String(raw));
         }
     }
 
@@ -103,10 +104,10 @@ namespace FS_I6 {
             String name = GetChannelName((enum Channel) i) + "_proc";
             if (i == S1 || i == S2) { // The switch channels
                 int val = GetSwitch((enum Channel) i);
-                Logger::PrintDataEntry(name, String(val));
+                SerialMQTT::Publish(name, String(val));
             } else {
                 float val = GetStick((enum Channel) i);
-                Logger::PrintDataEntry(name, String(val));
+                SerialMQTT::Publish(name, String(val));
             }
         }
     }

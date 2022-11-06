@@ -10,6 +10,7 @@
 #include "fs-i6.h"
 #include "ringlight.h"
 #include "calibration.h"
+#include "serialmqtt.h"
 
 #include "UnitStepper.h"
 
@@ -21,6 +22,7 @@ UnitStepper pipetteStepper(PIPETTE_STEPPER_STEP, PIPETTE_STEPPER_DIR, 32, 2.74, 
 
 unsigned long lastControlUpdate;
 unsigned long lastDataUpdate;
+
 
 void setup() {
 	Serial.begin(1000000);
@@ -78,47 +80,74 @@ void setup() {
 	pipetteStepper.setAcceleration(800);
 	pipetteStepper.setPinsInverted(true);
 
-	Logger::SetLevel(Logger::INFO);
+	Logger::SetLevel(Logger::DEBUG);
 
 	Sleep::Wake();
+
+	// register callback
+	SerialMQTT::SetTopicHandler(topicHandler);
+}
+
+void topicHandler(String topic, String payload) {
+	if (topic == "mega/req/wake") {
+		Sleep::Wake();
+		return;
+	}
+	if (Sleep::IsSleeping()) {
+		// only listen for wake if asleep
+		return;
+	}
+
+	if (topic == "mega/req/sleep") {
+		Sleep::Sleep();
+	} else if (topic == "mega/req/open-drain") {
+		SetDualRelay(DRAINAGE_VALVE_RELAY, true);
+		//todo replace these with topic events
+		Logger::Info("draining...");
+	} else if (topic == "mega/req/close-drain") {
+		SetDualRelay(DRAINAGE_VALVE_RELAY, false);
+		Logger::Info("closing drain.");
+	} else {
+		Logger::Debug("no handler for " + topic + " (payload = " + payload + ")");
+	}
 }
 
 void dataUpdate() {
 	Serial.println();
 	// Board input
-	// Logger::PrintDataEntry("S_A", String(digitalRead(SWITCH_A)));
-	// Logger::PrintDataEntry("S_B", String(digitalRead(SWITCH_B)));
-	// Logger::PrintDataEntry("B_A", String(digitalRead(BUTTON_A)));
+	// SerialMQTT::Publish("d/S_A", String(digitalRead(SWITCH_A)));
+	// SerialMQTT::Publish("d/S_B", String(digitalRead(SWITCH_B)));
+	// SerialMQTT::Publish("d/B_A", String(digitalRead(BUTTON_A)));
 	
 	// Limit switches
-	// Logger::PrintDataEntry("P_LS", String(digitalRead(PITCH_LIMIT_SWITCH)));
-	// Logger::PrintDataEntry("Y_LS", String(digitalRead(YAW_LIMIT_SWITCH)));
-	// Logger::PrintDataEntry("Z_LS", String(digitalRead(Z_LIMIT_SWITCH)));
-	// Logger::PrintDataEntry("R_LS", String(digitalRead(RING_LIMIT_SWITCH)));
-	// Logger::PrintDataEntry("PIP_LS", String(digitalRead(PIPETTE_LIMIT_SWITCH)));
-	// Logger::PrintDataEntry("BWL_LS", String(digitalRead(BOWL_LIMIT_SWITCH)));
+	// SerialMQTT::Publish("d/P_LS", String(digitalRead(PITCH_LIMIT_SWITCH)));
+	// SerialMQTT::Publish("d/Y_LS", String(digitalRead(YAW_LIMIT_SWITCH)));
+	// SerialMQTT::Publish("d/Z_LS", String(digitalRead(Z_LIMIT_SWITCH)));
+	// SerialMQTT::Publish("d/R_LS", String(digitalRead(RING_LIMIT_SWITCH)));
+	// SerialMQTT::Publish("d/PIP_LS", String(digitalRead(PIPETTE_LIMIT_SWITCH)));
+	// SerialMQTT::Publish("d/BWL_LS", String(digitalRead(BOWL_LIMIT_SWITCH)));
 
 	// Power
-	// Logger::PrintDataEntry("V12_C", String(analogRead(V12_CURRENT)));
-	// Logger::PrintDataEntry("V5_C", String(analogRead(V5_CURRENT)));
+	// SerialMQTT::Publish("d/V12_C", String(analogRead(V12_CURRENT)));
+	// SerialMQTT::Publish("d/V5_C", String(analogRead(V5_CURRENT)));
 
 	// RX Controller data
 	FS_I6::PrintRawChannels();
 	FS_I6::PrintProcessedChannels();
 
 	// stepper raw position
-	Logger::PrintDataEntry("R_POS", String(ringStepper.currentPosition()));
-	Logger::PrintDataEntry("Z_POS", String(zStepper.currentPosition()));
-	Logger::PrintDataEntry("Y_POS", String(yawStepper.currentPosition()));
-	Logger::PrintDataEntry("P_POS", String(pitchStepper.currentPosition()));
-	Logger::PrintDataEntry("PP_POS", String(pipetteStepper.currentPosition()));
+	SerialMQTT::Publish("d/R_POS", String(ringStepper.currentPosition()));
+	SerialMQTT::Publish("d/Z_POS", String(zStepper.currentPosition()));
+	SerialMQTT::Publish("d/Y_POS", String(yawStepper.currentPosition()));
+	SerialMQTT::Publish("d/P_POS", String(pitchStepper.currentPosition()));
+	SerialMQTT::Publish("d/PP_POS", String(pipetteStepper.currentPosition()));
 
 	// stepper units
-	Logger::PrintDataEntry("R_UNIT", String(ringStepper.PositionToUnit(ringStepper.currentPosition())));
-	Logger::PrintDataEntry("Z_UNIT", String(zStepper.PositionToUnit(zStepper.currentPosition())));
-	Logger::PrintDataEntry("Y_UNIT", String(yawStepper.PositionToUnit(yawStepper.currentPosition())));
-	Logger::PrintDataEntry("P_UNIT", String(pitchStepper.PositionToUnit(pitchStepper.currentPosition())));
-	Logger::PrintDataEntry("PP_UNIT", String(pipetteStepper.PositionToUnit(pipetteStepper.currentPosition())));
+	SerialMQTT::Publish("d/R_UNIT", String(ringStepper.PositionToUnit(ringStepper.currentPosition())));
+	SerialMQTT::Publish("d/Z_UNIT", String(zStepper.PositionToUnit(zStepper.currentPosition())));
+	SerialMQTT::Publish("d/Y_UNIT", String(yawStepper.PositionToUnit(yawStepper.currentPosition())));
+	SerialMQTT::Publish("d/P_UNIT", String(pitchStepper.PositionToUnit(pitchStepper.currentPosition())));
+	SerialMQTT::Publish("d/PP_UNIT", String(pipetteStepper.PositionToUnit(pipetteStepper.currentPosition())));
 }
 
 bool ringAngleValid(double a) {
@@ -407,111 +436,12 @@ bool(err) splitString(args**) {
 }
 */
 
-void processInputBuffer() {
-	/*
-	topic = ""
-	ptr=0
-	while {
-		if ptr >= bufferIndex {
-			ERROR, out of buffer length without delimiter (shouldn't happen)
-		}
-		char = buffer[ptr]
-		if char == "\n" {
-			ERR, no topic end char
-		}
-
-		ptr++
-		if char == ';' {
-			break
-		} else {
-			topic += char
-		}
-	}
-
-	payload = ""
-	while ptr < bufferIndex {
-		c = buffer[ptr]
-		if c == "\n" {
-			break
-		}
-		payload += c
-	}
-
-	// reset buffer
-	bufferIndex = 0
-
-	handleParsedInput(topic, payload)
-	*/
-}
-
-/*
-or... do some kind of map[string]func*(payload). Then the bridge can be a class
-and this file just a single call and some handler registration
-void handleParsedInput(topic, payload) {
-	if topic == "dothing1/" {
-		doThing1(payload)
-	} else if topic == "dothing2/" {
-		doThing2(payload)
-	} else {
-		NO HANDLER FOR [topic]
-	}
-}
-*/
-
-/*
-Same as the data sender in Logger::, which prob needs modifying to suit topics
-void publish(string topic, string payload) {
-	'>'+topic+';'+payload+\n
-}
-*/
-
-void handleInput2() {
-	if (Serial.available() > 0) {
-		/*
-		char = Serial.readChar()
-		buffer[bufferIndex++] = char
-		if char == \n {
-			processInputBuffer()
-		}
-		*/
-	}
-}
-
-void handleInput() {
-	//todo: read individual characters to a buffer, only process buffer after \n
-	//todo: mqtt-relay-based system
-	if (Serial.available() > 0) {
-		String data = Serial.readStringUntil('\n');
-		data.trim();
-		
-		Serial.println("received '" + data + "'");
-		if (data == "wake") {
-			Sleep::Wake();
-			return;
-		}
-		if (Sleep::IsSleeping()) {
-			// only listen for wake if asleep
-			return;
-		}
-
-		if (data == "sleep") {
-			Sleep::Sleep();
-		} else if (data == "open-drain") {
-			SetDualRelay(DRAINAGE_VALVE_RELAY, true);
-			Serial.println("draining...");
-		} else if (data == "close-drain") {
-			SetDualRelay(DRAINAGE_VALVE_RELAY, false);
-			Serial.println("closing drain.");
-		} 
-	}
-}
-
 int updatesInLastSecond;
 unsigned long lastUpdatesPerSecondTime = millis();
 int updatesPerSecond;
 
 void loop() {
-	handleInput();
+	SerialMQTT::Update();
 
 	Sleep::Update();
 	if (Sleep::IsSleeping()) {
@@ -542,8 +472,8 @@ void loop() {
 	if (PRINT_DATA && millis() - lastDataUpdate > 1000) {
 		unsigned long now = millis();
 		dataUpdate();
-		Logger::PrintDataEntry("DATA_MS", String(millis() - now));
-		Logger::PrintDataEntry("UPS", String(updatesPerSecond));
+		SerialMQTT::Publish("d/DATA_MS", String(millis() - now));
+		SerialMQTT::Publish("d/UPS", String(updatesPerSecond));
 		Serial.println();
 		lastDataUpdate = millis();
 	}
