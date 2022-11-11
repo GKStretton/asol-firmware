@@ -1,4 +1,3 @@
-#include <simpleRPC.h>
 #include "switch.h"
 #include "stage.h"
 #include "fluid.h"
@@ -26,6 +25,9 @@ unsigned long lastDataUpdate;
 
 void setup() {
 	Serial.begin(1000000);
+	Logger::SetLevel(Logger::DEBUG);
+	Logger::Info("setup start");
+
 	// Serial.begin(115200);
 
 	pinMode(BUTTON_A, INPUT);
@@ -80,12 +82,12 @@ void setup() {
 	pipetteStepper.setAcceleration(800);
 	pipetteStepper.setPinsInverted(true);
 
-	Logger::SetLevel(Logger::DEBUG);
 
 	Sleep::Wake();
 
 	// register callback
 	SerialMQTT::SetTopicHandler(topicHandler);
+	Logger::Info("setup complete");
 }
 
 void topicHandler(String topic, String payload) {

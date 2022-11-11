@@ -11,7 +11,7 @@ namespace Sleep {
 		bool sleeping = true;
 
 		void onSleep() {
-			Logger::Info("Sleeping");
+			Logger::Info("Going to sleep");
 			SetDualRelay(V5_RELAY_PIN, false);
 			SetDualRelay(V12_RELAY_PIN1, false);
 			SetDualRelay(V12_RELAY_PIN2, false);
