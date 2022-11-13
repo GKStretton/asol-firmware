@@ -4,6 +4,6 @@
 set -e
 
 ./build.sh
-mosquitto_pub -t mega/flash -m "$(cat ./build/Light.ino.hex)"
+mosquitto_pub -h DEPTH -t mega/flash -m "$(cat ./build/Light.ino.hex)"
 
 echo "firmware sent to mega/flash"

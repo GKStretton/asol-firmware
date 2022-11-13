@@ -30,6 +30,7 @@ public:
     float UnitToPosition(float unit);
 
     void MarkAsCalibrated();
+    void MarkAsNotCalibrated();
     bool IsCalibrated();
 
     // (relative) Move the target position by an amount

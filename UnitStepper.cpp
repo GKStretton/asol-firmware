@@ -41,6 +41,10 @@ float UnitStepper::UnitToPosition(float unit) {
     return unit / unitsPerFullStep_ * microStepFactor_;
 }
 
+void UnitStepper::MarkAsNotCalibrated() {
+    calibrated_ = false;
+}
+
 void UnitStepper::MarkAsCalibrated() {
     calibrated_ = true;
 }

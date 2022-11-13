@@ -102,6 +102,12 @@ void topicHandler(String topic, String payload) {
 
 	if (topic == "mega/req/sleep") {
 		Sleep::Sleep();
+	} else if (topic == "mega/req/uncalibrate") {
+		pitchStepper.MarkAsNotCalibrated();
+		yawStepper.MarkAsNotCalibrated();
+		zStepper.MarkAsNotCalibrated();
+		ringStepper.MarkAsNotCalibrated();
+		pipetteStepper.MarkAsNotCalibrated();
 	} else if (topic == "mega/req/open-drain") {
 		SetDualRelay(DRAINAGE_VALVE_RELAY, true);
 		//todo replace these with topic events
@@ -109,6 +115,11 @@ void topicHandler(String topic, String payload) {
 	} else if (topic == "mega/req/close-drain") {
 		SetDualRelay(DRAINAGE_VALVE_RELAY, false);
 		Logger::Info("closing drain.");
+	// } else if (topic == "mega/req/goto-xy") {
+		// todo: unpack payload into ints
+		// Logger::Debug("goto-xy ACK:" + String(x_target) + String(y_target))
+	// } else if (topic == "mega/req/dispense") {
+	// } else if (topic == "mega/req/collect") {
 	} else {
 		Logger::Debug("no handler for " + topic + " (payload = " + payload + ")");
 	}
@@ -243,8 +254,8 @@ void updateRingAndYaw(float x, float y, float lastRing, float *ring, float *yaw)
 	Logger::Debug("Set ring=" + String(*ring) + " and newYaw=" + String(newYaw));
 }
 
-float x = 0;
-float y = 0;
+float x_target = 0;
+float y_target = 0;
 
 // ikModeUpdate does ik logic on an x and y in range (-1,1).
 void ikModeUpdate() {
@@ -254,15 +265,17 @@ void ikModeUpdate() {
 	// 	return;
 	// }
 
-	float dx = FS_I6::GetStick(FS_I6::RH);
-	float dy = FS_I6::GetStick(FS_I6::RV);
+	if (FS_I6::GetSwitch(FS_I6::S2) == 2) {
+		float dx = FS_I6::GetStick(FS_I6::RH);
+		float dy = FS_I6::GetStick(FS_I6::RV);
 
-	float sf = 0.05;
-	x += sf * dx;
-	y += sf * dy;
+		float sf = 0.05;
+		x_target += sf * dx;
+		y_target += sf * dy;
+	}
 
 	float ring, yaw;
-	updateRingAndYaw(x, y,
+	updateRingAndYaw(x_target, y_target,
 		ringStepper.PositionToUnit(ringStepper.currentPosition()),
 		&ring, &yaw
 	);
