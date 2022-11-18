@@ -56,3 +56,7 @@ bool UnitStepper::IsCalibrated() {
 void UnitStepper::MoveTarget(float d) {
     moveTo(targetPosition() + d);
 }
+
+bool UnitStepper::AtTarget() {
+    return this->distanceToGo() == 0;
+}

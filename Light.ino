@@ -22,6 +22,156 @@ UnitStepper pipetteStepper(PIPETTE_STEPPER_STEP, PIPETTE_STEPPER_DIR, 32, 2.74, 
 unsigned long lastControlUpdate;
 unsigned long lastDataUpdate;
 
+//################# NODE STUFF ###########################
+/*
+Note, currently only the z, pitch, and yaw axes are managed by the node system.
+This is because the ring and pipette axes have no effect on collision avoidance.
+Furthermore it decouples those so that they can move independently / concurrently
+to node navigation. For example, go to next target ring position while collecting
+dye
+*/
+enum Node {
+	UNDEFINED = 0,
+	HOME = 4,
+	HOME_TOP = 8,
+	// Above test tube positions
+	VIAL_1 = 11,
+	MIN_VIAL = VIAL_1,
+	VIAL_2 = 12,
+	VIAL_3 = 13,
+	VIAL_4 = 14,
+	VIAL_5 = 15,
+	VIAL_6 = 16,
+	VIAL_7 = 17,
+	MAX_VIAL = VIAL_7,
+
+	// The node to enter the lower (vial) regions at
+	LOW_ENTRY_POINT = VIAL_3,
+
+	OUTER_HANDOVER = 45,
+	INNER_HANDOVER = 55,
+};
+
+struct State {
+	// The most recent node to have been visited
+	Node lastNode;
+	// The final goal node in a potentially multi-hop movement
+	Node globalTargetNode;
+} state;
+
+// atTarget checks if z, pitch, and yaw steppers are approximately at their local (next) target node
+bool atLocalTargetNode() {
+	return zStepper.AtTarget() && pitchStepper.AtTarget() && yawStepper.AtTarget();
+}
+
+Node calculateNextNode(Node lastNode, Node targetNode) {
+	if (lastNode == UNDEFINED || targetNode == UNDEFINED) return UNDEFINED;
+
+	if (lastNode == HOME) {
+		if (targetNode > HOME) {
+			return HOME_TOP;
+		}
+	}
+
+	if (lastNode == HOME_TOP) {
+		if (targetNode == HOME) return HOME;
+		if (targetNode >= MIN_VIAL && targetNode <= MAX_VIAL) return targetNode;
+		if (targetNode >= OUTER_HANDOVER) return LOW_ENTRY_POINT;
+	}
+
+	if (lastNode == LOW_ENTRY_POINT) {
+		if (targetNode <= HOME_TOP) return HOME_TOP;
+		if (targetNode >= OUTER_HANDOVER) return OUTER_HANDOVER;
+	}
+
+	if (lastNode >= MIN_VIAL && lastNode <= MAX_VIAL) {
+		if (targetNode <= HOME_TOP) return HOME_TOP;
+		if (targetNode >= OUTER_HANDOVER) return LOW_ENTRY_POINT;
+	}
+
+	if (lastNode == OUTER_HANDOVER) {
+		if (targetNode < OUTER_HANDOVER) return LOW_ENTRY_POINT;
+		if (targetNode >= INNER_HANDOVER) return INNER_HANDOVER;
+	}
+
+	if (lastNode == INNER_HANDOVER) {
+		if (targetNode <= OUTER_HANDOVER) return OUTER_HANDOVER;
+	}
+
+	return UNDEFINED;
+}
+
+// note this will go directly to the specified node, so ensure it is a safe move!
+void goToNode(Node node) {
+	// define positions for each node
+	if (node == UNDEFINED) {
+		zStepper.stop();
+		pitchStepper.stop();
+		yawStepper.stop();
+		Logger::Error("goToNode UNDEFINED, stopping steppers");
+		return;
+	} else if (node == HOME) {
+		zStepper.moveTo(zStepper.UnitToPosition(0));
+		pitchStepper.moveTo(pitchStepper.UnitToPosition(0));
+		yawStepper.moveTo(yawStepper.UnitToPosition(0));
+		return;
+	} else if (node == HOME_TOP) {
+		zStepper.moveTo(zStepper.UnitToPosition(HOME_TOP_Z));
+		pitchStepper.moveTo(pitchStepper.UnitToPosition(0));
+		yawStepper.moveTo(yawStepper.UnitToPosition(0));
+	}
+
+	// vial nodes
+	if (node >= MIN_VIAL && node <= MAX_VIAL) {
+		zStepper.moveTo(zStepper.UnitToPosition(HOME_TOP_Z));
+		pitchStepper.moveTo(pitchStepper.UnitToPosition(VIAL_PITCH));
+
+		int index = node - MIN_VIAL;
+		float yaw = VIAL_YAW_OFFSET + index * VIAL_YAW_INCREMENT;
+		yawStepper.moveTo(yawStepper.UnitToPosition(yaw));
+		return;
+	}
+
+	if (node == OUTER_HANDOVER || node == INNER_HANDOVER) {
+		zStepper.moveTo(zStepper.UnitToPosition(HANDOVER_Z));
+		pitchStepper.moveTo(pitchStepper.UnitToPosition(HANDOVER_PITCH));
+
+		float yaw = node == OUTER_HANDOVER ? HANDOVER_OUTER_YAW : HANDOVER_INNER_YAW;
+		yawStepper.moveTo(yawStepper.UnitToPosition(yaw));
+		return;
+	} 
+}
+
+// return true if currently navigating between nodes
+bool navigatingNodes() {
+	return state.lastNode != state.globalTargetNode;
+}
+
+// return true if z, pitch, and yaw steppers are calibrated
+bool calibrated() {
+	return zStepper.IsCalibrated() && pitchStepper.IsCalibrated() && yawStepper.IsCalibrated();
+}
+
+// the update tick for node navigation
+void updateNodeNavigation() {
+	if (!navigatingNodes()) {
+		return;
+	}
+	if (!calibrated()) {
+
+		return;
+	}
+
+	Node localTargetNode = calculateNextNode(state.lastNode, state.globalTargetNode);
+
+	goToNode(localTargetNode);
+	if (atLocalTargetNode()) {
+		state.lastNode = localTargetNode;
+	}
+}
+
+//################# END NODE STUFF #######################
+
 
 void setup() {
 	Serial.begin(1000000);

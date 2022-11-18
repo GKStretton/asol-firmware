@@ -36,6 +36,9 @@ public:
     // (relative) Move the target position by an amount
     void MoveTarget(float d);
 
+    // checks whether the stepper is at its target
+    bool AtTarget();
+
 private:
     float microStepFactor_;
     float unitsPerFullStep_;
