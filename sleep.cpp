@@ -8,6 +8,7 @@
 namespace Sleep {
 	namespace {
 		unsigned long lastNod = millis();
+		unsigned long lastPrint = millis();
 		bool sleeping = true;
 
 		void onSleep() {
@@ -25,23 +26,52 @@ namespace Sleep {
 			delay(100);
 			RingLight::Toggle();
 		}
+
+		bool eStopActive() {
+			return digitalRead(E_STOP_PIN) == LOW;
+		}
+
+		// private version of isSleeping that does the actual checks
+		bool isSleeping() {
+			//! ordered by priority
+			if (eStopActive()) {
+				return true;
+			}
+			
+			if (digitalRead(BUTTON_A)) {
+				return false;
+			}
+
+			if (SLEEP_TIME_MINUTES > 0 && (millis() - lastNod) / 1000 / 60 >= SLEEP_TIME_MINUTES) {
+				return true;
+			}
+			
+			// persist current state by default
+			return sleeping;
+		}
 	}
 
 	void Update() {
-		if (digitalRead(BUTTON_A)) {
+		if (isSleeping()) {
+			Sleep();
+		} else {
 			Wake();
 		}
-
-		bool previous = sleeping;
-		if (SLEEP_TIME_MINUTES > 0 && (millis() - lastNod) / 1000 / 60 >= SLEEP_TIME_MINUTES) {
-			sleeping = true;
-		}
-		if (!previous && sleeping) { // Just went asleep
-			onSleep();
+		if (millis() - lastPrint > SLEEP_PRINT_INTERVAL) {
+			if (eStopActive()) {
+				Logger::Info("E_STOP ACTIVE");
+			} else if (sleeping) {
+				Logger::Info("sleeping");
+			}
+			lastPrint = millis();
 		}
 	}
 
 	void Wake() {
+		if (eStopActive()) {
+			return;
+		}
+
 		lastNod = millis();
 		bool wasSleeping = sleeping;
 		sleeping = false;
@@ -50,12 +80,15 @@ namespace Sleep {
 		}
 	}
 
-	bool IsSleeping() {
-		return sleeping;
+	void Sleep() {
+		bool wasSleeping = sleeping;
+		sleeping = true;
+		if (!wasSleeping) {
+			onSleep();
+		}
 	}
 
-	void Sleep() {
-		sleeping = true;
-		onSleep();
+	bool IsSleeping() {
+		return sleeping;
 	}
 }

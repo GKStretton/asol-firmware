@@ -20,6 +20,12 @@ public:
         float maxUnit
     );
 
+    // Call the relevant run function after checking limits
+    void Update();
+    // hides parent func so we can track whether position or speed setter was last called
+    void moveTo(long position);
+    void setSpeed(float s);
+
     float GetMinUnit();
     float GetMaxUnit();
 
@@ -32,6 +38,7 @@ public:
     void MarkAsCalibrated();
     void MarkAsNotCalibrated();
     bool IsCalibrated();
+    void SetLimitSwitchPin(uint8_t pin);
 
     // (relative) Move the target position by an amount
     void MoveTarget(float d);
@@ -40,9 +47,15 @@ public:
     bool AtTarget();
 
 private:
+    void updateLimitSwitch();
+    void enforceStepperLimits();
+
     float microStepFactor_;
     float unitsPerFullStep_;
     float minUnit_;
     float maxUnit_;
     bool calibrated_;
+    // true if we last called moveTo, false if setSpeed was last called
+    bool positionWasSetLast_;
+    uint8_t limitSwitchPin_;
 };

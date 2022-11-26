@@ -1,5 +1,11 @@
 #pragma once
 
+// Basic Stepper calibration
+
+// multiplier for stepper speeds and accelerations. Useful for cautious testing.
+#define SPEED_MULT 0.1
+
+// Physical calibration of arm positions etc
 #define STAGE_RADIUS_MM 75.0
 #define ARM_PATH_RADIUS_MM 164.7
 
