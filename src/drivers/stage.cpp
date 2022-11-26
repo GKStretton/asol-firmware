@@ -1,7 +1,7 @@
 #include "stage.h"
-#include "util.h"
-#include "config.h"
 #include <Servo.h>
+#include "../config.h"
+#include "../common/util.h"
 
 Servo drainageServo;
 

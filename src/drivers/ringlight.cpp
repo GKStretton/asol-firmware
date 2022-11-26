@@ -1,7 +1,7 @@
 #include "ringlight.h"
-#include "config.h"
-#include "util.h"
 #include <Arduino.h>
+#include "../config.h"
+#include "../common/util.h"
 
 void setLightPin(uint8_t pin, bool state) {
     // digitalWrite(pin, state ? LOW: HIGH);

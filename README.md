@@ -8,7 +8,6 @@ This is the firmware for [A Study of Light](https://www.youtube.com/@StudyOfLigh
 - Additional Arduino libraries
     - AccelStepper
     - PPM-reader
-    - Servo
 
 ## Build
 

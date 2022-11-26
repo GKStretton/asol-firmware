@@ -1,8 +1,8 @@
 #include "fs-i6.h"
 #include <PPMReader.h>
-#include "config.h"
-#include "logger.h"
-#include "serialmqtt.h"
+#include "../config.h"
+#include "../middleware/logger.h"
+#include "../middleware/serialmqtt.h"
 
 namespace FS_I6 {
 

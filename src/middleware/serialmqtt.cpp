@@ -1,6 +1,6 @@
 #include "serialmqtt.h"
-#include "config.h"
-#include "logger.h"
+#include "../config.h"
+#include "../middleware/logger.h"
 
 char buffer[SERIAL_MQTT_BUFFER_SIZE];
 int bufferIndex = 0;

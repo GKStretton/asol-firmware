@@ -1,9 +1,9 @@
 #include "sleep.h"
 #include <Arduino.h>
-#include "util.h"
-#include "config.h"
-#include "logger.h"
-#include "ringlight.h"
+#include "../common/util.h"
+#include "../config.h"
+#include "../middleware/logger.h"
+#include "../drivers/ringlight.h"
 
 namespace Sleep {
 	namespace {

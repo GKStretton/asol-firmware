@@ -1,6 +1,6 @@
 #include "fluid.h"
-#include "util.h"
-#include "config.h"
+#include "../common/util.h"
+#include "../config.h"
 
 void SetupFluid() {
 	InitPin(WATER_VALVE_RELAY, HIGH);

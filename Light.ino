@@ -1,17 +1,15 @@
-#include "switch.h"
-#include "stage.h"
-#include "fluid.h"
-#include "config.h"
-#include "logger.h"
-#include "sleep.h"
-#include "util.h"
-#include "mathutil.h"
-#include "fs-i6.h"
-#include "ringlight.h"
-#include "calibration.h"
-#include "serialmqtt.h"
-
-#include "UnitStepper.h"
+#include <AccelStepper.h>
+#include "src/drivers/fluid.h"
+#include "src/drivers/fs-i6.h"
+#include "src/config.h"
+#include "src/middleware/logger.h"
+#include "src/middleware/sleep.h"
+#include "src/common/util.h"
+#include "src/common/mathutil.h"
+#include "src/drivers/ringlight.h"
+#include "src/calibration.h"
+#include "src/middleware/serialmqtt.h"
+#include "src/drivers/UnitStepper.h"
 
 //################# NODE STUFF ###########################
 /*
