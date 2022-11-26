@@ -17,7 +17,7 @@ State s = {
 	0,
 	HOME,
 	UNDEFINED,
-	UNDEFINED,
+	HOME,
 	false,
 	0,
 	0,
@@ -168,11 +168,10 @@ void topicHandler(String topic, String payload)
 
 void dataUpdate()
 {
-	if (PRINT_DATA && millis() - s.lastDataUpdate < 1000)
-	{
-		return;
-	}
+	if (!PRINT_DATA) return;
+	if (millis() - s.lastDataUpdate < 1000) return;
 	s.lastDataUpdate = millis();
+
 	unsigned long start = millis();
 	// Board input
 	// SerialMQTT::Publish("d/S_A", String(digitalRead(SWITCH_A)));
@@ -184,22 +183,22 @@ void dataUpdate()
 	// SerialMQTT::Publish("d/V5_C", String(analogRead(V5_CURRENT)));
 
 	// RX Controller data
-	FS_I6::PrintRawChannels();
-	FS_I6::PrintProcessedChannels();
+	// FS_I6::PrintRawChannels();
+	// FS_I6::PrintProcessedChannels();
 
 	// stepper raw position
-	SerialMQTT::Publish("d/R_POS", String(s.ringStepper.currentPosition()));
+	// SerialMQTT::Publish("d/R_POS", String(s.ringStepper.currentPosition()));
 	SerialMQTT::Publish("d/Z_POS", String(s.zStepper.currentPosition()));
 	SerialMQTT::Publish("d/Y_POS", String(s.yawStepper.currentPosition()));
 	SerialMQTT::Publish("d/P_POS", String(s.pitchStepper.currentPosition()));
-	SerialMQTT::Publish("d/PP_POS", String(s.pipetteStepper.currentPosition()));
+	// SerialMQTT::Publish("d/PP_POS", String(s.pipetteStepper.currentPosition()));
 
 	// stepper units
-	SerialMQTT::Publish("d/R_UNIT", String(s.ringStepper.PositionToUnit(s.ringStepper.currentPosition())));
+	// SerialMQTT::Publish("d/R_UNIT", String(s.ringStepper.PositionToUnit(s.ringStepper.currentPosition())));
 	SerialMQTT::Publish("d/Z_UNIT", String(s.zStepper.PositionToUnit(s.zStepper.currentPosition())));
 	SerialMQTT::Publish("d/Y_UNIT", String(s.yawStepper.PositionToUnit(s.yawStepper.currentPosition())));
 	SerialMQTT::Publish("d/P_UNIT", String(s.pitchStepper.PositionToUnit(s.pitchStepper.currentPosition())));
-	SerialMQTT::Publish("d/PP_UNIT", String(s.pipetteStepper.PositionToUnit(s.pipetteStepper.currentPosition())));
+	// SerialMQTT::Publish("d/PP_UNIT", String(s.pipetteStepper.PositionToUnit(s.pipetteStepper.currentPosition())));
 
 	SerialMQTT::Publish("d/DATA_MS", String(millis() - start));
 	SerialMQTT::Publish("d/UPS", String(s.updatesPerSecond));

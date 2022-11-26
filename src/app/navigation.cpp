@@ -10,6 +10,10 @@ bool atLocalTargetNode(State *s) {
 	Logger::Debug("atLocalTargetNode returning " + String(result));
 	Logger::Debug("zStepper current " + String(s->zStepper.currentPosition()));
 	Logger::Debug("zStepper target " + String(s->zStepper.targetPosition()));
+	Logger::Debug("pitchStepper current " + String(s->pitchStepper.currentPosition()));
+	Logger::Debug("pitchStepper target " + String(s->pitchStepper.targetPosition()));
+	Logger::Debug("yawStepper current " + String(s->yawStepper.currentPosition()));
+	Logger::Debug("yawStepper target " + String(s->yawStepper.targetPosition()));
 	return result;
 }
 
@@ -88,14 +92,14 @@ void goToNode(State *s, Node node)
 	{
 		s->zStepper.moveTo(s->zStepper.UnitToPosition(0));
 		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(0));
-		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(0));
+		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(YAW_ZERO_OFFSET));
 		return;
 	}
 	else if (node == HOME_TOP)
 	{
 		s->zStepper.moveTo(s->zStepper.UnitToPosition(HOME_TOP_Z));
 		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(0));
-		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(0));
+		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(YAW_ZERO_OFFSET));
 		return;
 	}
 
@@ -107,7 +111,7 @@ void goToNode(State *s, Node node)
 
 		int index = node - MIN_VIAL;
 		float yaw = VIAL_YAW_OFFSET + index * VIAL_YAW_INCREMENT;
-		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(yaw));
+		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(YAW_ZERO_OFFSET + yaw));
 		return;
 	}
 
@@ -117,7 +121,7 @@ void goToNode(State *s, Node node)
 		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(HANDOVER_PITCH));
 
 		float yaw = node == OUTER_HANDOVER ? HANDOVER_OUTER_YAW : HANDOVER_INNER_YAW;
-		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(yaw));
+		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(YAW_ZERO_OFFSET + yaw));
 		return;
 	}
 }
@@ -125,7 +129,7 @@ void goToNode(State *s, Node node)
 // return true if currently navigating between nodes
 bool atGlobalTarget(State *s)
 {
-	return s->lastNode != s->globalTargetNode;
+	return s->lastNode == s->globalTargetNode;
 }
 
 // return true if z, pitch, and yaw steppers are calibrated
@@ -137,31 +141,38 @@ bool calibrated(State *s)
 // the update tick for node navigation
 void Navigation::UpdateNodeNavigation(State *s)
 {
+	// Prevent action if uncalibrated
 	if (!calibrated(s)) {
 		Logger::Error("Cannot updateNodeNavigation because steppers aren't calibrated");
 		return;
 	}
-	if (atGlobalTarget(s)) {
+
+	// Don't take action if we're at the global target. But do if localtarget undefined (start)
+	if (s->localTargetNode != UNDEFINED && atGlobalTarget(s)) {
 		Logger::Debug("atGlobalTarget, so not updating node navigation");
 		return;
 	}
 
+	// Calculate next local target
 	Node localTargetNode = calculateNextNode(s->lastNode, s->globalTargetNode);
-	Logger::Debug("calculateNextNode returned " + String(localTargetNode));
-	if (localTargetNode == UNDEFINED)
-	{
+	Logger::Debug("calculateNextNode returned " + String(localTargetNode) + " for last node " + String(s->lastNode) + " and global target " + String(s->globalTargetNode));
+	if (localTargetNode == UNDEFINED) {
+		Logger::Debug("local target undefined, skipping node navigation");
 		return;
 	}
+
+	// Check for a change in local target, and set stepper positions if so
 	if (s->localTargetNode != localTargetNode)
 	{
 		s->localTargetNode = localTargetNode;
-		Logger::Debug("Setting local target to " + String(localTargetNode));
+		Logger::Debug("Local target changed to " + String(localTargetNode) + ". Setting stepper positions accordingly.");
 		goToNode(s, localTargetNode);
 	}
 
+	// Check for arrival at local target
 	if (atLocalTargetNode(s))
 	{
 		s->lastNode = localTargetNode;
-		Logger::Debug("lastNode set to " + String(s->lastNode));
+		Logger::Debug("Arrived at local target. lastNode set to " + String(s->lastNode));
 	}
 }

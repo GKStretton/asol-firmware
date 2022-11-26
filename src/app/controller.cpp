@@ -5,15 +5,15 @@
 unsigned long lastControlUpdate = millis();
 
 void Controller::Update(State *s) {
-	if (millis() - lastControlUpdate > 100)
+	if (millis() - lastControlUpdate > 1000)
 	{
 		lastControlUpdate = millis();
 
         bool boardSwitchA = digitalRead(SWITCH_A);
         if (boardSwitchA) {
-            autoUpdate(s);
-        } else {
             manualUpdate(s);
+        } else {
+            autoUpdate(s);
         }
 	}
 }
