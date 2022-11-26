@@ -128,3 +128,7 @@ void UnitStepper::MoveTarget(float d) {
 bool UnitStepper::AtTarget() {
 	return this->distanceToGo() == 0;
 }
+
+bool UnitStepper::unitInRange(float a) {
+	return a >= GetMinUnit() && a <= GetMaxUnit();
+}

@@ -23,3 +23,7 @@ int CircleCircleIntersection(double x0, double y0, double r0,
 
 // AngleBetweenVectors returns angle in degrees between two specified vectors
 double AngleBetweenVectors(double x0, double y0, double x1, double y1);
+
+void boundXYToCircle(float *x, float *y, float radius);
+
+bool numInRange(float num, float min, float max);

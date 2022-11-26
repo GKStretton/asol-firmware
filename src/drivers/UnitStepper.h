@@ -3,59 +3,61 @@
 
 /*
 To calculate unitsPerFullStep:
-    1. Zero the stepper.
-    2. Move some known units U.
-    3. Observe position P in logs.
-    4. Calculate full-step position = P/microStepFactor.
-    5. Calculate unitsPerFull = U / (P / microStepFactor) 
+	1. Zero the stepper.
+	2. Move some known units U.
+	3. Observe position P in logs.
+	4. Calculate full-step position = P/microStepFactor.
+	5. Calculate unitsPerFull = U / (P / microStepFactor) 
 */
 class UnitStepper: public AccelStepper {
 public:
-    UnitStepper(
-        uint8_t stepPin,
-        uint8_t dirPin,
-        float microStepFactor,
-        float unitsPerFullStep,
-        float minUnit,
-        float maxUnit
-    );
+	UnitStepper(
+		uint8_t stepPin,
+		uint8_t dirPin,
+		float microStepFactor,
+		float unitsPerFullStep,
+		float minUnit,
+		float maxUnit
+	);
 
-    // Call the relevant run function after checking limits
-    void Update();
-    // hides parent func so we can track whether position or speed setter was last called
-    void moveTo(long position);
-    void setSpeed(float s);
+	// Call the relevant run function after checking limits
+	void Update();
+	// hides parent func so we can track whether position or speed setter was last called
+	void moveTo(long position);
+	void setSpeed(float s);
 
-    float GetMinUnit();
-    float GetMaxUnit();
+	bool unitInRange(float a);
 
-    void SetMinUnit(float val);
-    void SetMaxUnit(float val);
+	float GetMinUnit();
+	float GetMaxUnit();
 
-    float PositionToUnit(float position);
-    float UnitToPosition(float unit);
+	void SetMinUnit(float val);
+	void SetMaxUnit(float val);
 
-    void MarkAsCalibrated();
-    void MarkAsNotCalibrated();
-    bool IsCalibrated();
-    void SetLimitSwitchPin(uint8_t pin);
+	float PositionToUnit(float position);
+	float UnitToPosition(float unit);
 
-    // (relative) Move the target position by an amount
-    void MoveTarget(float d);
+	void MarkAsCalibrated();
+	void MarkAsNotCalibrated();
+	bool IsCalibrated();
+	void SetLimitSwitchPin(uint8_t pin);
 
-    // checks whether the stepper is at its target
-    bool AtTarget();
+	// (relative) Move the target position by an amount
+	void MoveTarget(float d);
+
+	// checks whether the stepper is at its target
+	bool AtTarget();
 
 private:
-    void updateLimitSwitch();
-    void enforceStepperLimits();
+	void updateLimitSwitch();
+	void enforceStepperLimits();
 
-    float microStepFactor_;
-    float unitsPerFullStep_;
-    float minUnit_;
-    float maxUnit_;
-    bool calibrated_;
-    // true if we last called moveTo, false if setSpeed was last called
-    bool positionWasSetLast_;
-    uint8_t limitSwitchPin_;
+	float microStepFactor_;
+	float unitsPerFullStep_;
+	float minUnit_;
+	float maxUnit_;
+	bool calibrated_;
+	// true if we last called moveTo, false if setSpeed was last called
+	bool positionWasSetLast_;
+	uint8_t limitSwitchPin_;
 };
