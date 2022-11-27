@@ -1,5 +1,8 @@
 #pragma once
 
+// Autonomous configuration
+#define DO_DYE_COLLECTION false
+
 #define PRINT_DATA true
 
 #define ENABLE_IK_ACTUATION 1

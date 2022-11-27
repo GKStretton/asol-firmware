@@ -47,3 +47,6 @@ enum Node
 	INNER_HANDOVER = 110,
 	INVERSE_KINEMATICS_POSITION = 150
 };
+
+// indexed by 1, convert number 1-n to Node.
+Node VialNumberToInsideNode(int number);

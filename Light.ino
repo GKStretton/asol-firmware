@@ -26,8 +26,10 @@ State s = {
 	UnitStepper(Z_STEPPER_STEP, Z_STEPPER_DIR, 4, 0.04078, 0, 73),
 	UnitStepper(RING_STEPPER_STEP, RING_STEPPER_DIR, 32, 0.4, RING_ZERO_OFFSET, 280),
 	UnitStepper(PIPETTE_STEPPER_STEP, PIPETTE_STEPPER_DIR, 32, 2.74, 100, 700),
-	0,
-	0,
+	0.0,
+	0.0,
+	{true, 0, 0, 0.0},
+	{0, 0.0}
 };
 
 Controller controller;

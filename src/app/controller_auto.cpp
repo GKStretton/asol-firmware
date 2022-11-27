@@ -1,6 +1,7 @@
 #include "controller.h"
 #include "../app/navigation.h"
 #include "../config.h"
+#include "../middleware/logger.h"
 
 void Controller::autoUpdate(State *s) {
 	// if not calibrated
@@ -13,10 +14,40 @@ void Controller::autoUpdate(State *s) {
 	// wake steppers
 	digitalWrite(STEPPER_SLEEP, HIGH);
 
-	Status status = Navigation::UpdateNodeNavigation(s);
-	if (status == RUNNING || status == FAILURE) return;
+	// No dye
+	if (DO_DYE_COLLECTION && (s->GetPipetteVolumeHeld() <= 0 || s->collectionInProgress)) {
+		if (s->collectionRequest.requestCompleted) {
+			// Nothing to do. Wait at outer handover
+			s->globalTargetNode = OUTER_HANDOVER;
+			Navigation::UpdateNodeNavigation(s);
+			return;
+		} else {
+			s->collectionInProgress = true;
+			//todo: IMPLEMENT evaluatePipetteCollection!
+			Status status = evaluatePipetteCollection(s);
+			if (status == RUNNING || status == FAILURE) return;
+			s->collectionInProgress = false;
+		}
+	}
 
-	//! Now guaranteed to be at global target navigation node
+	//! temporary
+	Navigation::UpdateNodeNavigation(s);
+	//! remove ^
 
+	// Now we have dye
 
+	// s->globalTargetNode = INVERSE_KINEMATICS_POSITION;
+	// Status status = Navigation::UpdateNodeNavigation(s);
+	// if (status == RUNNING || status == FAILURE) return;
+
+	//! Now we have dye and are in IK range
+
+	// evaluateIk()
+	//todo: drop into IK land. control Z based on requested value in state
+	//todo: and go to the specified xy
+	//todo: but don't return if running, continue to dispense code
+
+	//todo: s->pipetteStepper.moveTo(toUnits(s->pipetteState.ulVolumeHeldTarget))
+
+	//? unify CollectionRequest.ulVolume and PipetteState.ulVolumeHeldTarget???
 }
