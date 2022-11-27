@@ -110,15 +110,15 @@ float UnitStepper::UnitToPosition(float unit) {
 }
 
 void UnitStepper::MarkAsNotCalibrated() {
-	calibrated_ = false;
+	limitSwitchContacted_ = false;
 }
 
 void UnitStepper::MarkAsCalibrated() {
-	calibrated_ = true;
+	limitSwitchContacted_ = true;
 }
 
 bool UnitStepper::IsCalibrated() {
-	return calibrated_;
+	return limitSwitchContacted_ && !digitalRead(limitSwitchPin_);
 }
 
 void UnitStepper::MoveTarget(float d) {

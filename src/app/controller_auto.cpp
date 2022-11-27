@@ -3,10 +3,15 @@
 #include "../config.h"
 
 void Controller::autoUpdate(State *s) {
+	// if not calibrated
+	if (!s->IsArmCalibrated()) {
+		manualUpdate(s);
+		//todo: autocalibration
+		return;
+	}
+
 	// wake steppers
 	digitalWrite(STEPPER_SLEEP, HIGH);
-
-	// if not calibrated
 
 	Status status = Navigation::UpdateNodeNavigation(s);
 	if (status == RUNNING) {

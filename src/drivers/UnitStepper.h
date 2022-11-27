@@ -39,6 +39,7 @@ public:
 
 	void MarkAsCalibrated();
 	void MarkAsNotCalibrated();
+	// Returns true if limit switch has been pressed and released for this motor
 	bool IsCalibrated();
 	void SetLimitSwitchPin(uint8_t pin);
 
@@ -58,7 +59,7 @@ private:
 	float unitsPerFullStep_;
 	float minUnit_;
 	float maxUnit_;
-	bool calibrated_;
+	bool limitSwitchContacted_;
 	// true if we last called moveTo, false if setSpeed was last called
 	bool positionWasSetLast_;
 	uint8_t limitSwitchPin_;
