@@ -4,7 +4,7 @@
 
 void Controller::autoUpdate(State *s) {
 	// if not calibrated
-	if (!s->IsArmCalibrated()) {
+	if (!s->IsArmCalibrated() || !s->ringStepper.IsCalibrated()) {
 		manualUpdate(s);
 		//todo: autocalibration
 		return;
@@ -14,13 +14,9 @@ void Controller::autoUpdate(State *s) {
 	digitalWrite(STEPPER_SLEEP, HIGH);
 
 	Status status = Navigation::UpdateNodeNavigation(s);
-	if (status == RUNNING) {
-		return;
-	}
-	if (status == FAILURE) {
-		return;
-	}
-	if (status == SUCCESS) {
+	if (status == RUNNING || status == FAILURE) return;
 
-	}
+	//! Now guaranteed to be at global target navigation node
+
+
 }

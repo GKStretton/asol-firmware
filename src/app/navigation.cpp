@@ -37,7 +37,7 @@ Node calculateNextNode(Node lastNode, Node targetNode) {
 	{
 		if (targetNode == HOME)
 			return HOME;
-		if (targetNode >= MIN_VIAL && targetNode <= MAX_VIAL)
+		if (targetNode >= MIN_VIAL_ABOVE && targetNode <= MAX_VIAL_ABOVE)
 			return targetNode;
 		if (targetNode >= OUTER_HANDOVER)
 			return LOW_ENTRY_POINT;
@@ -51,14 +51,20 @@ Node calculateNextNode(Node lastNode, Node targetNode) {
 			return OUTER_HANDOVER;
 	}
 
-	if (lastNode >= MIN_VIAL && lastNode <= MAX_VIAL)
+	// Movement from positions directly above vials
+	if (lastNode >= MIN_VIAL_ABOVE && lastNode <= MAX_VIAL_ABOVE && lastNode % 10 == 0)
 	{
 		if (targetNode <= HOME_TOP)
 			return HOME_TOP;
 		if (targetNode >= OUTER_HANDOVER)
 			return LOW_ENTRY_POINT;
-		if (targetNode >= MIN_VIAL && targetNode <= MAX_VIAL)
+		if (targetNode >= MIN_VIAL_ABOVE && targetNode <= MAX_VIAL_ABOVE)
 			return targetNode;
+	}
+
+	if (lastNode >= MIN_VIAL_INSIDE && lastNode <= MAX_VIAL_INSIDE && lastNode % 10 == 5) {
+		// Drop back to above position
+		return (Node) (lastNode - 5);
 	}
 
 	if (lastNode == OUTER_HANDOVER)
@@ -73,6 +79,13 @@ Node calculateNextNode(Node lastNode, Node targetNode) {
 	{
 		if (targetNode <= OUTER_HANDOVER)
 			return OUTER_HANDOVER;
+		if (targetNode == INVERSE_KINEMATICS_POSITION)
+			return INVERSE_KINEMATICS_POSITION;
+	}
+
+	if (lastNode == INVERSE_KINEMATICS_POSITION) {
+		if (targetNode < INVERSE_KINEMATICS_POSITION)
+			return INNER_HANDOVER;
 	}
 
 	return UNDEFINED;
@@ -105,15 +118,24 @@ void goToNode(State *s, Node node)
 		return;
 	}
 
-	// vial nodes
-	if (node >= MIN_VIAL && node <= MAX_VIAL)
+	// vial nodes (above)
+	if (node >= MIN_VIAL_ABOVE && node <= MAX_VIAL_ABOVE && node % 10 == 0)
 	{
 		s->zStepper.moveTo(s->zStepper.UnitToPosition(HOME_TOP_Z));
 		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(VIAL_PITCH));
 
-		int index = node - MIN_VIAL;
+		int index = (node - MIN_VIAL_ABOVE) / 10;
 		float yaw = VIAL_YAW_OFFSET + index * VIAL_YAW_INCREMENT;
 		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(yaw));
+		return;
+	}
+
+	if (node >= MIN_VIAL_INSIDE && node <= MAX_VIAL_INSIDE && node % 10 == 5)
+	{
+		// nowhere to go, the ABOVE node is inside the region of the inside node.
+		// so we let the above position carry over. Movement within this node
+		// is controlled from outside the navigation system, to reduce complexity
+		// here. 
 		return;
 	}
 
@@ -124,6 +146,12 @@ void goToNode(State *s, Node node)
 
 		float yaw = node == OUTER_HANDOVER ? HANDOVER_OUTER_YAW : HANDOVER_INNER_YAW;
 		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(yaw));
+		return;
+	}
+
+	if (node == INVERSE_KINEMATICS_POSITION)
+	{
+		// nowhere to go, movement is handled outside the navigation system.
 		return;
 	}
 }
