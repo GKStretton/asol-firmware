@@ -3,7 +3,7 @@
 // Basic Stepper calibration
 
 // multiplier for stepper speeds and accelerations. Useful for cautious testing.
-#define SPEED_MULT 0.1
+#define SPEED_MULT 1
 
 // Physical calibration of arm positions etc
 #define STAGE_RADIUS_MM 75.0
@@ -18,11 +18,11 @@
 // NODE CALIBRATION (UNITS)
 #define HOME_TOP_Z 73
 
-#define VIAL_PITCH 2
-#define VIAL_YAW_OFFSET 5
-#define VIAL_YAW_INCREMENT 10
+#define VIAL_PITCH 0
+#define VIAL_YAW_OFFSET 0
+#define VIAL_YAW_INCREMENT 35.5
 
 #define HANDOVER_Z 50
 #define HANDOVER_PITCH 90
-#define HANDOVER_INNER_YAW 60
-#define HANDOVER_OUTER_YAW 110
+#define HANDOVER_INNER_YAW 15
+#define HANDOVER_OUTER_YAW 55

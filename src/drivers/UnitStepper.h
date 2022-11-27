@@ -47,6 +47,8 @@ public:
 
 	// checks whether the stepper is at its target
 	bool AtTarget();
+	// Sets the threshold in units that position must be within of target for AtTarget to be true
+	void SetAtTargetUnitThreshold(float t);
 
 private:
 	void updateLimitSwitch();
@@ -60,4 +62,5 @@ private:
 	// true if we last called moveTo, false if setSpeed was last called
 	bool positionWasSetLast_;
 	uint8_t limitSwitchPin_;
+	float atTargetUnitThreshold_;
 };

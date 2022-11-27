@@ -5,7 +5,7 @@
 unsigned long lastControlUpdate = millis();
 
 void Controller::Update(State *s) {
-	if (millis() - lastControlUpdate > 1000)
+	if (millis() - lastControlUpdate > 100)
 	{
 		lastControlUpdate = millis();
 

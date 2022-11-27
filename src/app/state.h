@@ -3,8 +3,10 @@
 #include "../app/node.h"
 #include "../drivers/UnitStepper.h"
 
-struct State
-{
+class State {
+public:
+	bool IsArmCalibrated();
+
 	int updatesPerSecond;
 	// The most recent node to have been visited
 	Node lastNode;

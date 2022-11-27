@@ -57,6 +57,8 @@ Node calculateNextNode(Node lastNode, Node targetNode) {
 			return HOME_TOP;
 		if (targetNode >= OUTER_HANDOVER)
 			return LOW_ENTRY_POINT;
+		if (targetNode >= MIN_VIAL && targetNode <= MAX_VIAL)
+			return targetNode;
 	}
 
 	if (lastNode == OUTER_HANDOVER)
@@ -111,7 +113,7 @@ void goToNode(State *s, Node node)
 
 		int index = node - MIN_VIAL;
 		float yaw = VIAL_YAW_OFFSET + index * VIAL_YAW_INCREMENT;
-		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(YAW_ZERO_OFFSET + yaw));
+		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(yaw));
 		return;
 	}
 
@@ -121,7 +123,7 @@ void goToNode(State *s, Node node)
 		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(HANDOVER_PITCH));
 
 		float yaw = node == OUTER_HANDOVER ? HANDOVER_OUTER_YAW : HANDOVER_INNER_YAW;
-		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(YAW_ZERO_OFFSET + yaw));
+		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(yaw));
 		return;
 	}
 }
@@ -132,25 +134,19 @@ bool atGlobalTarget(State *s)
 	return s->lastNode == s->globalTargetNode;
 }
 
-// return true if z, pitch, and yaw steppers are calibrated
-bool calibrated(State *s)
-{
-	return s->zStepper.IsCalibrated() && s->pitchStepper.IsCalibrated() && s->yawStepper.IsCalibrated();
-}
-
 // the update tick for node navigation
-void Navigation::UpdateNodeNavigation(State *s)
+Status Navigation::UpdateNodeNavigation(State *s)
 {
 	// Prevent action if uncalibrated
-	if (!calibrated(s)) {
+	if (!s->IsArmCalibrated()) {
 		Logger::Error("Cannot updateNodeNavigation because steppers aren't calibrated");
-		return;
+		return FAILURE;
 	}
 
 	// Don't take action if we're at the global target. But do if localtarget undefined (start)
 	if (s->localTargetNode != UNDEFINED && atGlobalTarget(s)) {
 		Logger::Debug("atGlobalTarget, so not updating node navigation");
-		return;
+		return SUCCESS;
 	}
 
 	// Calculate next local target
@@ -158,7 +154,7 @@ void Navigation::UpdateNodeNavigation(State *s)
 	Logger::Debug("calculateNextNode returned " + String(localTargetNode) + " for last node " + String(s->lastNode) + " and global target " + String(s->globalTargetNode));
 	if (localTargetNode == UNDEFINED) {
 		Logger::Debug("local target undefined, skipping node navigation");
-		return;
+		return FAILURE;
 	}
 
 	// Check for a change in local target, and set stepper positions if so
@@ -174,5 +170,10 @@ void Navigation::UpdateNodeNavigation(State *s)
 	{
 		s->lastNode = localTargetNode;
 		Logger::Debug("Arrived at local target. lastNode set to " + String(s->lastNode));
+		if (atGlobalTarget(s)) {
+			return SUCCESS;
+		}
 	}
+
+	return RUNNING;
 }

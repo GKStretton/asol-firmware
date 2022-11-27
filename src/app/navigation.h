@@ -1,6 +1,7 @@
 #pragma once
 #include "../app/state.h"
+#include "../app/status.h"
 
 namespace Navigation {
-    void UpdateNodeNavigation(State *s);
+    Status UpdateNodeNavigation(State *s);
 }

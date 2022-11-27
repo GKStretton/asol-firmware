@@ -6,5 +6,16 @@ void Controller::autoUpdate(State *s) {
 	// wake steppers
 	digitalWrite(STEPPER_SLEEP, HIGH);
 
-	Navigation::UpdateNodeNavigation(s);
+	// if not calibrated
+
+	Status status = Navigation::UpdateNodeNavigation(s);
+	if (status == RUNNING) {
+		return;
+	}
+	if (status == FAILURE) {
+		return;
+	}
+	if (status == SUCCESS) {
+
+	}
 }
