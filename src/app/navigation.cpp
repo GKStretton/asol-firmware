@@ -37,8 +37,11 @@ Node calculateNextNode(Node lastNode, Node targetNode) {
 	{
 		if (targetNode == HOME)
 			return HOME;
-		if (targetNode >= MIN_VIAL_ABOVE && targetNode <= MAX_VIAL_ABOVE)
+		if (targetNode >= MIN_VIAL_ABOVE && targetNode <= MAX_VIAL_ABOVE && targetNode % 10 == 0)
 			return targetNode;
+		if (targetNode >= MIN_VIAL_INSIDE && targetNode <= MAX_VIAL_INSIDE && targetNode % 10 == 5) {
+			// go to to correct above vial node
+			return (Node) (targetNode - 5);
 		if (targetNode >= OUTER_HANDOVER)
 			return LOW_ENTRY_POINT;
 	}
@@ -58,13 +61,23 @@ Node calculateNextNode(Node lastNode, Node targetNode) {
 			return HOME_TOP;
 		if (targetNode >= OUTER_HANDOVER)
 			return LOW_ENTRY_POINT;
-		if (targetNode >= MIN_VIAL_ABOVE && targetNode <= MAX_VIAL_ABOVE)
+		if (targetNode >= MIN_VIAL_ABOVE && targetNode <= MAX_VIAL_ABOVE && targetNode % 10 == 0)
 			return targetNode;
+		// If going inside a vial
+		if (targetNode >= MIN_VIAL_INSIDE && targetNode <= MAX_VIAL_INSIDE && targetNode % 10 == 5) {
+			// If we're above the correct vial
+			if (lastNode == (Node) (targetNode - 5))
+				return targetNode;
+			else
+				// go to to correct above vial node
+				return (Node) (targetNode - 5);
+		}
 	}
 
 	if (lastNode >= MIN_VIAL_INSIDE && lastNode <= MAX_VIAL_INSIDE && lastNode % 10 == 5) {
 		// Drop back to above position
-		return (Node) (lastNode - 5);
+		if (lastNode != targetNode)
+			return (Node) (lastNode - 5);
 	}
 
 	if (lastNode == OUTER_HANDOVER)

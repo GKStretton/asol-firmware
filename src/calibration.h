@@ -7,6 +7,8 @@
 
 // ul of air to draw in from 0 position before taking in liquid
 #define PIPETTE_BUFFER 100
+// z level from which to take in liquid. (may become dynamic based on dye level in future.)
+#define PIPETTE_INTAKE_Z 60
 
 // Physical calibration of arm positions etc
 #define STAGE_RADIUS_MM 75.0

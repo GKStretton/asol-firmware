@@ -11,6 +11,8 @@ struct CollectionRequest {
 };
 
 struct PipetteState {
+	// spent is true if we've dispensed past the buffer, if all is gone.
+	bool spent;
 	int vialHeld;
 	float ulVolumeHeldTarget;
 };

@@ -23,16 +23,14 @@ void Controller::autoUpdate(State *s) {
 			return;
 		} else {
 			s->collectionInProgress = true;
-			//todo: IMPLEMENT evaluatePipetteCollection!
 			Status status = evaluatePipetteCollection(s);
 			if (status == RUNNING || status == FAILURE) return;
 			s->collectionInProgress = false;
 		}
 	}
 
-	//! temporary
 	Navigation::UpdateNodeNavigation(s);
-	//! remove ^
+	//! Continue once all above is tested, and remove line above
 
 	// Now we have dye
 
