@@ -121,6 +121,7 @@ void initSteppers() {
 
 void topicHandler(String topic, String payload)
 {
+	Logger::Debug("topic handler start");
 	if (topic == "mega/req/wake")
 	{
 		Sleep::Wake();
@@ -156,16 +157,34 @@ void topicHandler(String topic, String payload)
 		Logger::Info("closing drain.");
 	}
 	else if (topic == "mega/req/dispense") {
-		// todo: implement
-		String values[] = {"", "", ""};
-		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 3);
-		Logger::Info(values[0]);
-		Logger::Info(values[1]);
-		Logger::Info(values[2]);
+		String values[] = {""};
+		float ul = values[0].toFloat();
+		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 1);
+		if (!s.pipetteState.spent) {
+			s.pipetteState.ulVolumeHeldTarget -= ul;
+			if (s.pipetteState.ulVolumeHeldTarget <= 0) {
+				s.pipetteState.ulVolumeHeldTarget = 0;
+			}
+			Logger::Info("dispensed, ulVolumeHeldTarget is now " + String(s.pipetteState.ulVolumeHeldTarget));
+		} else {
+			Logger::Info("Cannot dispense because already spent");
+		}
 	}
 	else if (topic == "mega/req/collect") {
-	// todo: implement
+		String values[] = {"", ""};
+		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 2);
+		int vial = values[0].toInt();
+		float ul = values[1].toFloat();
 
+		if (!s.collectionRequest.requestCompleted) {
+			Logger::Info("cannot collect because collection request " + String(s.collectionRequest.requestNumber) + " is still in progress");
+		} else {
+			s.collectionRequest.requestNumber++;
+			s.collectionRequest.requestCompleted = false;
+			s.collectionRequest.vialNumber = vial;
+			s.collectionRequest.ulVolume = ul;
+			Logger::Info("created collection request " + String(s.collectionRequest.requestNumber) + " for " + String(ul) + "ul of vial " + String(vial));
+		}
 	}
 	else if (topic == "mega/req/goto-node")
 	{
@@ -173,10 +192,13 @@ void topicHandler(String topic, String payload)
 		s.globalTargetNode = (Node)num;
 		Logger::Debug("Set globalTargetNode to " + String(num));
 	}
-	// else if (topic == "mega/req/goto-xy") {
-		// todo: unpack payload into ints
-		// Logger::Debug("goto-xy ACK:" + String(x_target) + String(y_target))
-	// }
+	else if (topic == "mega/req/goto-xy") {
+		String values[] = {"", ""};
+		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 2);
+		s.target_x = values[0].toFloat();
+		s.target_y = values[1].toFloat();
+		Logger::Info("set target_x, target_y to " + String(s.target_x) + ", " + String(s.target_y));
+	}
 	else
 	{
 		Logger::Debug("no handler for " + topic + " (payload = " + payload + ")");
