@@ -10,5 +10,6 @@ private:
 	void manualUpdate(State *s);
 	// Behaviour "node" for fluid collection, without assumptions
 	Status evaluatePipetteCollection(State *s);
+	Status evaluatePipetteDispense(State *s);
 	Status evaluateIK(State *s);
 };

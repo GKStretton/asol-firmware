@@ -26,6 +26,26 @@ Status Controller::evaluatePipetteCollection(State *s) {
 	s->pipetteStepper.moveTo(s->pipetteStepper.UnitToPosition(PIPETTE_BUFFER + s->collectionRequest.ulVolume));
 	if (!s->pipetteStepper.AtTarget())
 		return RUNNING;
+	
+	s->pipetteState.ulVolumeHeldTarget = s->collectionRequest.ulVolume;
 
 	return SUCCESS;
+}
+
+Status Controller::evaluatePipetteDispense(State *s) {
+	float target;
+	if (s->pipetteState.ulVolumeHeldTarget <= 0) {
+		target = 0;
+	} else {
+		target = PIPETTE_BUFFER + s->pipetteState.ulVolumeHeldTarget;
+	}
+	//todo: check that it's appropriate to dispense
+	s->pipetteStepper.moveTo(s->pipetteStepper.UnitToPosition(PIPETTE_BUFFER + s->pipetteState.ulVolumeHeldTarget));
+	if (!s->pipetteStepper.AtTarget())
+		return RUNNING;
+	
+	// mark as spent if at target of 0
+	if (s->pipetteState.ulVolumeHeldTarget <= 0) {
+		s->pipetteState.spent = true;
+	}
 }
