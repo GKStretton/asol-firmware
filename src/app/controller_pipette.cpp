@@ -20,7 +20,7 @@ Status Controller::evaluatePipetteCollection(State *s) {
 	}
 
 	s->zStepper.moveTo(s->zStepper.UnitToPosition(PIPETTE_INTAKE_Z));
-	if (!s->zStepper.AtTarget()) {
+	if (!s->zStepper.AtTarget())
 		return RUNNING;
 
 	s->pipetteStepper.moveTo(s->pipetteStepper.UnitToPosition(PIPETTE_BUFFER + s->collectionRequest.ulVolume));

@@ -73,3 +73,23 @@ void SerialMQTT::Publish(String topic, String payload) {
 	Serial.print(";");
 	Serial.println(payload);
 }
+
+void SerialMQTT::UnpackCommaSeparatedValues(String payload, String values[], int n) {
+	// Keeps track of which comma separated value we're on
+	int value_index = 0;
+	for (int i = 0; i < payload.length(); i++) {
+		// Return if all values are found
+		if (value_index >= n) return;
+
+		// Go to next value index
+		if (payload[i] == ',') {
+			values[++value_index] = "";
+			continue;
+		}
+
+		// append character to current value
+		values[value_index] += payload[i];
+	}
+	// return error if we didn't find exactly n comma separated values
+	return;
+}

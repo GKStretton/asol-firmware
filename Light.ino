@@ -155,17 +155,28 @@ void topicHandler(String topic, String payload)
 		SetDualRelay(DRAINAGE_VALVE_RELAY, false);
 		Logger::Info("closing drain.");
 	}
+	else if (topic == "mega/req/dispense") {
+		// todo: implement
+		String values[] = {"", "", ""};
+		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 3);
+		Logger::Info(values[0]);
+		Logger::Info(values[1]);
+		Logger::Info(values[2]);
+	}
+	else if (topic == "mega/req/collect") {
+	// todo: implement
+
+	}
 	else if (topic == "mega/req/goto-node")
 	{
 		long num = payload.toInt();
 		s.globalTargetNode = (Node)num;
 		Logger::Debug("Set globalTargetNode to " + String(num));
-		// } else if (topic == "mega/req/goto-xy") {
+	}
+	// else if (topic == "mega/req/goto-xy") {
 		// todo: unpack payload into ints
 		// Logger::Debug("goto-xy ACK:" + String(x_target) + String(y_target))
-		// } else if (topic == "mega/req/dispense") {
-		// } else if (topic == "mega/req/collect") {
-	}
+	// }
 	else
 	{
 		Logger::Debug("no handler for " + topic + " (payload = " + payload + ")");

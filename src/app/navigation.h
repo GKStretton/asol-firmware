@@ -4,4 +4,4 @@
 
 namespace Navigation {
     Status UpdateNodeNavigation(State *s);
-}
+};

@@ -39,7 +39,7 @@ Node calculateNextNode(Node lastNode, Node targetNode) {
 			return HOME;
 		if (targetNode >= MIN_VIAL_ABOVE && targetNode <= MAX_VIAL_ABOVE && targetNode % 10 == 0)
 			return targetNode;
-		if (targetNode >= MIN_VIAL_INSIDE && targetNode <= MAX_VIAL_INSIDE && targetNode % 10 == 5) {
+		if (targetNode >= MIN_VIAL_INSIDE && targetNode <= MAX_VIAL_INSIDE && targetNode % 10 == 5)
 			// go to to correct above vial node
 			return (Node) (targetNode - 5);
 		if (targetNode >= OUTER_HANDOVER)
@@ -105,8 +105,7 @@ Node calculateNextNode(Node lastNode, Node targetNode) {
 }
 
 // note this will go directly to the specified node, so ensure it is a safe move!
-void goToNode(State *s, Node node)
-{
+void goToNode(State *s, Node node) {
 	// define positions for each node
 	if (node == UNDEFINED)
 	{

@@ -9,4 +9,8 @@ namespace SerialMQTT {
 	void Update();
 	// Publish a payload to a topic via SerialMQTT
 	void Publish(String topic, String payload);
+
+	// Payload helpers
+	// Unpacks n values separated by commas into values[]. Returns true if error
+	void UnpackCommaSeparatedValues(String payload, String values[], int n);
 };
