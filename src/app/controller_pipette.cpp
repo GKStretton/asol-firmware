@@ -1,15 +1,17 @@
 #include "controller.h"
 #include "../app/navigation.h"
 #include "../calibration.h"
+#include "../middleware/logger.h"
 
 Status Controller::evaluatePipetteCollection(State *s) {
 	// We have a request, time to collect dye!
 	Node n = VialNumberToInsideNode(s->collectionRequest.vialNumber);
 	s->globalTargetNode = n;
 	Status status = Navigation::UpdateNodeNavigation(s);
-	if (status == RUNNING || status == FAILURE) return;
+	if (status == RUNNING || status == FAILURE) return status;
 
 	//! At inner node.
+	Logger::Debug("evaluatePipetteCollection at correct inner node, doing collection...");
 
 	// "reload" pipette (go to buffer point)
 	if (s->pipetteState.spent) {
@@ -40,7 +42,7 @@ Status Controller::evaluatePipetteDispense(State *s) {
 		target = PIPETTE_BUFFER + s->pipetteState.ulVolumeHeldTarget;
 	}
 	//todo: check that it's appropriate to dispense
-	s->pipetteStepper.moveTo(s->pipetteStepper.UnitToPosition(PIPETTE_BUFFER + s->pipetteState.ulVolumeHeldTarget));
+	s->pipetteStepper.moveTo(s->pipetteStepper.UnitToPosition(target));
 	if (!s->pipetteStepper.AtTarget())
 		return RUNNING;
 	
@@ -48,4 +50,5 @@ Status Controller::evaluatePipetteDispense(State *s) {
 	if (s->pipetteState.ulVolumeHeldTarget <= 0) {
 		s->pipetteState.spent = true;
 	}
+	return SUCCESS;
 }

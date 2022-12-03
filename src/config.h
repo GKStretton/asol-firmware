@@ -1,7 +1,7 @@
 #pragma once
 
 // Autonomous configuration
-#define DO_DYE_COLLECTION false
+#define DO_DYE_COLLECTION true
 
 #define PRINT_DATA false
 

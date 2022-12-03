@@ -6,14 +6,6 @@
 // atTarget checks if z, pitch, and yaw steppers are approximately at their local (next) target node
 bool atLocalTargetNode(State *s) {
 	bool result = s->zStepper.AtTarget() && s->pitchStepper.AtTarget() && s->yawStepper.AtTarget();
-	Logger::Debug("atLocalTargetNode");
-	Logger::Debug("atLocalTargetNode returning " + String(result));
-	Logger::Debug("zStepper current " + String(s->zStepper.currentPosition()));
-	Logger::Debug("zStepper target " + String(s->zStepper.targetPosition()));
-	Logger::Debug("pitchStepper current " + String(s->pitchStepper.currentPosition()));
-	Logger::Debug("pitchStepper target " + String(s->pitchStepper.targetPosition()));
-	Logger::Debug("yawStepper current " + String(s->yawStepper.currentPosition()));
-	Logger::Debug("yawStepper target " + String(s->yawStepper.targetPosition()));
 	return result;
 }
 

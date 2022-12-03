@@ -25,7 +25,7 @@ State s = {
 	UnitStepper(YAW_STEPPER_STEP, YAW_STEPPER_DIR, 8, 0.36, YAW_ZERO_OFFSET, 198),
 	UnitStepper(Z_STEPPER_STEP, Z_STEPPER_DIR, 4, 0.04078, 0, 73),
 	UnitStepper(RING_STEPPER_STEP, RING_STEPPER_DIR, 32, 0.4, RING_ZERO_OFFSET, 280),
-	UnitStepper(PIPETTE_STEPPER_STEP, PIPETTE_STEPPER_DIR, 32, 2.74, 100, 700),
+	UnitStepper(PIPETTE_STEPPER_STEP, PIPETTE_STEPPER_DIR, 32, 2.74, 0, 600),
 	0.0,
 	0.0,
 	{true, 0, 0, 0.0},
@@ -158,14 +158,14 @@ void topicHandler(String topic, String payload)
 	}
 	else if (topic == "mega/req/dispense") {
 		String values[] = {""};
-		float ul = values[0].toFloat();
 		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 1);
+		float ul = values[0].toFloat();
 		if (!s.pipetteState.spent) {
 			s.pipetteState.ulVolumeHeldTarget -= ul;
 			if (s.pipetteState.ulVolumeHeldTarget <= 0) {
 				s.pipetteState.ulVolumeHeldTarget = 0;
 			}
-			Logger::Info("dispensed, ulVolumeHeldTarget is now " + String(s.pipetteState.ulVolumeHeldTarget));
+			Logger::Info("dispensed " + String(ul) + ", ulVolumeHeldTarget is now " + String(s.pipetteState.ulVolumeHeldTarget));
 		} else {
 			Logger::Info("Cannot dispense because already spent");
 		}

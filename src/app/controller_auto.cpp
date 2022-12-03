@@ -15,19 +15,24 @@ void Controller::autoUpdate(State *s) {
 	digitalWrite(STEPPER_SLEEP, HIGH);
 
 	// No dye
-	if (DO_DYE_COLLECTION && (s->GetPipetteVolumeHeld() <= 0 || s->collectionInProgress)) {
+	if (DO_DYE_COLLECTION && (s->pipetteState.spent || s->collectionInProgress)) {
 		if (s->collectionRequest.requestCompleted) {
+			Logger::Debug("No collection request, idling...");
 			// Nothing to do. Wait at outer handover
-			s->globalTargetNode = OUTER_HANDOVER;
+			s->globalTargetNode = IDLE_LOCATION;
 			Navigation::UpdateNodeNavigation(s);
 			return;
 		} else {
+			Logger::Debug("Collection in progress...");
 			s->collectionInProgress = true;
 			Status status = evaluatePipetteCollection(s);
 			if (status == RUNNING || status == FAILURE) return;
+			Logger::Debug("Collection complete");
 			s->collectionInProgress = false;
 			s->collectionRequest.requestCompleted = true;
 		}
+	} else {
+		Logger::Debug("Skipping collection");
 	}
 
 	Navigation::UpdateNodeNavigation(s);
