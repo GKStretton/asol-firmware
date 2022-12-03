@@ -16,6 +16,9 @@
 
 #define E_STOP_PIN 27
 
+#define EEPROM_I2C_ADDRESS 0x50
+#define STARTUP_COUNTER_MEM_ADDR 1
+
 // Used with logic analyser
 #define STEP_INDICATOR_PIN 29
 

@@ -1,4 +1,5 @@
 #include <AccelStepper.h>
+#include <Wire.h>
 #include "src/drivers/fluid.h"
 #include "src/drivers/fs-i6.h"
 #include "src/config.h"
@@ -12,6 +13,7 @@
 #include "src/drivers/UnitStepper.h"
 #include "src/app/state.h"
 #include "src/app/controller.h"
+#include "src/drivers/i2c_eeprom.h"
 
 State s = {
 	0,
@@ -38,15 +40,22 @@ Controller controller;
 int updatesInLastSecond;
 unsigned long lastUpdatesPerSecondTime = millis();
 
+void eepromStartup() {
+	uint8_t counter = I2C_EEPROM::ReadByte(STARTUP_COUNTER_MEM_ADDR);
+	counter++;
+	I2C_EEPROM::WriteByte(STARTUP_COUNTER_MEM_ADDR, counter);
+	Logger::Info("Startup counter incremented to " + String(counter));
+}
+
 void setup()
 {
-	pinMode(E_STOP_PIN, INPUT);
 
+	Wire.begin();
 	Serial.begin(1000000);
 	Logger::SetLevel(Logger::DEBUG);
 	Logger::Info("setup start");
 
-	// Serial.begin(115200);
+	pinMode(E_STOP_PIN, INPUT);
 
 	pinMode(BUTTON_A, INPUT);
 	pinMode(SWITCH_A, INPUT);
@@ -88,6 +97,8 @@ void setup()
 	Logger::Info("setup complete");
 
 	Sleep::Wake();
+
+	eepromStartup();
 }
 
 void initSteppers() {
