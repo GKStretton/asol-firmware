@@ -13,4 +13,5 @@ private:
 	Status evaluatePipetteDispense(State *s);
 	Status evaluateIK(State *s);
 	Status evaluateShutdown(State *s);
+	Status evaluateCalibration(State *s);
 };

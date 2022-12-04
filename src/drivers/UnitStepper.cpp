@@ -139,3 +139,7 @@ bool UnitStepper::unitInRange(float a) {
 void UnitStepper::SetAtTargetUnitThreshold(float t) {
 	atTargetUnitThreshold_ = t;
 }
+
+bool UnitStepper::HasLimitSwitchBeenPressed() {
+	return limitSwitchContacted_;
+}

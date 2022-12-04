@@ -9,6 +9,15 @@ bool State::IsArmCalibrated() {
 		yawStepper.IsCalibrated();
 }
 
+bool State::IsFullyCalibrated() {
+	return
+		zStepper.IsCalibrated() &&
+		pitchStepper.IsCalibrated() &&
+		yawStepper.IsCalibrated() &&
+		ringStepper.IsCalibrated() &&
+		pipetteStepper.IsCalibrated();
+}
+
 float State::GetPipetteVolumeHeld() {
 	return pipetteStepper.PositionToUnit(pipetteStepper.currentPosition()) - PIPETTE_BUFFER;
 }
@@ -23,6 +32,8 @@ void State::ClearState() {
 	this->pipetteState = {true, 0, 0.0};
 	this->collectionInProgress = false;
 	this->shutdownRequested = false;
+	this->calibrationCleared = false;
+	this->postCalibrationStopCalled = false;
 
 	// clear calibration
 	this->pitchStepper.MarkAsNotCalibrated();

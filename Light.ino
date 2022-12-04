@@ -34,6 +34,8 @@ State s = {
 	pipetteState: {true, 0, 0.0},
 	collectionInProgress: false,
 	shutdownRequested: false,
+	calibrationCleared: false,
+	postCalibrationStopCalled: false,
 };
 
 Controller controller;
@@ -172,6 +174,7 @@ void topicHandler(String topic, String payload)
 		s.zStepper.MarkAsNotCalibrated();
 		s.ringStepper.MarkAsNotCalibrated();
 		s.pipetteStepper.MarkAsNotCalibrated();
+		s.calibrationCleared = true;
 	}
 	else if (topic == "mega/req/open-drain")
 	{

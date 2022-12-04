@@ -18,7 +18,10 @@ struct PipetteState {
 };
 
 struct State {
+	// returns true if pitch, yaw and z are calibrated
 	bool IsArmCalibrated();
+	// returns true if pitch, yaw, z, ring, and pipette are calibrated
+	bool IsFullyCalibrated();
 	float GetPipetteVolumeHeld();
 	// Clears state to begin like new
 	void ClearState();
@@ -54,4 +57,6 @@ struct State {
 	bool collectionInProgress;
 	// True if we've received shutdown request that's not done yet
 	bool shutdownRequested;
+	bool calibrationCleared;
+	bool postCalibrationStopCalled;
 };

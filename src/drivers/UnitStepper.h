@@ -42,6 +42,8 @@ public:
 	// Returns true if limit switch has been pressed and released for this motor
 	bool IsCalibrated();
 	void SetLimitSwitchPin(uint8_t pin);
+	// Returns true if limit switch has been pressed for this motor
+	bool HasLimitSwitchBeenPressed();
 
 	// (relative) Move the target position by an amount
 	void MoveTarget(float d);

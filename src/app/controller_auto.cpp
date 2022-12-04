@@ -6,7 +6,10 @@
 #include "../drivers/i2c_eeprom.h"
 
 void Controller::autoUpdate(State *s) {
-	// Shutdown 
+	// wake steppers
+	digitalWrite(STEPPER_SLEEP, HIGH);
+
+	// If shutting down
 	if (s->shutdownRequested) {
 		Status status = evaluateShutdown(s);
 		if (status == RUNNING) {
@@ -25,18 +28,27 @@ void Controller::autoUpdate(State *s) {
 	}
 
 	// if not calibrated
-	if (!s->IsArmCalibrated() || !s->ringStepper.IsCalibrated()) {
-		manualUpdate(s);
-		//todo: }else{ autocalibration IFF Sleep::GetLastSleepStatus == SAFE
-		//todo: prevent auto calibration if calibration is manually cleared later.
-		return;
+	if (!s->IsFullyCalibrated()) {
+		Status status = evaluateCalibration(s);
+		if (status == RUNNING) {
+			return;
+		} else if (status == FAILURE) {
+			manualUpdate(s);
+			return;
+		}
+		// if success, just continue
 	}
 
-	// wake steppers
-	digitalWrite(STEPPER_SLEEP, HIGH);
-
-	//! temporary to prevent controller spillover
-	s->ringStepper.moveTo(0);
+	// set speed to 0 once after calibration so motors don't keep moving
+	if (s->IsFullyCalibrated() && !s->postCalibrationStopCalled) {
+		s->yawStepper.setSpeed(0);
+		s->pitchStepper.setSpeed(0);
+		s->zStepper.setSpeed(0);
+		s->ringStepper.setSpeed(0);
+		s->pipetteStepper.setSpeed(0);
+		s->postCalibrationStopCalled = true;
+		Logger::Debug("Set all motors to speed 0 after calibration");
+	}
 
 	// No dye
 	if (DO_DYE_COLLECTION && (s->pipetteState.spent || s->collectionInProgress)) {

@@ -16,14 +16,14 @@ Status Controller::evaluateShutdown(State *s) {
 	}
 
 	// Arm shutdown behaviour
-	if (!s->IsArmCalibrated()) {
-		failureMarked = true;
-	} else {
+	if (s->IsArmCalibrated()) {
 		s->SetGlobalNavigationTarget(Node::HOME);
 		Status status = Navigation::UpdateNodeNavigation(s);
 		if (status == FAILURE) failureMarked = true;
 		else if (status == RUNNING) somethingRunning = true;
 		// if succ that's good, defualt
+	} else {
+		failureMarked = true;
 	}
 
 	if (somethingRunning)
