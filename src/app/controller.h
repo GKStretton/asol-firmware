@@ -12,4 +12,5 @@ private:
 	Status evaluatePipetteCollection(State *s);
 	Status evaluatePipetteDispense(State *s);
 	Status evaluateIK(State *s);
+	Status evaluateShutdown(State *s);
 };

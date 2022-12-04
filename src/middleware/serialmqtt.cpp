@@ -5,7 +5,7 @@
 char buffer[SERIAL_MQTT_BUFFER_SIZE];
 int bufferIndex = 0;
 
-void (*TopicHandler)(String topic, String payload);
+void (*TopicHandler)(String topic, String payload) = NULL;
 
 void SerialMQTT::SetTopicHandler(void (*f)(String topic, String payload)) {
 	TopicHandler = f;
@@ -53,7 +53,11 @@ void processInputBuffer() {
 	// reset buffer
 	bufferIndex = 0;
 
-	TopicHandler(topic, payload);
+	if (TopicHandler == NULL) {
+		Logger::Warn("topic handler is null, mqtt serial will not be handled");
+	} else {
+		TopicHandler(topic, payload);
+	}
 }
 
 void SerialMQTT::Update() {

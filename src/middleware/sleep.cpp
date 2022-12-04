@@ -4,27 +4,52 @@
 #include "../config.h"
 #include "../middleware/logger.h"
 #include "../drivers/ringlight.h"
+#include "../drivers/i2c_eeprom.h"
 
 namespace Sleep {
 	namespace {
 		unsigned long lastNod = millis();
 		unsigned long lastPrint = millis();
 		bool sleeping = true;
+		SleepStatus lastSleepStatus = SleepStatus::UNKNOWN;
 
-		void onSleep() {
-			Logger::Info("Going to sleep");
+		void (*externalSleepHandler)(SleepStatus sleepStatus) = NULL;
+		void (*externalWakeHandler)(SleepStatus lastSleepStatus) = NULL;
+
+		void onSleep(SleepStatus status) {
+			Logger::Info("Going to sleep with status " + String(status));
+
+			// write eeprom flag
+			I2C_EEPROM::WriteByte(SAFE_SHUTDOWN_EEPROM_FLAG_ADDR, (int) status);
+
+			if (externalSleepHandler != NULL) {
+				Logger::Info("Calling externalSleepHandler");
+				externalSleepHandler(status);
+			}
+
+			Logger::Info("Powering down.");
 			SetDualRelay(V5_RELAY_PIN, false);
 			SetDualRelay(V12_RELAY_PIN1, false);
 			SetDualRelay(V12_RELAY_PIN2, false);
 		}
 
 		void onWake() {
-			Logger::Info("Waking up");
+			Logger::Info("Waking up, powering up");
 			SetDualRelay(V5_RELAY_PIN, true);
 			SetDualRelay(V12_RELAY_PIN1, true);
 			SetDualRelay(V12_RELAY_PIN2, true);
-			delay(100);
-			RingLight::Toggle();
+			delay(1000);
+
+			uint8_t data = I2C_EEPROM::ReadByte(SAFE_SHUTDOWN_EEPROM_FLAG_ADDR);
+			lastSleepStatus = (SleepStatus) data;
+			Logger::Info("read lastSleepStatus as " + String(lastSleepStatus));
+			// write back to unknown in case of sudden shutdown
+			I2C_EEPROM::WriteByte(SAFE_SHUTDOWN_EEPROM_FLAG_ADDR, (int) UNKNOWN);
+
+			if (externalWakeHandler != NULL) {
+				Logger::Info("Calling externalWakeHandler");
+				externalWakeHandler(lastSleepStatus);
+			}
 		}
 
 		bool eStopActive() {
@@ -53,7 +78,7 @@ namespace Sleep {
 
 	void Update() {
 		if (isSleeping()) {
-			Sleep();
+			Sleep(UNKNOWN);
 		} else {
 			Wake();
 		}
@@ -80,15 +105,27 @@ namespace Sleep {
 		}
 	}
 
-	void Sleep() {
+	void Sleep(SleepStatus status) {
 		bool wasSleeping = sleeping;
 		sleeping = true;
 		if (!wasSleeping) {
-			onSleep();
+			onSleep(status);
 		}
 	}
 
 	bool IsSleeping() {
 		return sleeping;
+	}
+
+    SleepStatus GetLastSleepStatus() {
+		return lastSleepStatus;
+	}
+
+    void SetOnSleepHandler(void (*f)(SleepStatus)) {
+		externalSleepHandler = f;
+	}
+
+    void SetOnWakeHandler(void (*f)(SleepStatus)) {
+		externalWakeHandler = f;
 	}
 }

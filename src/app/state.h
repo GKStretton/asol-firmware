@@ -17,10 +17,12 @@ struct PipetteState {
 	float ulVolumeHeldTarget;
 };
 
-class State {
-public:
+struct State {
 	bool IsArmCalibrated();
 	float GetPipetteVolumeHeld();
+	// Clears state to begin like new
+	void ClearState();
+	void SetGlobalNavigationTarget(Node n);
 
 	int updatesPerSecond;
 	// The most recent node to have been visited
@@ -50,4 +52,6 @@ public:
 
 	// True if fluid is currently being taken up
 	bool collectionInProgress;
+	// True if we've received shutdown request that's not done yet
+	bool shutdownRequested;
 };

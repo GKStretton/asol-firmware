@@ -1,8 +1,17 @@
 #pragma once
 
 namespace Sleep {
+    // idea: this could be binary compositable so you can parse multiple flags.
+    enum SleepStatus {
+        UNKNOWN = 0,
+        SAFE = 1,
+        CRIT = 2,
+    };
     void Update();
     void Wake();
-    void Sleep();
+    void Sleep(SleepStatus status);
     bool IsSleeping();
+    SleepStatus GetLastSleepStatus();
+    void SetOnSleepHandler(void (*f)(SleepStatus sleepStatus));
+    void SetOnWakeHandler(void (*f)(SleepStatus lastSleepStatus));
 };

@@ -1,6 +1,7 @@
 #include "navigation.h"
 #include "../app/state.h"
 #include "../middleware/logger.h"
+#include "../middleware/sleep.h"
 #include "../calibration.h"
 
 // atTarget checks if z, pitch, and yaw steppers are approximately at their local (next) target node
@@ -10,7 +11,6 @@ bool atLocalTargetNode(State *s) {
 }
 
 Node calculateNextNode(Node lastNode, Node targetNode) {
-	Logger::Debug("calculateNextNode for last " + String(lastNode) + " and target " + String(targetNode));
 	if (lastNode == UNDEFINED || targetNode == UNDEFINED)
 		return UNDEFINED;
 
@@ -166,6 +166,10 @@ bool atGlobalTarget(State *s)
 	return s->lastNode == s->globalTargetNode;
 }
 
+void atGlobalNodeHandler(Node node) {
+	//todo: maybe write the node to eeprom so state can be restored.
+}
+
 // the update tick for node navigation
 Status Navigation::UpdateNodeNavigation(State *s)
 {
@@ -183,7 +187,7 @@ Status Navigation::UpdateNodeNavigation(State *s)
 
 	// Calculate next local target
 	Node localTargetNode = calculateNextNode(s->lastNode, s->globalTargetNode);
-	Logger::Debug("calculateNextNode returned " + String(localTargetNode) + " for last node " + String(s->lastNode) + " and global target " + String(s->globalTargetNode));
+	Logger::Debug("calculateNextNode: last node " + String(s->lastNode) + " -> (" + String(localTargetNode) + ") -> global target " + String(s->globalTargetNode));
 	if (localTargetNode == UNDEFINED) {
 		Logger::Debug("local target undefined, skipping node navigation");
 		return FAILURE;
@@ -203,9 +207,54 @@ Status Navigation::UpdateNodeNavigation(State *s)
 		s->lastNode = localTargetNode;
 		Logger::Debug("Arrived at local target. lastNode set to " + String(s->lastNode));
 		if (atGlobalTarget(s)) {
+			atGlobalNodeHandler(s->lastNode);
 			return SUCCESS;
 		}
 	}
 
 	return RUNNING;
+}
+
+void Navigation::SetGlobalNavigationTarget(State *s, Node n) {
+	Logger::Debug("Setting global target to " + String(n));
+
+	if (s->lastNode == s->localTargetNode || s->localTargetNode == UNDEFINED) {
+		// no need for fancy checks if we're at our latest target
+		s->globalTargetNode = n;
+		return;
+	}
+
+	Node newLocalTarget = calculateNextNode(s->lastNode, n);
+
+	if (s->localTargetNode == newLocalTarget) {
+		// Standard, change global but continue as normal
+		Logger::Debug("Global navigation target simple-changed while in motion");
+		s->globalTargetNode = n;
+	} else {
+		//! local target will change, we must revist lastNode to be safe.
+		Node oldLastNode = s->lastNode;
+		// Because our node structure is assumed to be a tree, any edge, if cut,
+		// will produce two disconnected graphs. If the local target has changed
+		// while moving towards a local target,
+		// it must have switched which of those sub-graphs its in. Therefore,
+		// this is a reversal of direction. So, we pretend we were coming from 
+		// the old local target through this operation:
+		s->lastNode = s->localTargetNode;
+		// If the above is true, the new local target with this updated last
+		// MUST BE the old lastNode. This assertion ensures this is true
+
+		Logger::Debug("local target changing from " + String(s->localTargetNode) + " to " + String(newLocalTarget));
+		Logger::Debug("last node was " + String(oldLastNode) + ". Changing it to " + String(s->localTargetNode));
+
+		s->globalTargetNode = n;
+
+		Node newLocalTarget = calculateNextNode(s->lastNode, n);
+		if (newLocalTarget != oldLastNode) {
+			Logger::Error("New local target should equal old last node after in-motion direction change!");
+			Sleep::Sleep(Sleep::CRIT);
+		} else {
+			Logger::Debug("Assertion is all good because newLocalTarget == oldLastNode " + String(newLocalTarget) + " == " + String(oldLastNode));
+		}
+	}
+
 }

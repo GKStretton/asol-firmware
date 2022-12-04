@@ -4,6 +4,7 @@
 #include <Wire.h>
 
 void I2C_EEPROM::WriteByte(int addr, uint8_t data) {
+	Logger::Info("Sending to eeprom for WRITE. (If hanging, IDK! Logic analyser time? D:)");
 	Wire.beginTransmission(EEPROM_I2C_ADDRESS);
 	Wire.write((int)(addr >> 8)); // MSB
 	Wire.write((int)(addr & 0xFF)); // LSB
@@ -14,20 +15,15 @@ void I2C_EEPROM::WriteByte(int addr, uint8_t data) {
 uint8_t I2C_EEPROM::ReadByte(int addr) {
 	uint8_t readData = 0xFF;
 
-	Logger::Debug("begin transmission");
+	Logger::Info("Sending to eeprom for READ. (If hanging, IDK! Logic analyser time? D:)");
 	Wire.beginTransmission(EEPROM_I2C_ADDRESS);
-	Logger::Debug("writing");
 	Wire.write((int)(addr >> 8)); // MSB
 	Wire.write((int)(addr & 0xFF)); // LSB
-	Logger::Debug("end transmission");
 	Wire.endTransmission();
 
-	Logger::Debug("request");
 	Wire.requestFrom(EEPROM_I2C_ADDRESS, 1);
 	if (Wire.available()) {
-		Logger::Debug("read");
 		readData = Wire.read();
 	}
-	Logger::Debug("done");
 	return readData;
 }

@@ -16,23 +16,24 @@
 #include "src/drivers/i2c_eeprom.h"
 
 State s = {
-	0,
-	HOME,
-	UNDEFINED,
-	HOME,
-	false,
-	0,
-	0,
-	UnitStepper(PITCH_STEPPER_STEP, PITCH_STEPPER_DIR, 16, 0.44, 0, 90),
-	UnitStepper(YAW_STEPPER_STEP, YAW_STEPPER_DIR, 8, 0.36, YAW_ZERO_OFFSET, 198),
-	UnitStepper(Z_STEPPER_STEP, Z_STEPPER_DIR, 4, 0.04078, 0, 73),
-	UnitStepper(RING_STEPPER_STEP, RING_STEPPER_DIR, 32, 0.4, RING_ZERO_OFFSET, 280),
-	UnitStepper(PIPETTE_STEPPER_STEP, PIPETTE_STEPPER_DIR, 32, 2.74, 0, 600),
-	0.0,
-	0.0,
-	{true, 0, 0, 0.0},
-	{true, 0, 0.0},
-	false,
+	updatesPerSecond: 0,
+	lastNode: HOME,
+	localTargetNode: UNDEFINED,
+	globalTargetNode: HOME,
+	manual: false,
+	lastControlUpdate: 0,
+	lastDataUpdate: 0,
+	pitchStepper: UnitStepper(PITCH_STEPPER_STEP, PITCH_STEPPER_DIR, 16, 0.44, 0, 90),
+	yawStepper: UnitStepper(YAW_STEPPER_STEP, YAW_STEPPER_DIR, 8, 0.36, YAW_ZERO_OFFSET, 198),
+	zStepper: UnitStepper(Z_STEPPER_STEP, Z_STEPPER_DIR, 4, 0.04078, 0, 73),
+	ringStepper: UnitStepper(RING_STEPPER_STEP, RING_STEPPER_DIR, 32, 0.4, RING_ZERO_OFFSET, 280),
+	pipetteStepper: UnitStepper(PIPETTE_STEPPER_STEP, PIPETTE_STEPPER_DIR, 32, 2.74, 0, 600),
+	target_x: 0.0,
+	target_y: 0.0,
+	collectionRequest: {true, 0, 0, 0.0},
+	pipetteState: {true, 0, 0.0},
+	collectionInProgress: false,
+	shutdownRequested: false,
 };
 
 Controller controller;
@@ -40,11 +41,21 @@ Controller controller;
 int updatesInLastSecond;
 unsigned long lastUpdatesPerSecondTime = millis();
 
+// eepromStartup reads the startup counter, increments it, writes and prints it.
 void eepromStartup() {
 	uint8_t counter = I2C_EEPROM::ReadByte(STARTUP_COUNTER_MEM_ADDR);
 	counter++;
 	I2C_EEPROM::WriteByte(STARTUP_COUNTER_MEM_ADDR, counter);
 	Logger::Info("Startup counter incremented to " + String(counter));
+}
+
+void sleepHandler(Sleep::SleepStatus sleepStatus) {
+	digitalWrite(STEPPER_SLEEP, LOW);
+}
+
+void wakeHandler(Sleep::SleepStatus lastSleepStatus) {
+	RingLight::Toggle();
+	s.ClearState();
 }
 
 void setup()
@@ -96,6 +107,8 @@ void setup()
 	SerialMQTT::SetTopicHandler(topicHandler);
 	Logger::Info("setup complete");
 
+	Sleep::SetOnWakeHandler(wakeHandler);
+	Sleep::SetOnSleepHandler(sleepHandler);
 	Sleep::Wake();
 
 	eepromStartup();
@@ -146,7 +159,11 @@ void topicHandler(String topic, String payload)
 
 	if (topic == "mega/req/sleep")
 	{
-		Sleep::Sleep();
+		Sleep::Sleep(Sleep::UNKNOWN);
+	}
+	else if (topic == "mega/req/shutdown")
+	{
+		s.shutdownRequested = true;
 	}
 	else if (topic == "mega/req/uncalibrate")
 	{
@@ -200,7 +217,7 @@ void topicHandler(String topic, String payload)
 	else if (topic == "mega/req/goto-node")
 	{
 		long num = payload.toInt();
-		s.globalTargetNode = (Node)num;
+		s.SetGlobalNavigationTarget((Node)num);
 		Logger::Debug("Set globalTargetNode to " + String(num));
 	}
 	else if (topic == "mega/req/goto-xy") {

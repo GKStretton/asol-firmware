@@ -6,7 +6,7 @@
 Status Controller::evaluatePipetteCollection(State *s) {
 	// We have a request, time to collect dye!
 	Node n = VialNumberToInsideNode(s->collectionRequest.vialNumber);
-	s->globalTargetNode = n;
+	s->SetGlobalNavigationTarget(n);
 	Status status = Navigation::UpdateNodeNavigation(s);
 	if (status == RUNNING || status == FAILURE) return status;
 
