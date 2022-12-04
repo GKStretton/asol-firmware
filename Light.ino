@@ -230,6 +230,11 @@ void topicHandler(String topic, String payload)
 		s.target_y = values[1].toFloat();
 		Logger::Info("set target_x, target_y to " + String(s.target_x) + ", " + String(s.target_y));
 	}
+	else if (topic == "mega/req/manual")
+	{
+		s.manual = !s.manual;
+		Logger::Info("Toggled manual mode to " + String(s.manual));
+	}
 	else
 	{
 		Logger::Debug("no handler for " + topic + " (payload = " + payload + ")");

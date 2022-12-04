@@ -10,7 +10,7 @@ void Controller::Update(State *s) {
 		lastControlUpdate = millis();
 
         bool boardSwitchA = digitalRead(SWITCH_A);
-        if (boardSwitchA) {
+        if (boardSwitchA || s->manual) {
             manualUpdate(s);
         } else {
             autoUpdate(s);

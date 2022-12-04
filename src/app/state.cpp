@@ -34,6 +34,7 @@ void State::ClearState() {
 	this->shutdownRequested = false;
 	this->calibrationCleared = false;
 	this->postCalibrationStopCalled = false;
+	this->manual = false;
 
 	// clear calibration
 	this->pitchStepper.MarkAsNotCalibrated();
