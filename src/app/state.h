@@ -49,6 +49,8 @@ struct State {
 
 	float target_x;
 	float target_y;
+	float target_ring;
+	float target_yaw;
 
 	CollectionRequest collectionRequest;
 	PipetteState pipetteState;

@@ -50,6 +50,8 @@ void Controller::autoUpdate(State *s) {
 		Logger::Debug("Set all motors to speed 0 after calibration");
 	}
 
+	s->ringStepper.moveTo(s->ringStepper.UnitToPosition(s->target_ring));
+
 	// No dye
 	if (DO_DYE_COLLECTION && (s->pipetteState.spent || s->collectionInProgress)) {
 		if (s->collectionRequest.requestCompleted) {
@@ -71,25 +73,33 @@ void Controller::autoUpdate(State *s) {
 		Logger::Debug("Skipping collection");
 	}
 
-	Navigation::UpdateNodeNavigation(s);
-	evaluatePipetteDispense(s);
+	// At this point, we have collected liquid from a vial
 
-	//! Continue once all above is tested, and remove lines above
+	Navigation::SetGlobalNavigationTarget(s, INVERSE_KINEMATICS_POSITION);
+	Status status = Navigation::UpdateNodeNavigation(s);
+	// Block until we're in a safe dispense location
+	if (status == RUNNING || status == FAILURE) return;
 
-	// Now we have dye
+	// At this point, we have liquid from a vial and are in IK range
 
-	// s.Setblah(INVERSE_KINEMATICS_POSITION);
-	// Status status = Navigation::UpdateNodeNavigation(s);
-	// if (status == RUNNING || status == FAILURE) return;
+	status = evaluateIK(s);
+	if (status == FAILURE) {
+		Logger::Error("evaluate IK failed, returning");
+		return;
+	} else if (status == SUCCESS) {
+		// Tip is stationary.
+		// Fallthrough, allowing dispense
+	} else if (status == RUNNING) {
+		// Tip is stationary.
+		// Fallthrough, allowing dispense
+	}
 
-	//! Now we have dye and are in IK range
-
-	// evaluateIk()
-	//todo: drop into IK land. control Z based on requested value in state
-	//todo: and go to the specified xy
-	//todo: but don't return if running, continue to dispense code
-
-	//todo: s->pipetteStepper.moveTo(toUnits(s->pipetteState.ulVolumeHeldTarget))
+	//todo: z control, depending on dispense too
 
 	//? unify CollectionRequest.ulVolume and PipetteState.ulVolumeHeldTarget???
+	// because you can just decrease the collection volume as it gets dispensed?
+	// But will this work at edge cases?
+
+	status = evaluatePipetteDispense(s);
+	// Nothing to do, because once complete, the collection code takes over
 }

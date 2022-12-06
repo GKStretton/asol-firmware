@@ -1,5 +1,6 @@
 #include <AccelStepper.h>
 #include <Wire.h>
+#include "src/common/ik_algorithm.h"
 #include "src/drivers/fluid.h"
 #include "src/drivers/fs-i6.h"
 #include "src/config.h"
@@ -30,6 +31,8 @@ State s = {
 	pipetteStepper: UnitStepper(PIPETTE_STEPPER_STEP, PIPETTE_STEPPER_DIR, 32, 2.74, 0, 600),
 	target_x: 0.0,
 	target_y: 0.0,
+	target_ring: RING_ZERO_OFFSET,
+	target_yaw: 0.0,
 	collectionRequest: {true, 0, 0, 0.0},
 	pipetteState: {true, 0, 0.0},
 	collectionInProgress: false,
@@ -226,9 +229,29 @@ void topicHandler(String topic, String payload)
 	else if (topic == "mega/req/goto-xy") {
 		String values[] = {"", ""};
 		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 2);
-		s.target_x = values[0].toFloat();
-		s.target_y = values[1].toFloat();
-		Logger::Info("set target_x, target_y to " + String(s.target_x) + ", " + String(s.target_y));
+		float target_x = values[0].toFloat();
+		float target_y = values[1].toFloat();
+		Logger::Info("recieved req for target_x, target_y to " + String(target_x) + ", " + String(target_y));
+
+		float ring, yaw;
+		getRingAndYawFromXY(target_x, target_y,
+						s.ringStepper.PositionToUnit(s.ringStepper.currentPosition()),
+						&ring, &yaw,
+						s.ringStepper.GetMinUnit(), s.ringStepper.GetMaxUnit());
+
+		if (ring < s.ringStepper.GetMinUnit() || ring > s.ringStepper.GetMaxUnit()) {
+			Logger::Error("Unexpected ring value " + String(ring) + " detected, aborting ik!");
+			return;
+		}
+		if (yaw < -MAX_BOWL_YAW || yaw > MAX_BOWL_YAW) {
+			Logger::Error("Potentially dangerous yaw value " + String(yaw) + " detected, aborting ik!");
+			return;
+		}
+		Logger::Info("Setting x,y, and target_ring=" + String(ring) + " and target_yaw=" + String(yaw));
+		s.target_x = target_x;
+		s.target_y = target_y;
+		s.target_ring = ring;
+		s.target_yaw = yaw;
 	}
 	else if (topic == "mega/req/manual")
 	{
@@ -249,34 +272,34 @@ void dataUpdate()
 
 	unsigned long start = millis();
 	// Board input
-	// SerialMQTT::Publish("d/S_A", String(digitalRead(SWITCH_A)));
-	// SerialMQTT::Publish("d/S_B", String(digitalRead(SWITCH_B)));
-	// SerialMQTT::Publish("d/B_A", String(digitalRead(BUTTON_A)));
+	// SerialMQTT::PublishMega("d/S_A", String(digitalRead(SWITCH_A)));
+	// SerialMQTT::PublishMega("d/S_B", String(digitalRead(SWITCH_B)));
+	// SerialMQTT::PublishMega("d/B_A", String(digitalRead(BUTTON_A)));
 
 	// Power
-	// SerialMQTT::Publish("d/V12_C", String(analogRead(V12_CURRENT)));
-	// SerialMQTT::Publish("d/V5_C", String(analogRead(V5_CURRENT)));
+	// SerialMQTT::PublishMega("d/V12_C", String(analogRead(V12_CURRENT)));
+	// SerialMQTT::PublishMega("d/V5_C", String(analogRead(V5_CURRENT)));
 
 	// RX Controller data
 	// FS_I6::PrintRawChannels();
 	// FS_I6::PrintProcessedChannels();
 
 	// stepper raw position
-	// SerialMQTT::Publish("d/R_POS", String(s.ringStepper.currentPosition()));
-	SerialMQTT::Publish("d/Z_POS", String(s.zStepper.currentPosition()));
-	SerialMQTT::Publish("d/Y_POS", String(s.yawStepper.currentPosition()));
-	SerialMQTT::Publish("d/P_POS", String(s.pitchStepper.currentPosition()));
-	// SerialMQTT::Publish("d/PP_POS", String(s.pipetteStepper.currentPosition()));
+	// SerialMQTT::PublishMega("d/R_POS", String(s.ringStepper.currentPosition()));
+	SerialMQTT::PublishMega("d/Z_POS", String(s.zStepper.currentPosition()));
+	SerialMQTT::PublishMega("d/Y_POS", String(s.yawStepper.currentPosition()));
+	SerialMQTT::PublishMega("d/P_POS", String(s.pitchStepper.currentPosition()));
+	// SerialMQTT::PublishMega("d/PP_POS", String(s.pipetteStepper.currentPosition()));
 
 	// stepper units
-	// SerialMQTT::Publish("d/R_UNIT", String(s.ringStepper.PositionToUnit(s.ringStepper.currentPosition())));
-	SerialMQTT::Publish("d/Z_UNIT", String(s.zStepper.PositionToUnit(s.zStepper.currentPosition())));
-	SerialMQTT::Publish("d/Y_UNIT", String(s.yawStepper.PositionToUnit(s.yawStepper.currentPosition())));
-	SerialMQTT::Publish("d/P_UNIT", String(s.pitchStepper.PositionToUnit(s.pitchStepper.currentPosition())));
-	// SerialMQTT::Publish("d/PP_UNIT", String(s.pipetteStepper.PositionToUnit(s.pipetteStepper.currentPosition())));
+	// SerialMQTT::PublishMega("d/R_UNIT", String(s.ringStepper.PositionToUnit(s.ringStepper.currentPosition())));
+	SerialMQTT::PublishMega("d/Z_UNIT", String(s.zStepper.PositionToUnit(s.zStepper.currentPosition())));
+	SerialMQTT::PublishMega("d/Y_UNIT", String(s.yawStepper.PositionToUnit(s.yawStepper.currentPosition())));
+	SerialMQTT::PublishMega("d/P_UNIT", String(s.pitchStepper.PositionToUnit(s.pitchStepper.currentPosition())));
+	// SerialMQTT::PublishMega("d/PP_UNIT", String(s.pipetteStepper.PositionToUnit(s.pipetteStepper.currentPosition())));
 
-	SerialMQTT::Publish("d/DATA_MS", String(millis() - start));
-	SerialMQTT::Publish("d/UPS", String(s.updatesPerSecond));
+	SerialMQTT::PublishMega("d/DATA_MS", String(millis() - start));
+	SerialMQTT::PublishMega("d/UPS", String(s.updatesPerSecond));
 }
 
 void runSteppers(State *s)

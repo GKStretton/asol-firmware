@@ -31,3 +31,6 @@
 #define HANDOVER_PITCH 90
 #define HANDOVER_INNER_YAW 15
 #define HANDOVER_OUTER_YAW 55
+
+// the maximum value of yaw that it's safe to enter ik mode within
+#define MAX_BOWL_YAW 20

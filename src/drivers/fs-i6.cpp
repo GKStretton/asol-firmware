@@ -95,7 +95,7 @@ namespace FS_I6 {
             String name = GetChannelName((enum Channel) i) + "_raw";
             int raw = GetChannelRaw((enum Channel) i);
 
-            SerialMQTT::Publish(name, String(raw));
+            SerialMQTT::PublishMega(name, String(raw));
         }
     }
 
@@ -104,10 +104,10 @@ namespace FS_I6 {
             String name = GetChannelName((enum Channel) i) + "_proc";
             if (i == S1 || i == S2) { // The switch channels
                 int val = GetSwitch((enum Channel) i);
-                SerialMQTT::Publish(name, String(val));
+                SerialMQTT::PublishMega(name, String(val));
             } else {
                 float val = GetStick((enum Channel) i);
-                SerialMQTT::Publish(name, String(val));
+                SerialMQTT::PublishMega(name, String(val));
             }
         }
     }

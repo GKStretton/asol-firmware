@@ -2,9 +2,11 @@
 #include <Arduino.h>
 #include "../common/util.h"
 #include "../config.h"
+#include "../middleware/serialmqtt.h"
 #include "../middleware/logger.h"
 #include "../drivers/ringlight.h"
 #include "../drivers/i2c_eeprom.h"
+#include "../config.h"
 
 namespace Sleep {
 	namespace {
@@ -31,10 +33,15 @@ namespace Sleep {
 			SetDualRelay(V5_RELAY_PIN, false);
 			SetDualRelay(V12_RELAY_PIN1, false);
 			SetDualRelay(V12_RELAY_PIN2, false);
+			// turn off power with smart switch
+			SerialMQTT::PublishRawTopic(SMART_SWITCH_TOPIC, SMART_SWITCH_OFF_PAYLOAD);
+			Logger::Info("External power off req sent.");
 		}
 
 		void onWake() {
 			Logger::Info("Waking up, powering up");
+			SerialMQTT::PublishRawTopic(SMART_SWITCH_TOPIC, SMART_SWITCH_ON_PAYLOAD);
+			delay(2000);
 			SetDualRelay(V5_RELAY_PIN, true);
 			SetDualRelay(V12_RELAY_PIN1, true);
 			SetDualRelay(V12_RELAY_PIN2, true);

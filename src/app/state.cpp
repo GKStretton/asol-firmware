@@ -26,8 +26,10 @@ void State::ClearState() {
 	this->lastNode = HOME;
 	this->localTargetNode = UNDEFINED;
 	this->globalTargetNode = HOME;
-	this->target_x = 0;
-	this->target_y = 0;
+	this->target_x = 0.0;
+	this->target_y = 0.0;
+	this->target_ring = RING_ZERO_OFFSET;
+	this->target_yaw = 0.0;
 	this->collectionRequest = {true, 0, 0, 0.0};
 	this->pipetteState = {true, 0, 0.0};
 	this->collectionInProgress = false;

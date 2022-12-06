@@ -13,25 +13,25 @@ namespace Logger {
 
 	void Error(String str) {
 		if (level >= ERROR) {
-			SerialMQTT::Publish("l/error", str);
+			SerialMQTT::PublishMega("l/error", str);
 		}
 	}
 
 	void Warn(String str) {
 		if (level >= WARN) {
-			SerialMQTT::Publish("l/warn", str);
+			SerialMQTT::PublishMega("l/warn", str);
 		}
 	}
 
 	void Info(String str) {
 		if (level >= INFO) {
-			SerialMQTT::Publish("l/info", str);
+			SerialMQTT::PublishMega("l/info", str);
 		}
 	}
 
 	void Debug(String str) {
 		if (level >= DEBUG) {
-			SerialMQTT::Publish("l/debug", str);
+			SerialMQTT::PublishMega("l/debug", str);
 		}
 	}
 }

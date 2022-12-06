@@ -70,9 +70,16 @@ void SerialMQTT::Update() {
 	}
 }
 
-void SerialMQTT::Publish(String topic, String payload) {
+void SerialMQTT::PublishMega(String topic, String payload) {
 	Serial.print('>');
 	Serial.print(SERIAL_MQTT_SEND_PREFIX);
+	Serial.print(topic);
+	Serial.print(";");
+	Serial.println(payload);
+}
+
+void SerialMQTT::PublishRawTopic(String topic, String payload) {
+	Serial.print('>');
 	Serial.print(topic);
 	Serial.print(";");
 	Serial.println(payload);
