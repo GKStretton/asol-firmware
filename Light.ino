@@ -114,7 +114,9 @@ void setup()
 
 	Sleep::SetOnWakeHandler(wakeHandler);
 	Sleep::SetOnSleepHandler(sleepHandler);
-	Sleep::Wake();
+
+	// disabling so it doesn't always start after flash / gateway restart
+	// Sleep::Wake();
 
 	eepromStartup();
 }
