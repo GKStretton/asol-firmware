@@ -125,15 +125,15 @@ namespace Sleep {
 		return sleeping;
 	}
 
-    SleepStatus GetLastSleepStatus() {
+	SleepStatus GetLastSleepStatus() {
 		return lastSleepStatus;
 	}
 
-    void SetOnSleepHandler(void (*f)(SleepStatus)) {
+	void SetOnSleepHandler(void (*f)(SleepStatus)) {
 		externalSleepHandler = f;
 	}
 
-    void SetOnWakeHandler(void (*f)(SleepStatus)) {
+	void SetOnWakeHandler(void (*f)(SleepStatus)) {
 		externalWakeHandler = f;
 	}
 }

@@ -1,5 +1,5 @@
 #pragma once
 
 namespace RingLight {
-    void Toggle();
+	void Toggle();
 };

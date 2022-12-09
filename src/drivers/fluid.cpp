@@ -9,13 +9,13 @@ void SetupFluid() {
 }
 
 void SetAirFlow(bool flow) {
-    SetDualRelay(AIR_VALVE_RELAY, flow);
+	SetDualRelay(AIR_VALVE_RELAY, flow);
 }
 
 void SetFlushFlow(bool flow) {
-    SetDualRelay(WATER_VALVE_RELAY, flow);
+	SetDualRelay(WATER_VALVE_RELAY, flow);
 }
 
 void SetCanvasFlow(bool flow) {
-    SetDualRelay(MILK_VALVE_RELAY, flow);
+	SetDualRelay(MILK_VALVE_RELAY, flow);
 }
