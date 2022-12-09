@@ -33,6 +33,7 @@ namespace Sleep {
 			SetDualRelay(V5_RELAY_PIN, false);
 			SetDualRelay(V12_RELAY_PIN1, false);
 			SetDualRelay(V12_RELAY_PIN2, false);
+
 			// turn off power with smart switch
 			SerialMQTT::PublishRawTopic(SMART_SWITCH_TOPIC, SMART_SWITCH_OFF_PAYLOAD);
 			Logger::Info("External power off req sent.");
