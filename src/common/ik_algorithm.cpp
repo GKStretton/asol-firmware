@@ -5,7 +5,7 @@
 
 void getRingAndYawFromXY(float x, float y, float lastRing, float *ring, float *yaw, float minRingUnit, float maxRingUnit)
 {
-	boundXYToCircle(&x, &y, 0.7);
+	boundXYToCircle(&x, &y, 1.0);
 	// No solutions at centre so just do ring = last, yawOffset = 0
 	if (abs(x) <= 0.001 && abs(y) <= 0.001)
 	{

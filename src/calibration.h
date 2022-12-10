@@ -11,7 +11,7 @@
 #define PIPETTE_INTAKE_Z 60
 
 // Physical calibration of arm positions etc
-#define STAGE_RADIUS_MM 75.0
+#define STAGE_RADIUS_MM 45
 #define ARM_PATH_RADIUS_MM 164.7
 
 #define YAW_ZERO_OFFSET -22.3
@@ -28,9 +28,9 @@
 #define VIAL_YAW_INCREMENT 35.5
 
 #define HANDOVER_Z 50
-#define HANDOVER_PITCH 90
+#define HANDOVER_PITCH 75
 #define HANDOVER_INNER_YAW 15
-#define HANDOVER_OUTER_YAW 55
+#define HANDOVER_OUTER_YAW 50
 
 // the maximum value of yaw that it's safe to enter ik mode within
 #define MAX_BOWL_YAW 20

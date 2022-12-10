@@ -61,4 +61,6 @@ struct State {
 	bool shutdownRequested;
 	bool calibrationCleared;
 	bool postCalibrationStopCalled;
+	// if true, always go to the idle node when idle
+	bool forceIdleLocation;
 };

@@ -39,6 +39,7 @@ State s = {
 	shutdownRequested: false,
 	calibrationCleared: false,
 	postCalibrationStopCalled: false,
+	forceIdleLocation: true,
 };
 
 Controller controller;
@@ -225,6 +226,7 @@ void topicHandler(String topic, String payload)
 	else if (topic == "mega/req/goto-node")
 	{
 		long num = payload.toInt();
+		s.forceIdleLocation = num == IDLE_LOCATION;
 		s.SetGlobalNavigationTarget((Node)num);
 		Logger::Debug("Set globalTargetNode to " + String(num));
 	}

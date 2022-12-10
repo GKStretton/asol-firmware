@@ -29,6 +29,7 @@ void Controller::autoUpdate(State *s) {
 
 	// if not calibrated
 	if (!s->IsFullyCalibrated()) {
+		s->postCalibrationStopCalled = false;
 		Status status = evaluateCalibration(s);
 		if (status == RUNNING) {
 			return;
@@ -57,7 +58,7 @@ void Controller::autoUpdate(State *s) {
 		if (s->collectionRequest.requestCompleted) {
 			Logger::Debug("No collection request, idling...");
 			// Nothing to do. Wait at outer handover
-			s->SetGlobalNavigationTarget(IDLE_LOCATION);
+			if (s->forceIdleLocation) s->SetGlobalNavigationTarget(IDLE_LOCATION);
 			Navigation::UpdateNodeNavigation(s);
 			return;
 		} else {
