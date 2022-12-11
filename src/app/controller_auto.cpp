@@ -91,8 +91,8 @@ void Controller::autoUpdate(State *s) {
 		// Tip is stationary.
 		// Fallthrough, allowing dispense
 	} else if (status == RUNNING) {
-		// Tip is stationary.
-		// Fallthrough, allowing dispense
+		// block dispense if still moving
+		return;
 	}
 
 	//todo: z control, depending on dispense too
