@@ -1,5 +1,6 @@
 #include "controller.h"
 #include "../app/navigation.h"
+#include "../calibration.h"
 
 Status Controller::evaluateShutdown(State *s) {
 	// this var helps us do parallel movements within this function
@@ -12,6 +13,12 @@ Status Controller::evaluateShutdown(State *s) {
 			s->ringStepper.GetMinUnit()
 		));
 		if (!s->ringStepper.AtTarget())
+			somethingRunning = true;
+	}
+
+	if (s->pipetteStepper.IsCalibrated()) {
+		s->pipetteStepper.moveTo(s->pipetteStepper.UnitToPosition(PIPETTE_BUFFER));
+		if (!s->pipetteStepper.AtTarget())
 			somethingRunning = true;
 	}
 
