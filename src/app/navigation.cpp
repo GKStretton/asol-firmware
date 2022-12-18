@@ -181,7 +181,6 @@ Status Navigation::UpdateNodeNavigation(State *s)
 
 	// Don't take action if we're at the global target. But do if localtarget undefined (start)
 	if (s->localTargetNode != UNDEFINED && atGlobalTarget(s)) {
-		Logger::Debug("atGlobalTarget, so not updating node navigation");
 		return SUCCESS;
 	}
 
@@ -216,45 +215,30 @@ Status Navigation::UpdateNodeNavigation(State *s)
 }
 
 void Navigation::SetGlobalNavigationTarget(State *s, Node n) {
-	Logger::Debug("Setting global target to " + String(n));
+	// nothing to do
+	if (s->globalTargetNode == n) return;
+
+	Logger::Debug("Changing global target " + String(s->globalTargetNode) + " -> " + String(n));
+	s->globalTargetNode = n;
 
 	if (s->lastNode == s->localTargetNode || s->localTargetNode == UNDEFINED) {
 		// no need for fancy checks if we're at our latest target
-		s->globalTargetNode = n;
 		return;
 	}
 
 	Node newLocalTarget = calculateNextNode(s->lastNode, n);
 
-	if (s->localTargetNode == newLocalTarget) {
-		// Standard, change global but continue as normal
-		Logger::Debug("Global navigation target simple-changed while in motion");
-		s->globalTargetNode = n;
-	} else {
+	if (s->localTargetNode != newLocalTarget) {
 		//! local target will change, we must revist lastNode to be safe.
 		Node oldLastNode = s->lastNode;
-		// Because our node structure is assumed to be a tree, any edge, if cut,
-		// will produce two disconnected graphs. If the local target has changed
-		// while moving towards a local target,
-		// it must have switched which of those sub-graphs its in. Therefore,
-		// this is a reversal of direction. So, we pretend we were coming from 
+		// This is a reversal of direction. So, we pretend we were coming from 
 		// the old local target through this operation:
 		s->lastNode = s->localTargetNode;
-		// If the above is true, the new local target with this updated last
-		// MUST BE the old lastNode. This assertion ensures this is true
 
-		Logger::Debug("local target changing from " + String(s->localTargetNode) + " to " + String(newLocalTarget));
-		Logger::Debug("last node was " + String(oldLastNode) + ". Changing it to " + String(s->localTargetNode));
+		Logger::Debug("... Local target changing " + String(s->localTargetNode) + " -> " + String(newLocalTarget));
+		Logger::Debug("... Therefore changing last node " + String(oldLastNode) + " -> " + String(s->localTargetNode));
 
 		s->globalTargetNode = n;
-
-		Node newLocalTarget = calculateNextNode(s->lastNode, n);
-		if (newLocalTarget != oldLastNode) {
-			Logger::Error("New local target should equal old last node after in-motion direction change!");
-			Sleep::Sleep(Sleep::CRIT);
-		} else {
-			Logger::Debug("Assertion is all good because newLocalTarget == oldLastNode " + String(newLocalTarget) + " == " + String(oldLastNode));
-		}
 	}
 
 }
