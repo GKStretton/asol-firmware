@@ -70,8 +70,6 @@ void Controller::autoUpdate(State *s) {
 			s->collectionInProgress = false;
 			s->collectionRequest.requestCompleted = true;
 		}
-	} else {
-		Logger::Debug("Skipping collection");
 	}
 
 	// At this point, we have collected liquid from a vial
