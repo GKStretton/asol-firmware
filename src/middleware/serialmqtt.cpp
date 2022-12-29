@@ -32,7 +32,7 @@ void processInputBuffer() {
 		}
 
 		ptr++;
-		if (c == SERIAL_MQTT_PLAINTEXT_IDENTIFIER) {
+		if (c == SERIAL_MQTT_DELIMITER) {
 			break;
 		} else {
 			topic += c;
@@ -71,17 +71,17 @@ void SerialMQTT::Update() {
 }
 
 void SerialMQTT::PublishMega(String topic, String payload) {
-	Serial.print(SERIAL_MQTT_MSG_START_IDENTIFIER);
+	Serial.print(SERIAL_MQTT_PLAINTEXT_IDENTIFIER);
 	Serial.print(SERIAL_MQTT_SEND_PREFIX);
 	Serial.print(topic);
-	Serial.print(SERIAL_MQTT_PLAINTEXT_IDENTIFIER);
+	Serial.print(SERIAL_MQTT_DELIMITER);
 	Serial.println(payload);
 }
 
 void SerialMQTT::PublishRawTopic(String topic, String payload) {
-	Serial.print(SERIAL_MQTT_MSG_START_IDENTIFIER);
-	Serial.print(topic);
 	Serial.print(SERIAL_MQTT_PLAINTEXT_IDENTIFIER);
+	Serial.print(topic);
+	Serial.print(SERIAL_MQTT_DELIMITER);
 	Serial.println(payload);
 }
 
@@ -106,10 +106,10 @@ void SerialMQTT::UnpackCommaSeparatedValues(String payload, String values[], int
 }
 
 void SerialMQTT::PublishProto(String topic, const pb_msgdesc_t *fields, const void *src_struct) {
-	Serial.print(SERIAL_MQTT_MSG_START_IDENTIFIER);
+	Serial.print(SERIAL_MQTT_PROTOBUF_IDENTIFIER);
 	Serial.print(SERIAL_MQTT_SEND_PREFIX);
 	Serial.print(topic);
-	Serial.print(SERIAL_MQTT_PROTOBUF_IDENTIFIER);
+	Serial.print(SERIAL_MQTT_DELIMITER);
 	
 	//? should this be created only once?
 	pb_ostream_t stream = as_pb_ostream(Serial);

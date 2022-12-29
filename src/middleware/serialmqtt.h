@@ -5,9 +5,9 @@
 
 #define SERIAL_MQTT_BUFFER_SIZE 256
 #define SERIAL_MQTT_SEND_PREFIX "mega/"
-#define SERIAL_MQTT_MSG_START_IDENTIFIER '>'
-#define SERIAL_MQTT_PLAINTEXT_IDENTIFIER ';'
-#define SERIAL_MQTT_PROTOBUF_IDENTIFIER ';'
+#define SERIAL_MQTT_PLAINTEXT_IDENTIFIER '>'
+#define SERIAL_MQTT_PROTOBUF_IDENTIFIER '$'
+#define SERIAL_MQTT_DELIMITER ';'
 
 namespace SerialMQTT {
 	// The function that will be called upon receipt of topic & payload
