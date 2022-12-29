@@ -13,7 +13,7 @@
 
 #define E_STOP_PIN 27
 
-#define SMART_SWITCH_TOPIC "cmnd/tasmota_BBFCF7/Power1"
+#define SMART_SWITCH_TOPIC "cmnd/tasmota_sw1/Power1"
 #define SMART_SWITCH_OFF_PAYLOAD "OFF"
 #define SMART_SWITCH_ON_PAYLOAD "ON"
 
