@@ -7,15 +7,7 @@
 
 void StateReportUpdate(State *s) {
 	_machine_PingResponse resp = {
-		.number = 5,
+		.number = 55,
 	};
-	uint8_t buf[10];
-	Logger::Debug("created message and buffer");
-	pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
-	Logger::Debug("created stream");
-	pb_encode(&stream, machine_PingResponse_fields, &resp);
-
-	Logger::Debug("encoded");
-	SerialMQTT::PublishMega("state-report", String((char *) buf));
-	Logger::Debug("sent");
+	SerialMQTT::PublishProto("state-report", machine_PingResponse_fields, &resp);
 }

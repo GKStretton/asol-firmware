@@ -1,6 +1,6 @@
 #include "serialmqtt.h"
 #include "../config.h"
-#include "../middleware/logger.h"
+#include "../protos/pb_arduino/pb_arduino.h"
 
 char buffer[SERIAL_MQTT_BUFFER_SIZE];
 int bufferIndex = 0;
@@ -14,25 +14,25 @@ void SerialMQTT::SetTopicHandler(void (*f)(String topic, String payload)) {
 void processInputBuffer() {
 	String topic = "";
 	int ptr = 0;
-
-	// Get the topic, everything up to ';'
+	
+	// Get the topic, everything up to SERIAL_MQTT_PLAINTEXT_IDENTIFIER
 	while (true) {
 		if (ptr >= bufferIndex) {
-			Logger::Error("Out of buffer length without delimiter (shouldn't happen)");
+			Serial.println("Out of buffer length without delimiter (shouldn't happen)");
 			// Reset buffer
 			bufferIndex = 0;
 			return;
 		}
 		char c = buffer[ptr];
 		if (c == '\n') {
-			Logger::Error("New line before topic delimiter");
+			Serial.println("New line before topic delimiter");
 			// Reset buffer
 			bufferIndex = 0;
 			return;
 		}
 
 		ptr++;
-		if (c == ';') {
+		if (c == SERIAL_MQTT_PLAINTEXT_IDENTIFIER) {
 			break;
 		} else {
 			topic += c;
@@ -54,7 +54,7 @@ void processInputBuffer() {
 	bufferIndex = 0;
 
 	if (TopicHandler == NULL) {
-		Logger::Warn("topic handler is null, mqtt serial will not be handled");
+		Serial.println("topic handler is null, mqtt serial will not be handled");
 	} else {
 		TopicHandler(topic, payload);
 	}
@@ -71,17 +71,17 @@ void SerialMQTT::Update() {
 }
 
 void SerialMQTT::PublishMega(String topic, String payload) {
-	Serial.print('>');
+	Serial.print(SERIAL_MQTT_MSG_START_IDENTIFIER);
 	Serial.print(SERIAL_MQTT_SEND_PREFIX);
 	Serial.print(topic);
-	Serial.print(";");
+	Serial.print(SERIAL_MQTT_PLAINTEXT_IDENTIFIER);
 	Serial.println(payload);
 }
 
 void SerialMQTT::PublishRawTopic(String topic, String payload) {
-	Serial.print('>');
+	Serial.print(SERIAL_MQTT_MSG_START_IDENTIFIER);
 	Serial.print(topic);
-	Serial.print(";");
+	Serial.print(SERIAL_MQTT_PLAINTEXT_IDENTIFIER);
 	Serial.println(payload);
 }
 
@@ -103,4 +103,19 @@ void SerialMQTT::UnpackCommaSeparatedValues(String payload, String values[], int
 	}
 	// return error if we didn't find exactly n comma separated values
 	return;
+}
+
+void SerialMQTT::PublishProto(String topic, const pb_msgdesc_t *fields, const void *src_struct) {
+	Serial.print(SERIAL_MQTT_MSG_START_IDENTIFIER);
+	Serial.print(SERIAL_MQTT_SEND_PREFIX);
+	Serial.print(topic);
+	Serial.print(SERIAL_MQTT_PROTOBUF_IDENTIFIER);
+	
+	//? should this be created only once?
+	pb_ostream_t stream = as_pb_ostream(Serial);
+	bool b = pb_encode(&stream, fields, src_struct);
+	Serial.println();
+	if (!b) {
+		Serial.println("pb_encode return false in PublishProto");
+	}
 }

@@ -1,6 +1,13 @@
 #pragma once
 
 #include <Arduino.h>
+#include "../protos/nanopb/pb_encode.h"
+
+#define SERIAL_MQTT_BUFFER_SIZE 256
+#define SERIAL_MQTT_SEND_PREFIX "mega/"
+#define SERIAL_MQTT_MSG_START_IDENTIFIER '>'
+#define SERIAL_MQTT_PLAINTEXT_IDENTIFIER ';'
+#define SERIAL_MQTT_PROTOBUF_IDENTIFIER ';'
 
 namespace SerialMQTT {
 	// The function that will be called upon receipt of topic & payload
@@ -15,4 +22,7 @@ namespace SerialMQTT {
 	// Payload helpers
 	// Unpacks n values separated by commas into values[]. Returns true if error
 	void UnpackCommaSeparatedValues(String payload, String values[], int n);
+
+	// Publish a nanopb proto to the specified topic (mega prefix will be added)
+	void PublishProto(String topic, const pb_msgdesc_t *fields, const void *src_struct);
 };

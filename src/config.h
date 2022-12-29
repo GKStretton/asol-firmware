@@ -11,9 +11,6 @@
 #define SLEEP_TIME_MINUTES 0
 #define SLEEP_PRINT_INTERVAL 5000
 
-#define SERIAL_MQTT_BUFFER_SIZE 256
-#define SERIAL_MQTT_SEND_PREFIX "mega/"
-
 #define E_STOP_PIN 27
 
 #define SMART_SWITCH_TOPIC "cmnd/tasmota_BBFCF7/Power1"
