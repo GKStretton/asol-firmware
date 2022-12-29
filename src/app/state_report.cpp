@@ -5,9 +5,25 @@
 #include "../middleware/serialmqtt.h"
 #include "../middleware/logger.h"
 
+static machine_StateReport stateReport = machine_StateReport_init_default;
+
+// returns true if something changed
+static bool updateStateReport(State *s) {
+	bool changed = false;
+	//todo: implement
+
+	// init all fields
+
+	// for each...
+	// if stateReport.field != s.field {
+	//     stateReport.field = s.field;
+	//     changed = true;
+	// }
+	return false;
+}
+
 void StateReportUpdate(State *s) {
-	_machine_PingResponse resp = {
-		.number = 55,
-	};
-	SerialMQTT::PublishProto("state-report", machine_PingResponse_fields, &resp);
+	if (updateStateReport(s)) {
+		SerialMQTT::PublishProto("state-report", machine_PingResponse_fields, &stateReport);
+	}
 }

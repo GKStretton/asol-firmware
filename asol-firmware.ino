@@ -15,7 +15,6 @@
 #include "src/app/state.h"
 #include "src/app/controller.h"
 #include "src/drivers/i2c_eeprom.h"
-#include "src/app/state_report.h"
 
 State s = {
 	updatesPerSecond: 0,
@@ -337,11 +336,9 @@ void loop()
 
 	dataUpdate();
 
-
 	updatesInLastSecond++;
 	if (millis() - lastUpdatesPerSecondTime > 1000)
 	{
-		StateReportUpdate(&s);
 		s.updatesPerSecond = updatesInLastSecond;
 		updatesInLastSecond = 0;
 		lastUpdatesPerSecondTime = millis();
