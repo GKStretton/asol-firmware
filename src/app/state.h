@@ -27,6 +27,7 @@ struct State {
 	void ClearState();
 	void SetGlobalNavigationTarget(Node n);
 
+	// stepper ticks
 	int updatesPerSecond;
 	// The most recent node to have been visited
 	Node lastNode;
