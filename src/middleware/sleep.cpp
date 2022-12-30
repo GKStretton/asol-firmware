@@ -11,7 +11,7 @@
 namespace Sleep {
 	namespace {
 		unsigned long lastNod = millis();
-		unsigned long lastPrint = millis();
+		unsigned long lastPrint = millis() - SLEEP_PRINT_INTERVAL;
 		bool sleeping = true;
 		SleepStatus lastSleepStatus = SleepStatus::UNKNOWN;
 
@@ -91,12 +91,12 @@ namespace Sleep {
 			Wake();
 		}
 		if (millis() - lastPrint > SLEEP_PRINT_INTERVAL) {
+			lastPrint = millis();
 			if (eStopActive()) {
 				Logger::Info("E_STOP ACTIVE");
 			} else if (sleeping) {
 				Logger::Info("sleeping");
 			}
-			lastPrint = millis();
 		}
 	}
 
@@ -123,6 +123,10 @@ namespace Sleep {
 
 	bool IsSleeping() {
 		return sleeping;
+	}
+
+	bool IsEStopActive() {
+		return eStopActive();
 	}
 
 	SleepStatus GetLastSleepStatus() {

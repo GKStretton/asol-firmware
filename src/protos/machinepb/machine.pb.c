@@ -18,9 +18,6 @@ PB_BIND(machine_CollectionRequest, machine_CollectionRequest, AUTO)
 PB_BIND(machine_MovementDetails, machine_MovementDetails, AUTO)
 
 
-PB_BIND(machine_CalibrationState, machine_CalibrationState, AUTO)
-
-
 PB_BIND(machine_StateReport, machine_StateReport, AUTO)
 
 

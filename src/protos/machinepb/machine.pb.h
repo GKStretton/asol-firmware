@@ -18,6 +18,7 @@ typedef enum _machine_Mode {
 
 typedef enum _machine_Status { 
     machine_Status_UNDEFINED_STATUS = 0, 
+    machine_Status_ERROR = 1, 
     machine_Status_E_STOP_ACTIVE = 5, 
     machine_Status_SLEEPING = 6, 
     machine_Status_SHUTTING_DOWN = 9, 
@@ -33,10 +34,6 @@ typedef enum _machine_Status {
 } machine_Status;
 
 /* Struct definitions */
-typedef struct _machine_CalibrationState { 
-    bool fully_calibrated;
-} machine_CalibrationState;
-
 typedef struct _machine_CollectionRequest { 
     bool completed;
     uint64_t request_number;
@@ -80,8 +77,6 @@ typedef struct _machine_StateReport {
     machine_CollectionRequest collection_request;
     bool has_movement_details;
     machine_MovementDetails movement_details;
-    bool has_calibration_state;
-    machine_CalibrationState calibration_state;
 } machine_StateReport;
 
 
@@ -104,17 +99,14 @@ extern "C" {
 #define machine_PipetteState_init_default        {0, 0, 0}
 #define machine_CollectionRequest_init_default   {0, 0, 0, 0}
 #define machine_MovementDetails_init_default     {0, 0, 0, 0}
-#define machine_CalibrationState_init_default    {0}
-#define machine_StateReport_init_default         {0, _machine_Mode_MIN, _machine_Status_MIN, false, machine_PipetteState_init_default, false, machine_CollectionRequest_init_default, false, machine_MovementDetails_init_default, false, machine_CalibrationState_init_default}
+#define machine_StateReport_init_default         {0, _machine_Mode_MIN, _machine_Status_MIN, false, machine_PipetteState_init_default, false, machine_CollectionRequest_init_default, false, machine_MovementDetails_init_default}
 #define machine_PingResponse_init_zero           {0}
 #define machine_PipetteState_init_zero           {0, 0, 0}
 #define machine_CollectionRequest_init_zero      {0, 0, 0, 0}
 #define machine_MovementDetails_init_zero        {0, 0, 0, 0}
-#define machine_CalibrationState_init_zero       {0}
-#define machine_StateReport_init_zero            {0, _machine_Mode_MIN, _machine_Status_MIN, false, machine_PipetteState_init_zero, false, machine_CollectionRequest_init_zero, false, machine_MovementDetails_init_zero, false, machine_CalibrationState_init_zero}
+#define machine_StateReport_init_zero            {0, _machine_Mode_MIN, _machine_Status_MIN, false, machine_PipetteState_init_zero, false, machine_CollectionRequest_init_zero, false, machine_MovementDetails_init_zero}
 
 /* Field tags (for use in manual encoding/decoding) */
-#define machine_CalibrationState_fully_calibrated_tag 1
 #define machine_CollectionRequest_completed_tag  1
 #define machine_CollectionRequest_request_number_tag 2
 #define machine_CollectionRequest_vial_number_tag 3
@@ -133,7 +125,6 @@ extern "C" {
 #define machine_StateReport_pipette_state_tag    10
 #define machine_StateReport_collection_request_tag 11
 #define machine_StateReport_movement_details_tag 12
-#define machine_StateReport_calibration_state_tag 13
 
 /* Struct field encoding specification for nanopb */
 #define machine_PingResponse_FIELDLIST(X, a) \
@@ -164,31 +155,23 @@ X(a, STATIC,   SINGULAR, FLOAT,    target_yaw_deg,   11)
 #define machine_MovementDetails_CALLBACK NULL
 #define machine_MovementDetails_DEFAULT NULL
 
-#define machine_CalibrationState_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, BOOL,     fully_calibrated,   1)
-#define machine_CalibrationState_CALLBACK NULL
-#define machine_CalibrationState_DEFAULT NULL
-
 #define machine_StateReport_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT64,   timestamp_unix_micros,   2) \
 X(a, STATIC,   SINGULAR, UENUM,    mode,              4) \
 X(a, STATIC,   SINGULAR, UENUM,    status,            5) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  pipette_state,    10) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  collection_request,  11) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  movement_details,  12) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  calibration_state,  13)
+X(a, STATIC,   OPTIONAL, MESSAGE,  movement_details,  12)
 #define machine_StateReport_CALLBACK NULL
 #define machine_StateReport_DEFAULT NULL
 #define machine_StateReport_pipette_state_MSGTYPE machine_PipetteState
 #define machine_StateReport_collection_request_MSGTYPE machine_CollectionRequest
 #define machine_StateReport_movement_details_MSGTYPE machine_MovementDetails
-#define machine_StateReport_calibration_state_MSGTYPE machine_CalibrationState
 
 extern const pb_msgdesc_t machine_PingResponse_msg;
 extern const pb_msgdesc_t machine_PipetteState_msg;
 extern const pb_msgdesc_t machine_CollectionRequest_msg;
 extern const pb_msgdesc_t machine_MovementDetails_msg;
-extern const pb_msgdesc_t machine_CalibrationState_msg;
 extern const pb_msgdesc_t machine_StateReport_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
@@ -196,16 +179,14 @@ extern const pb_msgdesc_t machine_StateReport_msg;
 #define machine_PipetteState_fields &machine_PipetteState_msg
 #define machine_CollectionRequest_fields &machine_CollectionRequest_msg
 #define machine_MovementDetails_fields &machine_MovementDetails_msg
-#define machine_CalibrationState_fields &machine_CalibrationState_msg
 #define machine_StateReport_fields &machine_StateReport_msg
 
 /* Maximum encoded size of messages (where known) */
-#define machine_CalibrationState_size            2
 #define machine_CollectionRequest_size           29
 #define machine_MovementDetails_size             20
 #define machine_PingResponse_size                6
 #define machine_PipetteState_size                13
-#define machine_StateReport_size                 87
+#define machine_StateReport_size                 83
 
 #ifdef __cplusplus
 } /* extern "C" */

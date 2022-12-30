@@ -36,7 +36,7 @@ void State::ClearState() {
 	this->shutdownRequested = false;
 	this->calibrationCleared = false;
 	this->postCalibrationStopCalled = false;
-	this->manual = false;
+	this->manualRequested = false;
 	this->forceIdleLocation = true;
 
 	// clear calibration

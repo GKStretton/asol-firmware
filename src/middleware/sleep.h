@@ -11,6 +11,7 @@ namespace Sleep {
 	void Wake();
 	void Sleep(SleepStatus status);
 	bool IsSleeping();
+	bool IsEStopActive();
 	SleepStatus GetLastSleepStatus();
 	void SetOnSleepHandler(void (*f)(SleepStatus sleepStatus));
 	void SetOnWakeHandler(void (*f)(SleepStatus lastSleepStatus));

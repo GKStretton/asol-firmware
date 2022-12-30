@@ -4,6 +4,7 @@
 #include "../middleware/logger.h"
 #include "../middleware/sleep.h"
 #include "../drivers/i2c_eeprom.h"
+#include "state_report.h"
 
 void Controller::autoUpdate(State *s) {
 	// wake steppers
@@ -11,6 +12,7 @@ void Controller::autoUpdate(State *s) {
 
 	// If shutting down
 	if (s->shutdownRequested) {
+		StateReport_SetStatus(machine_Status_SHUTTING_DOWN);
 		Status status = evaluateShutdown(s);
 		if (status == RUNNING) {
 			return;
@@ -29,6 +31,7 @@ void Controller::autoUpdate(State *s) {
 
 	// if not calibrated
 	if (!s->IsFullyCalibrated()) {
+		StateReport_SetStatus(machine_Status_CALIBRATING);
 		s->postCalibrationStopCalled = false;
 		Status status = evaluateCalibration(s);
 		if (status == RUNNING) {
@@ -56,16 +59,22 @@ void Controller::autoUpdate(State *s) {
 	// No dye
 	if (DO_DYE_COLLECTION && (s->pipetteState.spent || s->collectionInProgress)) {
 		if (s->collectionRequest.requestCompleted) {
+			StateReport_SetStatus(machine_Status_IDLE);
 			Logger::Debug("No collection request, idling...");
+
 			// Nothing to do. Wait at outer handover
 			if (s->forceIdleLocation) s->SetGlobalNavigationTarget(IDLE_LOCATION);
 			Navigation::UpdateNodeNavigation(s);
 			return;
 		} else {
 			Logger::Debug("Collection in progress...");
+
 			s->collectionInProgress = true;
 			Status status = evaluatePipetteCollection(s);
-			if (status == RUNNING || status == FAILURE) return;
+			if (status == RUNNING || status == FAILURE) {
+				StateReport_SetStatus(machine_Status_COLLECTING);
+				return;
+			}
 			Logger::Debug("Collection complete");
 			s->collectionInProgress = false;
 			s->collectionRequest.requestCompleted = true;
@@ -77,19 +86,24 @@ void Controller::autoUpdate(State *s) {
 	Navigation::SetGlobalNavigationTarget(s, INVERSE_KINEMATICS_POSITION);
 	Status status = Navigation::UpdateNodeNavigation(s);
 	// Block until we're in a safe dispense location
-	if (status == RUNNING || status == FAILURE) return;
+	if (status == RUNNING || status == FAILURE) {
+		StateReport_SetStatus(machine_Status_NAVIGATING_IK);
+		return;
+	}
 
 	// At this point, we have liquid from a vial and are in IK range
 
 	status = evaluateIK(s);
 	if (status == FAILURE) {
 		Logger::Error("evaluate IK failed, returning");
+		StateReport_SetStatus(machine_Status_ERROR);
 		return;
 	} else if (status == SUCCESS) {
 		// Tip is stationary.
 		// Fallthrough, allowing dispense
 	} else if (status == RUNNING) {
 		// block dispense if still moving
+		StateReport_SetStatus(machine_Status_NAVIGATING_IK);
 		return;
 	}
 
@@ -100,5 +114,9 @@ void Controller::autoUpdate(State *s) {
 	// But will this work at edge cases?
 
 	status = evaluatePipetteDispense(s);
+	if (status == RUNNING) {
+		StateReport_SetStatus(machine_Status_DISPENSING);
+	}
 	// Nothing to do, because once complete, the collection code takes over
+	// on the next iteration
 }

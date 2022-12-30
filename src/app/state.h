@@ -36,7 +36,7 @@ struct State {
 	// The final goal node in a potentially multi-hop movement
 	Node globalTargetNode;
 	// If true, respect the fs-i6 controller
-	bool manual;
+	bool manualRequested;
 	// Timing
 	unsigned long lastControlUpdate;
 	unsigned long lastDataUpdate;

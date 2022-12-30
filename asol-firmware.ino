@@ -15,13 +15,14 @@
 #include "src/app/state.h"
 #include "src/app/controller.h"
 #include "src/drivers/i2c_eeprom.h"
+#include "src/app/state_report.h"
 
 State s = {
 	updatesPerSecond: 0,
 	lastNode: HOME,
 	localTargetNode: UNDEFINED,
 	globalTargetNode: HOME,
-	manual: false,
+	manualRequested: false,
 	lastControlUpdate: 0,
 	lastDataUpdate: 0,
 	pitchStepper: UnitStepper(PITCH_STEPPER_STEP, PITCH_STEPPER_DIR, 16, 0.44, 0, 90),
@@ -57,9 +58,19 @@ void eepromStartup() {
 
 void sleepHandler(Sleep::SleepStatus sleepStatus) {
 	digitalWrite(STEPPER_SLEEP, LOW);
+
+	if (Sleep::IsEStopActive()) {
+		StateReport_SetStatus(machine_Status_E_STOP_ACTIVE);
+	} else {
+		StateReport_SetStatus(machine_Status_SLEEPING);
+	}
+	StateReport_Update(&s);
 }
 
 void wakeHandler(Sleep::SleepStatus lastSleepStatus) {
+	StateReport_SetStatus(machine_Status_WAKING_UP);
+	StateReport_Update(&s);
+
 	RingLight::Toggle();
 	s.ClearState();
 }
@@ -111,7 +122,6 @@ void setup()
 
 	// register callback
 	SerialMQTT::SetTopicHandler(topicHandler);
-	Logger::Info("setup complete");
 
 	Sleep::SetOnWakeHandler(wakeHandler);
 	Sleep::SetOnSleepHandler(sleepHandler);
@@ -120,6 +130,11 @@ void setup()
 	// Sleep::Wake();
 
 	eepromStartup();
+
+	Logger::Info("Sending first state report");
+	StateReport_SetStatus(machine_Status_SLEEPING);
+	StateReport_Update(&s);
+	Logger::Info("setup complete");
 }
 
 void initSteppers() {
@@ -259,8 +274,8 @@ void topicHandler(String topic, String payload)
 	}
 	else if (topic == "mega/req/manual")
 	{
-		s.manual = !s.manual;
-		Logger::Info("Toggled manual mode to " + String(s.manual));
+		s.manualRequested = !s.manualRequested;
+		Logger::Info("Toggled manualRequested mode to " + String(s.manualRequested));
 	}
 	else
 	{
@@ -324,6 +339,7 @@ void loop()
 	Sleep::Update();
 	if (Sleep::IsSleeping())
 	{
+		delay(50);
 		return;
 	}
 

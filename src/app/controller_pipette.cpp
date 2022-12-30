@@ -43,8 +43,9 @@ Status Controller::evaluatePipetteDispense(State *s) {
 	}
 	//todo: check that it's appropriate to dispense
 	s->pipetteStepper.moveTo(s->pipetteStepper.UnitToPosition(target));
-	if (!s->pipetteStepper.AtTarget())
+	if (!s->pipetteStepper.AtTarget()) {
 		return RUNNING;
+	}
 	
 	// mark as spent if at target of 0
 	if (s->pipetteState.ulVolumeHeldTarget <= 0) {

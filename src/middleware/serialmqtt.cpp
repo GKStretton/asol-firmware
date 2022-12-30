@@ -61,7 +61,7 @@ void processInputBuffer() {
 }
 
 void SerialMQTT::Update() {
-	if (Serial.available() > 0) {
+	while (Serial.available() > 0) {
 		int c = Serial.read();
 		buffer[bufferIndex++] = (char) c;
 		if (c == '\n') {
@@ -106,6 +106,8 @@ void SerialMQTT::UnpackCommaSeparatedValues(String payload, String values[], int
 }
 
 void SerialMQTT::PublishProto(String topic, const pb_msgdesc_t *fields, const void *src_struct) {
+	Serial.print("going to publish proto to " + topic + "\n");
+
 	Serial.print(SERIAL_MQTT_PROTOBUF_IDENTIFIER);
 	Serial.print(SERIAL_MQTT_SEND_PREFIX);
 	Serial.print(topic);
@@ -115,6 +117,7 @@ void SerialMQTT::PublishProto(String topic, const pb_msgdesc_t *fields, const vo
 	pb_ostream_t stream = as_pb_ostream(Serial);
 	bool b = pb_encode(&stream, fields, src_struct);
 	Serial.println();
+	Serial.println("published proto to " + topic + "\n");
 	if (!b) {
 		Serial.println("pb_encode return false in PublishProto");
 	}

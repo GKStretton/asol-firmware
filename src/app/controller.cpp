@@ -11,12 +11,14 @@ void Controller::Update(State *s) {
 		lastControlUpdate = millis();
 
 		bool boardSwitchA = digitalRead(SWITCH_A);
-		if (boardSwitchA || s->manual) {
+		if (boardSwitchA || s->manualRequested) {
 			manualUpdate(s);
+			StateReport_SetMode(machine_Mode_MANUAL);
 		} else {
 			autoUpdate(s);
+			StateReport_SetMode(machine_Mode_AUTONOMOUS);
 		}
 
-		StateReportUpdate(s);
+		StateReport_Update(s);
 	}
 }
