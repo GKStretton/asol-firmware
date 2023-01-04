@@ -110,7 +110,7 @@ void SerialMQTT::UnpackCommaSeparatedValues(String payload, String values[], int
 }
 
 void SerialMQTT::PublishProto(String topic, const pb_msgdesc_t *fields, const void *src_struct) {
-	Serial.print("going to publish proto to " + topic + "\n");
+	// Serial.print("going to publish proto to " + topic + "\n");
 
 	Serial.print(SERIAL_MQTT_MESSAGE_START);
 	Serial.print(SERIAL_MQTT_SEND_PREFIX);
@@ -119,17 +119,21 @@ void SerialMQTT::PublishProto(String topic, const pb_msgdesc_t *fields, const vo
 	Serial.print(SERIAL_MQTT_PROTOBUF_IDENTIFIER);
 
 	size_t message_size;
-	pb_get_encoded_size(&message_size, fields, src_struct);
+	bool sizeFlag = pb_get_encoded_size(&message_size, fields, src_struct);
 	char s = message_size & 0xFF;
 	Serial.print(s);
 	
 	//? should this be created only once?
 	pb_ostream_t stream = as_pb_ostream(Serial);
-	bool b = pb_encode(&stream, fields, src_struct);
+	bool encodeFlag = pb_encode(&stream, fields, src_struct);
 	Serial.print(SERIAL_MQTT_MESSAGE_END);
-	Serial.println();
-	Serial.println("published proto to " + topic + "\n");
-	if (!b) {
-		Serial.println("pb_encode return false in PublishProto");
+	// Serial.println();
+	// Serial.println("published proto to " + topic + "\n");
+
+	if (!sizeFlag) {
+		Serial.println("pb_get_encoded_size returned false in PublishProto");
+	}
+	if (!encodeFlag) {
+		Serial.println("pb_encode returned false in PublishProto");
 	}
 }

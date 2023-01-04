@@ -73,7 +73,6 @@ static void updateStateReport(State *s) {
 
 void StateReport_Update(State *s) {
 	updateStateReport(s);
-	Logger::Debug("updateStateReport completed");
 	if (hasChanged) {
 		SerialMQTT::PublishProto("state-report", machine_StateReport_fields, &stateReport);
 		hasChanged = false;
