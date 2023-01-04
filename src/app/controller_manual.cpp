@@ -5,6 +5,7 @@
 #include "../config.h"
 #include "../calibration.h"
 #include "../common/ik_algorithm.h"
+#include "state_report.h"
 
 // ikModeUpdate does ik logic on an x and y in range (-1,1).
 void ikModeUpdate(State *s)
@@ -47,6 +48,7 @@ void ikModeUpdate(State *s)
 
 void Controller::manualUpdate(State *s)
 {
+	StateReport_SetMode(machine_Mode_MANUAL);
 	// Get inputs
 
 	int sw1 = FS_I6::GetSwitch(FS_I6::S1);

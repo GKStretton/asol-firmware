@@ -24,11 +24,13 @@ typedef enum _machine_Status {
     machine_Status_SHUTTING_DOWN = 9, 
     machine_Status_WAKING_UP = 10, 
     machine_Status_CALIBRATING = 20, 
-    machine_Status_IDLE = 30, 
+    machine_Status_IDLE_STATIONARY = 30, 
+    machine_Status_IDLE_MOVING = 31, 
     machine_Status_FILLING_BOWL = 40, 
     machine_Status_DRAINING_BOWL = 41, 
     machine_Status_CLEANING_BOWL = 42, 
     machine_Status_DISPENSING = 50, 
+    machine_Status_WAITING_FOR_DISPENSE = 55, 
     machine_Status_COLLECTING = 60, 
     machine_Status_NAVIGATING_IK = 70 
 } machine_Status;

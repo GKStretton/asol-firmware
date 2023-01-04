@@ -12,6 +12,9 @@ void Controller::autoUpdate(State *s) {
 
 	// If shutting down
 	if (s->shutdownRequested) {
+		// including autonomous declaration in multiple places because
+		// if mode changes from manual to auto to manual, a state report will be sent
+		StateReport_SetMode(machine_Mode_AUTONOMOUS);
 		StateReport_SetStatus(machine_Status_SHUTTING_DOWN);
 		Status status = evaluateShutdown(s);
 		if (status == RUNNING) {
@@ -35,6 +38,7 @@ void Controller::autoUpdate(State *s) {
 		s->postCalibrationStopCalled = false;
 		Status status = evaluateCalibration(s);
 		if (status == RUNNING) {
+			StateReport_SetMode(machine_Mode_AUTONOMOUS);
 			return;
 		} else if (status == FAILURE) {
 			manualUpdate(s);
@@ -42,6 +46,7 @@ void Controller::autoUpdate(State *s) {
 		}
 		// if success, just continue
 	}
+	StateReport_SetMode(machine_Mode_AUTONOMOUS);
 
 	// set speed to 0 once after calibration so motors don't keep moving
 	if (s->IsFullyCalibrated() && !s->postCalibrationStopCalled) {
@@ -59,12 +64,16 @@ void Controller::autoUpdate(State *s) {
 	// No dye
 	if (DO_DYE_COLLECTION && (s->pipetteState.spent || s->collectionInProgress)) {
 		if (s->collectionRequest.requestCompleted) {
-			StateReport_SetStatus(machine_Status_IDLE);
 			Logger::Debug("No collection request, idling...");
 
 			// Nothing to do. Wait at outer handover
 			if (s->forceIdleLocation) s->SetGlobalNavigationTarget(IDLE_LOCATION);
-			Navigation::UpdateNodeNavigation(s);
+			Status status = Navigation::UpdateNodeNavigation(s);
+			if (status == RUNNING) {
+				StateReport_SetStatus(machine_Status_IDLE_MOVING);
+			} else {
+				StateReport_SetStatus(machine_Status_IDLE_STATIONARY);
+			}
 			return;
 		} else {
 			Logger::Debug("Collection in progress...");
@@ -116,7 +125,11 @@ void Controller::autoUpdate(State *s) {
 	status = evaluatePipetteDispense(s);
 	if (status == RUNNING) {
 		StateReport_SetStatus(machine_Status_DISPENSING);
+		return;
 	}
-	// Nothing to do, because once complete, the collection code takes over
+
+	StateReport_SetStatus(machine_Status_WAITING_FOR_DISPENSE);
+
+	// Nothing else to do, because once complete, the collection code takes over
 	// on the next iteration
 }
