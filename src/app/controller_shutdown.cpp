@@ -17,7 +17,7 @@ Status Controller::evaluateShutdown(State *s) {
 	}
 
 	if (s->pipetteStepper.IsCalibrated()) {
-		s->pipetteStepper.moveTo(s->pipetteStepper.UnitToPosition(PIPETTE_BUFFER));
+		s->pipetteStepper.moveTo(s->pipetteStepper.UnitToPosition(s->pipetteStepper.GetMinUnit()));
 		if (!s->pipetteStepper.AtTarget())
 			somethingRunning = true;
 	}
