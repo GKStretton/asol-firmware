@@ -109,9 +109,9 @@ void goToNode(State *s, Node node) {
 	}
 	else if (node == HOME)
 	{
-		s->zStepper.moveTo(s->zStepper.UnitToPosition(0));
+		s->zStepper.moveTo(s->zStepper.UnitToPosition(s->zStepper.GetMinUnit()));
 		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(0));
-		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(YAW_ZERO_OFFSET));
+		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(s->yawStepper.GetMinUnit()));
 		return;
 	}
 	else if (node == HOME_TOP)
