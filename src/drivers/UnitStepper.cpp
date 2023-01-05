@@ -1,5 +1,6 @@
 #include "UnitStepper.h"
 #include <Arduino.h>
+#include "../calibration.h"
 
 UnitStepper::UnitStepper(
 	uint8_t stepPin,
@@ -36,7 +37,7 @@ void UnitStepper::updateLimitSwitch() {
 	}
 	if (digitalRead(limitSwitchPin_)) {
 		float oldSpeed = speed();
-		setCurrentPosition(UnitToPosition(GetMinUnit()));
+		setCurrentPosition(UnitToPosition(GetMinUnit()-CALIBRATION_GAP_SIZE));
 		if (oldSpeed > 0)
 		{
 			setSpeed(oldSpeed);

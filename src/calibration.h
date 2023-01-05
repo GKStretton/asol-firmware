@@ -2,6 +2,11 @@
 
 // Basic Stepper calibration
 
+// After a limit switch is pressed, the current unit is set to the min unit minus
+// this value. So the motor would have to move at least this many units below
+// minimum to re-trigger the limit switch
+#define CALIBRATION_GAP_SIZE 1
+
 // multiplier for stepper speeds and accelerations. Useful for cautious testing.
 #define SPEED_MULT 1
 
@@ -14,8 +19,8 @@
 #define STAGE_RADIUS_MM 45
 #define ARM_PATH_RADIUS_MM 164.7
 
-#define YAW_ZERO_OFFSET -22.3
-#define RING_ZERO_OFFSET 23.8
+#define YAW_ZERO_OFFSET -21.3
+#define RING_ZERO_OFFSET 24.8
 
 #define CENTRE_PITCH 48.95
 #define MIN_BOWL_Z 32.5
