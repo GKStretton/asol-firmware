@@ -12,8 +12,11 @@ Status Controller::evaluateShutdown(State *s) {
 		s->ringStepper.moveTo(s->ringStepper.UnitToPosition(
 			s->ringStepper.GetMinUnit()
 		));
-		if (!s->ringStepper.AtTarget())
+		if (!s->ringStepper.AtTarget()) {
 			somethingRunning = true;
+			// go to ring 0 before arm action, to prevent cable hitting limit switch
+			return RUNNING;
+		}
 	}
 
 	if (s->pipetteStepper.IsCalibrated()) {
