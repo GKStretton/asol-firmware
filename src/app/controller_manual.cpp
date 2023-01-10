@@ -21,10 +21,15 @@ void ikModeUpdate(State *s)
 	}
 
 	float ring, yaw;
-	getRingAndYawFromXY(s->target_x, s->target_y,
+	int code = getRingAndYawFromXY(s->target_x, s->target_y,
 					 s->ringStepper.PositionToUnit(s->ringStepper.currentPosition()),
 					 &ring, &yaw,
 					 s->ringStepper.GetMinUnit(), s->ringStepper.GetMaxUnit());
+	
+	if (code != 0) {
+		Logger::Error("error code fromgetRingAndYawFromXY, aborting");
+		return;
+	}
 
 	if (ring < s->ringStepper.GetMinUnit() || ring > s->ringStepper.GetMaxUnit())
 	{

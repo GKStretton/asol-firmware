@@ -3,7 +3,7 @@
 // Autonomous configuration
 #define DO_DYE_COLLECTION true
 
-#define PRINT_DATA false
+#define PRINT_DATA true
 
 #define ENABLE_IK_ACTUATION 1
 

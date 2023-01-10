@@ -28,7 +28,7 @@ State s = {
 	pitchStepper: UnitStepper(PITCH_STEPPER_STEP, PITCH_STEPPER_DIR, 16, 0.44, -2.5, 90),
 	yawStepper: UnitStepper(YAW_STEPPER_STEP, YAW_STEPPER_DIR, 8, 0.36, YAW_ZERO_OFFSET, 198),
 	zStepper: UnitStepper(Z_STEPPER_STEP, Z_STEPPER_DIR, 4, 0.04078, 1, 73),
-	ringStepper: UnitStepper(RING_STEPPER_STEP, RING_STEPPER_DIR, 32, 0.4, RING_ZERO_OFFSET, 280),
+	ringStepper: UnitStepper(RING_STEPPER_STEP, RING_STEPPER_DIR, 32, 0.4, RING_ZERO_OFFSET, 215),
 	pipetteStepper: UnitStepper(PIPETTE_STEPPER_STEP, PIPETTE_STEPPER_DIR, 32, 2.74, 0, 600),
 	target_x: 0.0,
 	target_y: 0.0,
@@ -253,10 +253,15 @@ void topicHandler(String topic, String payload)
 		Logger::Info("recieved req for target_x, target_y to " + String(target_x) + ", " + String(target_y));
 
 		float ring, yaw;
-		getRingAndYawFromXY(target_x, target_y,
+		int code = getRingAndYawFromXY(target_x, target_y,
 						s.ringStepper.PositionToUnit(s.ringStepper.currentPosition()),
 						&ring, &yaw,
 						s.ringStepper.GetMinUnit(), s.ringStepper.GetMaxUnit());
+		
+		if (code != 0) {
+			Logger::Error("error code fromgetRingAndYawFromXY, aborting");
+			return;
+		}
 
 		if (ring < s.ringStepper.GetMinUnit() || ring > s.ringStepper.GetMaxUnit()) {
 			Logger::Error("Unexpected ring value " + String(ring) + " detected, aborting ik!");
@@ -311,7 +316,7 @@ void dataUpdate()
 	// SerialMQTT::PublishMega("d/PP_POS", String(s.pipetteStepper.currentPosition()));
 
 	// stepper units
-	// SerialMQTT::PublishMega("d/R_UNIT", String(s.ringStepper.PositionToUnit(s.ringStepper.currentPosition())));
+	SerialMQTT::PublishMega("d/R_UNIT", String(s.ringStepper.PositionToUnit(s.ringStepper.currentPosition())));
 	SerialMQTT::PublishMega("d/Z_UNIT", String(s.zStepper.PositionToUnit(s.zStepper.currentPosition())));
 	SerialMQTT::PublishMega("d/Y_UNIT", String(s.yawStepper.PositionToUnit(s.yawStepper.currentPosition())));
 	SerialMQTT::PublishMega("d/P_UNIT", String(s.pitchStepper.PositionToUnit(s.pitchStepper.currentPosition())));

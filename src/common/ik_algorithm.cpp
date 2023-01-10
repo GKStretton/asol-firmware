@@ -3,7 +3,7 @@
 #include "../common/mathutil.h"
 #include "../calibration.h"
 
-void getRingAndYawFromXY(float x, float y, float lastRing, float *ring, float *yaw, float minRingUnit, float maxRingUnit)
+int getRingAndYawFromXY(float x, float y, float lastRing, float *ring, float *yaw, float minRingUnit, float maxRingUnit)
 {
 	boundXYToCircle(&x, &y, 1.0);
 	// No solutions at centre so just do ring = last, yawOffset = 0
@@ -12,7 +12,7 @@ void getRingAndYawFromXY(float x, float y, float lastRing, float *ring, float *y
 		*yaw = 0;
 		*ring = lastRing;
 		Logger::Debug("Centre point, so yawOffset = 0 and ring = " + String(lastRing) + " (last value)");
-		return;
+		return 0;
 	}
 
 	Logger::Debug("Target: " + String(x) + ", " + String(y));
@@ -30,7 +30,7 @@ void getRingAndYawFromXY(float x, float y, float lastRing, float *ring, float *y
 	if (case_ == 0)
 	{
 		Logger::Warn("No solutions to circle intersection! Invalid calibration?");
-		return;
+		return 1;
 	}
 
 	// Now we have the 2 intersect points, and target x_mm, y_mm
@@ -65,10 +65,11 @@ void getRingAndYawFromXY(float x, float y, float lastRing, float *ring, float *y
 	}
 	else
 	{
-		*ring = (float)5.0;
+		// *ring = (float)5.0;
 		Logger::Warn("Both intersection angles (" +
 					 String(angle) + ", " + String(angle_prime) +
-					 ") are out of ring angle bounds. Setting to 5deg");
+					 ") are out of ring angle bounds. Aborting");
+		return 1;
 	};
 
 	Logger::Debug(use_i_prime ? "Chose angle_prime" : "Chose angle");
@@ -84,4 +85,5 @@ void getRingAndYawFromXY(float x, float y, float lastRing, float *ring, float *y
 	}
 	*yaw = (float)newYaw;
 	Logger::Debug("Set ring=" + String(*ring) + " and newYaw=" + String(newYaw));
+	return 0;
 }
