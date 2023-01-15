@@ -282,6 +282,10 @@ void topicHandler(String topic, String payload)
 		s.manualRequested = !s.manualRequested;
 		Logger::Info("Toggled manualRequested mode to " + String(s.manualRequested));
 	}
+	else if (topic == "mega/req/state-report")
+	{
+		StateReport_ForceSend();
+	}
 	else
 	{
 		Logger::Debug("no handler for " + topic + " (payload = " + payload + ")");
