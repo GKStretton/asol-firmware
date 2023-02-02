@@ -19,11 +19,15 @@ Status Controller::evaluateShutdown(State *s) {
 		}
 	}
 
-	if (s->pipetteStepper.IsCalibrated()) {
-		s->pipetteStepper.moveTo(s->pipetteStepper.UnitToPosition(s->pipetteStepper.GetMinUnit()));
-		if (!s->pipetteStepper.AtTarget())
-			somethingRunning = true;
-	}
+	// sometimes this hangs because the pipette stepper says it's
+	// at -7 steps or so. Not sure why it doesn't just go to 0 and complete...
+	// upon pressing the limit switch, everything shuts down.
+	// disabling for now
+	// if (s->pipetteStepper.IsCalibrated()) {
+	// 	s->pipetteStepper.moveTo(s->pipetteStepper.UnitToPosition(s->pipetteStepper.GetMinUnit()));
+	// 	if (!s->pipetteStepper.AtTarget())
+	// 		somethingRunning = true;
+	// }
 
 	// Arm shutdown behaviour
 	if (s->IsArmCalibrated()) {
@@ -31,7 +35,7 @@ Status Controller::evaluateShutdown(State *s) {
 		Status status = Navigation::UpdateNodeNavigation(s);
 		if (status == FAILURE) failureMarked = true;
 		else if (status == RUNNING) somethingRunning = true;
-		// if succ that's good, defualt
+		// if succ that's good, default
 	} else {
 		failureMarked = true;
 	}

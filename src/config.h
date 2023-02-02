@@ -25,11 +25,12 @@
 #define STEP_INDICATOR_PIN 29
 
 // temporarily using relays
-#define LIGHT_TOGGLE 41//29
-#define LIGHT_MODE 39//31
-#define LIGHT_RGB 33
+#define TOP_LIGHT_TOGGLE 41//29
+#define TOP_LIGHT_MODE 39//31
+#define TOP_LIGHT_RGB 33
 #define LIGHT_BUTTON_WAIT_MS 100
 
+#define FRONT_LIGHT_TOGGLE 23
 #define V5_RELAY_PIN 25
 
 #define MILK_VALVE_RELAY 53
