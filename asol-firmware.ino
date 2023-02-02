@@ -316,19 +316,19 @@ void dataUpdate()
 	// stepper raw position
 	// SerialMQTT::PublishMega("d/R_POS", String(s.ringStepper.currentPosition()));
 	// SerialMQTT::PublishMega("d/Z_POS", String(s.zStepper.currentPosition()));
-	// SerialMQTT::PublishMega("d/Y_POS", String(s.yawStepper.currentPosition()));
+	SerialMQTT::PublishMega("d/Y_POS", String(s.yawStepper.currentPosition()));
 	// SerialMQTT::PublishMega("d/P_POS", String(s.pitchStepper.currentPosition()));
-	SerialMQTT::PublishMega("d/PP_POS", String(s.pipetteStepper.currentPosition()));
+	// SerialMQTT::PublishMega("d/PP_POS", String(s.pipetteStepper.currentPosition()));
 
 	// stepper units
 	// SerialMQTT::PublishMega("d/R_UNIT", String(s.ringStepper.PositionToUnit(s.ringStepper.currentPosition())));
 	// SerialMQTT::PublishMega("d/Z_UNIT", String(s.zStepper.PositionToUnit(s.zStepper.currentPosition())));
-	// SerialMQTT::PublishMega("d/Y_UNIT", String(s.yawStepper.PositionToUnit(s.yawStepper.currentPosition())));
+	SerialMQTT::PublishMega("d/Y_UNIT", String(s.yawStepper.PositionToUnit(s.yawStepper.currentPosition())));
 	// SerialMQTT::PublishMega("d/P_UNIT", String(s.pitchStepper.PositionToUnit(s.pitchStepper.currentPosition())));
-	SerialMQTT::PublishMega("d/PP_UNIT", String(s.pipetteStepper.PositionToUnit(s.pipetteStepper.currentPosition())));
+	// SerialMQTT::PublishMega("d/PP_UNIT", String(s.pipetteStepper.PositionToUnit(s.pipetteStepper.currentPosition())));
 
-	SerialMQTT::PublishMega("d/PP_L_SW", String(digitalRead(PIPETTE_LIMIT_SWITCH)));
-	SerialMQTT::PublishMega("d/PP_CALI", String(s.pipetteStepper.IsCalibrated()));
+	// SerialMQTT::PublishMega("d/PP_L_SW", String(digitalRead(PIPETTE_LIMIT_SWITCH)));
+	// SerialMQTT::PublishMega("d/PP_CALI", String(s.pipetteStepper.IsCalibrated()));
 
 	// SerialMQTT::PublishMega("d/DATA_MS", String(millis() - start));
 	// SerialMQTT::PublishMega("d/UPS", String(s.updatesPerSecond));

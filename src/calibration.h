@@ -13,7 +13,7 @@
 // ul of air to draw in from 0 position before taking in liquid
 #define PIPETTE_BUFFER 100
 // z level from which to take in liquid. (may become dynamic based on dye level in future.)
-#define PIPETTE_INTAKE_Z 60
+#define PIPETTE_INTAKE_Z 40
 
 // Physical calibration of arm positions etc
 #define STAGE_RADIUS_MM 45
@@ -29,8 +29,8 @@
 #define HOME_TOP_Z 73
 
 #define VIAL_PITCH 0
-#define VIAL_YAW_OFFSET 0
-#define VIAL_YAW_INCREMENT 35.5
+#define VIAL_YAW_OFFSET -6
+#define VIAL_YAW_INCREMENT 36.38
 
 #define HANDOVER_Z 50
 #define HANDOVER_PITCH 75
