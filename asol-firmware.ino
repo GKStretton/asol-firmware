@@ -287,6 +287,16 @@ void topicHandler(String topic, String payload)
 	{
 		StateReport_ForceSend();
 	}
+	else if (topic == "mega/req/pin-on")
+	{
+		uint8_t pin = (uint8_t) payload.toInt();
+		digitalWrite(pin, HIGH);
+	}
+	else if (topic == "mega/req/pin-off")
+	{
+		uint8_t pin = (uint8_t) payload.toInt();
+		digitalWrite(pin, LOW);
+	}
 	else
 	{
 		Logger::Debug("no handler for " + topic + " (payload = " + payload + ")");
