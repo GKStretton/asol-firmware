@@ -22,7 +22,7 @@ namespace SerialMQTT {
 	void PublishRawTopic(String topic, String payload);
 
 	// Payload helpers
-	// Unpacks n values separated by commas into values[]. Returns true if error
+	// Unpacks n values separated by commas into values[].
 	void UnpackCommaSeparatedValues(String payload, String values[], int n);
 
 	// Publish a nanopb proto to the specified topic (mega prefix will be added)

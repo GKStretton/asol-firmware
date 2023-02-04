@@ -105,7 +105,7 @@ void SerialMQTT::UnpackCommaSeparatedValues(String payload, String values[], int
 		// append character to current value
 		values[value_index] += payload[i];
 	}
-	// return error if we didn't find exactly n comma separated values
+	// return if we didn't find exactly n comma separated values
 	return;
 }
 

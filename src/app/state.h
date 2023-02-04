@@ -17,6 +17,19 @@ struct PipetteState {
 	float ulVolumeHeldTarget;
 };
 
+enum FluidType {
+	NONE = 0,
+	WATER = 1,
+	MILK = 2
+};
+
+struct FluidState {
+	FluidType fluidType;
+	float volume_ul;
+	unsigned long startTime;
+	bool complete;
+};
+
 struct State {
 	// returns true if pitch, yaw and z are calibrated
 	bool IsArmCalibrated();
@@ -64,4 +77,6 @@ struct State {
 	bool postCalibrationStopCalled;
 	// if true, always go to the idle node when idle
 	bool forceIdleLocation;
+
+	FluidState fluidState;
 };

@@ -41,6 +41,7 @@ State s = {
 	calibrationCleared: false,
 	postCalibrationStopCalled: false,
 	forceIdleLocation: true,
+	fluidState: {FluidType::NONE, 0, 0, true}
 };
 
 Controller controller;
@@ -132,6 +133,8 @@ void setup()
 
 	eepromStartup();
 
+	controller.Init(&s);
+
 	Logger::Info("Sending first state report");
 	StateReport_SetStatus(machine_Status_SLEEPING);
 	StateReport_Update(&s);
@@ -177,7 +180,7 @@ void topicHandler(String topic, String payload)
 	}
 	if (Sleep::IsSleeping())
 	{
-		// only listen for wake if asleep
+		// if asleep, only listen for wake
 		return;
 	}
 
@@ -201,7 +204,6 @@ void topicHandler(String topic, String payload)
 	else if (topic == "mega/req/open-drain")
 	{
 		SetDualRelay(DRAINAGE_VALVE_RELAY, true);
-		// todo replace these with topic events
 		Logger::Info("draining...");
 	}
 	else if (topic == "mega/req/close-drain")
@@ -296,6 +298,22 @@ void topicHandler(String topic, String payload)
 	{
 		uint8_t pin = (uint8_t) payload.toInt();
 		digitalWrite(pin, LOW);
+	}
+	else if (topic == "mega/req/fluid") {
+		String values[] = {"", ""};
+		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 2);
+		FluidType fluidType = (FluidType) values[0].toInt();
+		float volume_ul = values[1].toFloat();
+		if (fluidType != s.fluidState.fluidType || volume_ul != s.fluidState.volume_ul) {
+			s.fluidState.fluidType = fluidType;
+			s.fluidState.volume_ul = volume_ul;
+			s.fluidState.startTime = 0;
+			s.fluidState.complete = false;
+			Logger::Info("Changed fluid state to request type " +
+				String(fluidType) + " volume " + String(volume_ul));
+		} else {
+			Logger::Warn("fluid request has no change, doing nothing.");
+		}
 	}
 	else
 	{

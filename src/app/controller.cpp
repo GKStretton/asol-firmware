@@ -5,6 +5,10 @@
 
 unsigned long lastControlUpdate = millis();
 
+void Controller::Init(State *s) {
+	fluidInit(s);
+}
+
 void Controller::Update(State *s) {
 	if (millis() - lastControlUpdate > 100)
 	{
@@ -16,6 +20,9 @@ void Controller::Update(State *s) {
 		} else {
 			autoUpdate(s);
 		}
+
+		// Can happen regardless of mode
+		fluidUpdate(s);
 
 		StateReport_Update(s);
 	}
