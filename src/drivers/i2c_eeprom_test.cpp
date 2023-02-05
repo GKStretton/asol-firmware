@@ -3,7 +3,7 @@
 #include "../config.h"
 
 int I2C_EEPROM::Test() {
-	float num = 58967.72;
+	float num = 0.123;
 	unsigned long start = micros();
 	WriteFloat(FLUID_LEVEL_TEST_ADDR, num);
 	// Note it takes time behind the scenes to do the actual write

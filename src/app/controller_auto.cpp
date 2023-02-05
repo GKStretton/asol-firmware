@@ -20,7 +20,7 @@ void Controller::autoUpdate(State *s) {
 		if (status == RUNNING) {
 			return;
 		} else if (status == FAILURE) {
-			// safe shutdown flag already 0 as is this is set on wake
+			// safe shutdown flag already 0 as this is set on wake
 			Sleep::Sleep(Sleep::UNKNOWN);
 			s->shutdownRequested = false;
 			return;

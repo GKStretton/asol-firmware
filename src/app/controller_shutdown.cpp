@@ -1,6 +1,7 @@
 #include "controller.h"
 #include "../app/navigation.h"
 #include "../calibration.h"
+#include "../middleware/logger.h"
 
 Status Controller::evaluateShutdown(State *s) {
 	// this var helps us do parallel movements within this function
@@ -37,6 +38,10 @@ Status Controller::evaluateShutdown(State *s) {
 		else if (status == RUNNING) somethingRunning = true;
 		// if succ that's good, default
 	} else {
+		Logger::Warn("shutdown failure due to arm not calibrated");
+		Logger::Warn("z calibrated: " + String(s->zStepper.IsCalibrated()));
+		Logger::Warn("pitch calibrated: " + String(s->pitchStepper.IsCalibrated()));
+		Logger::Warn("yaw calibrated: " + String(s->yawStepper.IsCalibrated()));
 		failureMarked = true;
 	}
 

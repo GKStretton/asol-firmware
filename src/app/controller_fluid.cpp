@@ -61,21 +61,33 @@ void Controller::fluidUpdate(State *s) {
 
 	if (millis() - s-> fluidRequest.startTime >= openTime) {
 		setValve(pin, false);
+
+		if (s->fluidRequest.fluidType == FluidType::DRAIN) {
+			s->fluidRequest.complete = true;
+			float newLevel = readFluidLevel() - s->fluidRequest.volume_ml;
+			if (newLevel < 0) {
+				newLevel = 0;
+			}
+			writeFluidLevel(newLevel);
+			return;
+		}
+
 		setValve(AIR_VALVE_RELAY, true);
 	}
 
 	if (millis() - s-> fluidRequest.startTime >= openTime + FLUID_TRAVEL_TIME_MS) {
 		setValve(AIR_VALVE_RELAY, false);
 		s->fluidRequest.complete = true;
-		if (s->fluidRequest.fluidType == FluidType::DRAIN) {
-			float level = readFluidLevel();
-			writeFluidLevel(level - s->fluidRequest.volume_ml);
-		}
 	}
 }
 
 void Controller::NewFluidRequest(State *s, FluidType fluidType, float volume_ml) {
-	if (readFluidLevel() + volume_ml > MAX_FLUID_LEVEL) {
+	if (fluidType == FluidType::FLUID_UNDEFINED) {
+		Logger::Warn("undefined fluidType request");
+		return;
+	}
+	float fluidLevel = readFluidLevel();
+	if (fluidType != FluidType::DRAIN && fluidLevel + volume_ml > MAX_FLUID_LEVEL) {
 		Logger::Warn("fluid level would exceed maximum, rejecting new request");
 		return;
 	}
@@ -93,7 +105,6 @@ void Controller::NewFluidRequest(State *s, FluidType fluidType, float volume_ml)
 	if (s->fluidRequest.fluidType != FluidType::FLUID_UNDEFINED &&
 		s->fluidRequest.fluidType != FluidType::DRAIN)
 	{
-		float level = readFluidLevel();
-		writeFluidLevel(level + s->fluidRequest.volume_ml);
+		writeFluidLevel(fluidLevel + s->fluidRequest.volume_ml);
 	}
 }

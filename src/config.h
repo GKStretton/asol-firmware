@@ -21,7 +21,6 @@
 #define STARTUP_COUNTER_MEM_ADDR 1
 #define SAFE_SHUTDOWN_EEPROM_FLAG_ADDR 2
 #define FLUID_LEVEL_FLOAT_ADDR 3
-//! 3-6 used
 #define FLUID_LEVEL_TEST_ADDR 7
 
 // Used with logic analyser
