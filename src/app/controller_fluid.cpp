@@ -76,7 +76,11 @@ void Controller::fluidUpdate(State *s) {
 
 void Controller::NewFluidRequest(State *s, FluidType fluidType, float volume_ml) {
 	if (readFluidLevel() + volume_ml > MAX_FLUID_LEVEL) {
-		Logger::Warn("fluid level would exceed maximum, rejecting request");
+		Logger::Warn("fluid level would exceed maximum, rejecting new request");
+		return;
+	}
+	if (!s->fluidRequest.complete) {
+		Logger::Warn("current fluid request not complete, rejecting new request");
 		return;
 	}
 	s->fluidRequest.fluidType = fluidType;
