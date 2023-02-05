@@ -16,6 +16,7 @@
 #include "src/app/controller.h"
 #include "src/drivers/i2c_eeprom.h"
 #include "src/app/state_report.h"
+#include "src/testing/testing.h"
 
 State s = {
 	updatesPerSecond: 0,
@@ -41,7 +42,7 @@ State s = {
 	calibrationCleared: false,
 	postCalibrationStopCalled: false,
 	forceIdleLocation: true,
-	fluidState: {FluidType::NONE, 0, 0, true}
+	fluidRequest: {FluidType::FLUID_UNDEFINED, 0, 0, true}
 };
 
 Controller controller;
@@ -139,6 +140,19 @@ void setup()
 	StateReport_SetStatus(machine_Status_SLEEPING);
 	StateReport_Update(&s);
 	Logger::Info("setup complete");
+
+	if (RUN_TESTS) {
+		Logger::Info("Running tests on startup");
+		while (1) {
+			int status = Testing_RunTests();
+			if (status == 0) {
+				Logger::Info("Tests passed, continuing to main loop");
+				break;
+			}
+			Logger::Error("Tests failed, retrying in 30s.");
+			delay(30000);
+		}
+	}
 }
 
 void initSteppers() {
@@ -303,17 +317,9 @@ void topicHandler(String topic, String payload)
 		String values[] = {"", ""};
 		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 2);
 		FluidType fluidType = (FluidType) values[0].toInt();
-		float volume_ul = values[1].toFloat();
-		if (fluidType != s.fluidState.fluidType || volume_ul != s.fluidState.volume_ul) {
-			s.fluidState.fluidType = fluidType;
-			s.fluidState.volume_ul = volume_ul;
-			s.fluidState.startTime = 0;
-			s.fluidState.complete = false;
-			Logger::Info("Changed fluid state to request type " +
-				String(fluidType) + " volume " + String(volume_ul));
-		} else {
-			Logger::Warn("fluid request has no change, doing nothing.");
-		}
+		float volume_ml = values[1].toFloat();
+
+		controller.NewFluidRequest(&s, fluidType, volume_ml);
 	}
 	else
 	{

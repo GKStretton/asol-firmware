@@ -39,3 +39,9 @@
 
 // the maximum value of yaw that it's safe to enter ik mode within
 #define MAX_BOWL_YAW 20
+
+// number of milliseconds to open the air valve for after fluid dispense
+#define FLUID_TRAVEL_TIME_MS 5000
+#define DISPENSE_VOLUME_PER_SECOND_ML 10.0
+#define DRAIN_VOLUME_PER_SECOND_ML 10.0
+#define MAX_FLUID_LEVEL 500.0

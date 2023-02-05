@@ -1,10 +1,10 @@
 #pragma once
 
-// Autonomous configuration
-#define DO_DYE_COLLECTION true
-
+#define RUN_TESTS true
 #define PRINT_DATA true
 
+// Autonomous configuration
+#define DO_DYE_COLLECTION true
 #define ENABLE_IK_ACTUATION 1
 
 // 0 disables sleep
@@ -20,6 +20,9 @@
 #define EEPROM_I2C_ADDRESS 0x50
 #define STARTUP_COUNTER_MEM_ADDR 1
 #define SAFE_SHUTDOWN_EEPROM_FLAG_ADDR 2
+#define FLUID_LEVEL_FLOAT_ADDR 3
+//! 3-6 used
+#define FLUID_LEVEL_TEST_ADDR 7
 
 // Used with logic analyser
 #define STEP_INDICATOR_PIN 29

@@ -18,14 +18,15 @@ struct PipetteState {
 };
 
 enum FluidType {
-	NONE = 0,
-	WATER = 1,
-	MILK = 2
+	FLUID_UNDEFINED = 0,
+	DRAIN = 1,
+	WATER = 2,
+	MILK = 3
 };
 
-struct FluidState {
+struct FluidRequest {
 	FluidType fluidType;
-	float volume_ul;
+	float volume_ml;
 	unsigned long startTime;
 	bool complete;
 };
@@ -78,5 +79,5 @@ struct State {
 	// if true, always go to the idle node when idle
 	bool forceIdleLocation;
 
-	FluidState fluidState;
+	FluidRequest fluidRequest;
 };
