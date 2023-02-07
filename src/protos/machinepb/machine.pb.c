@@ -18,7 +18,17 @@ PB_BIND(machine_CollectionRequest, machine_CollectionRequest, AUTO)
 PB_BIND(machine_MovementDetails, machine_MovementDetails, AUTO)
 
 
+PB_BIND(machine_FluidRequest, machine_FluidRequest, AUTO)
+
+
+PB_BIND(machine_FluidDetails, machine_FluidDetails, AUTO)
+
+
 PB_BIND(machine_StateReport, machine_StateReport, AUTO)
+
+
+PB_BIND(machine_StateReportList, machine_StateReportList, AUTO)
+
 
 
 

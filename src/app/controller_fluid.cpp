@@ -4,15 +4,7 @@
 #include "../config.h"
 #include "../calibration.h"
 #include "../common/util.h"
-
-static float readFluidLevel() {
-	return I2C_EEPROM::ReadFloat(FLUID_LEVEL_FLOAT_ADDR);
-}
-
-static void writeFluidLevel(float level) {
-	I2C_EEPROM::WriteFloat(FLUID_LEVEL_FLOAT_ADDR, level);
-	Logger::Info("Set fluid level to " + String(level));
-}
+#include "../middleware/fluid_levels.h"
 
 // converts fluid volume (ml) into valve open time (ms)
 static float getValveOpenTimeFromVolume(FluidType t, float volume_ml) {
@@ -64,11 +56,11 @@ void Controller::fluidUpdate(State *s) {
 
 		if (s->fluidRequest.fluidType == FluidType::DRAIN) {
 			s->fluidRequest.complete = true;
-			float newLevel = readFluidLevel() - s->fluidRequest.volume_ml;
+			float newLevel = FluidLevels_ReadBowlLevel() - s->fluidRequest.volume_ml;
 			if (newLevel < 0) {
 				newLevel = 0;
 			}
-			writeFluidLevel(newLevel);
+			FluidLevels_WriteBowlLevel(newLevel);
 			return;
 		}
 
@@ -86,7 +78,7 @@ void Controller::NewFluidRequest(State *s, FluidType fluidType, float volume_ml)
 		Logger::Warn("undefined fluidType request");
 		return;
 	}
-	float fluidLevel = readFluidLevel();
+	float fluidLevel = FluidLevels_ReadBowlLevel();
 	if (fluidType != FluidType::DRAIN && fluidLevel + volume_ml > MAX_FLUID_LEVEL) {
 		Logger::Warn("fluid level would exceed maximum, rejecting new request");
 		return;
@@ -105,6 +97,6 @@ void Controller::NewFluidRequest(State *s, FluidType fluidType, float volume_ml)
 	if (s->fluidRequest.fluidType != FluidType::FLUID_UNDEFINED &&
 		s->fluidRequest.fluidType != FluidType::DRAIN)
 	{
-		writeFluidLevel(fluidLevel + s->fluidRequest.volume_ml);
+		FluidLevels_WriteBowlLevel(fluidLevel + s->fluidRequest.volume_ml);
 	}
 }

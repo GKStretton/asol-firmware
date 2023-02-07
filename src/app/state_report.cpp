@@ -3,6 +3,7 @@
 #include "../protos/nanopb/pb_encode.h"
 #include "../middleware/serialmqtt.h"
 #include "../middleware/logger.h"
+#include "../middleware/fluid_levels.h"
 
 static machine_StateReport stateReport = machine_StateReport_init_default;
 // set to true if a state report should be sent out next time
@@ -67,6 +68,33 @@ static void updateStateReport(State *s) {
 	}
 	if (stateReport.movement_details.target_yaw_deg != s->target_yaw) {
 		stateReport.movement_details.target_yaw_deg = s->target_yaw;
+		hasChanged = true;
+	}
+
+	/*
+		fluid_request
+	*/
+	stateReport.has_fluid_request = true;
+	if (stateReport.fluid_request.fluidType != s->fluidRequest.fluidType) {
+		stateReport.fluid_request.fluidType = (_machine_FluidType) s->fluidRequest.fluidType;
+		hasChanged = true;
+	}
+	if (stateReport.fluid_request.volume_ml != s->fluidRequest.volume_ml) {
+		stateReport.fluid_request.volume_ml = s->fluidRequest.volume_ml;
+		hasChanged = true;
+	}
+	if (stateReport.fluid_request.complete != s->fluidRequest.complete) {
+		stateReport.fluid_request.complete = s->fluidRequest.complete;
+		hasChanged = true;
+	}
+
+	/*
+		fluid_details
+	*/
+	stateReport.has_fluid_details = true;
+	float bowlLevel = FluidLevels_ReadBowlLevel();
+	if (stateReport.fluid_details.bowl_fluid_level_ml != bowlLevel) {
+		stateReport.fluid_details.bowl_fluid_level_ml = bowlLevel;
 		hasChanged = true;
 	}
 }
