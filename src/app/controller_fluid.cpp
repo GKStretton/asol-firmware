@@ -12,8 +12,10 @@ static float getValveOpenTimeFromVolume(FluidType t, float volume_ml) {
 		return 0;
 	} else if (t == FluidType::DRAIN) {
 		return (volume_ml / DRAIN_VOLUME_PER_SECOND_ML) * 1000.0;
-	} else {
-		return (volume_ml / DISPENSE_VOLUME_PER_SECOND_ML) * 1000.0;
+	} else if (t == FluidType::WATER) {
+		return (volume_ml / WATER_VOLUME_PER_SECOND_ML) * 1000.0;
+	} else if (t == FluidType::MILK) {
+		return (volume_ml / MILK_VOLUME_PER_SECOND_ML) * 1000.0;
 	}
 }
 

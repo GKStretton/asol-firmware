@@ -143,13 +143,19 @@ void goToNode(State *s, Node node) {
 		return;
 	}
 
-	if (node == OUTER_HANDOVER || node == INNER_HANDOVER)
+	if (node == OUTER_HANDOVER)
 	{
 		s->zStepper.moveTo(s->zStepper.UnitToPosition(HANDOVER_Z));
 		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(HANDOVER_PITCH));
+		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(HANDOVER_OUTER_YAW));
+		return;
+	}
 
-		float yaw = node == OUTER_HANDOVER ? HANDOVER_OUTER_YAW : HANDOVER_INNER_YAW;
-		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(yaw));
+	if (node == INNER_HANDOVER)
+	{
+		s->zStepper.moveTo(s->zStepper.UnitToPosition(IK_Z));
+		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(HANDOVER_PITCH));
+		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(HANDOVER_INNER_YAW));
 		return;
 	}
 

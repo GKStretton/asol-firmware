@@ -32,8 +32,9 @@
 #define VIAL_YAW_OFFSET -6
 #define VIAL_YAW_INCREMENT 36.38
 
+#define IK_Z 45
 #define HANDOVER_Z 50
-#define HANDOVER_PITCH 75
+#define HANDOVER_PITCH 70
 #define HANDOVER_INNER_YAW 15
 #define HANDOVER_OUTER_YAW 50
 
@@ -42,6 +43,7 @@
 
 // number of milliseconds to open the air valve for after fluid dispense
 #define FLUID_TRAVEL_TIME_MS 5000
-#define DISPENSE_VOLUME_PER_SECOND_ML 10.0
-#define DRAIN_VOLUME_PER_SECOND_ML 10.0
+#define WATER_VOLUME_PER_SECOND_ML 5.5
+#define MILK_VOLUME_PER_SECOND_ML 7.0
+#define DRAIN_VOLUME_PER_SECOND_ML 4.5
 #define MAX_FLUID_LEVEL 500.0

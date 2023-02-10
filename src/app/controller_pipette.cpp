@@ -41,7 +41,7 @@ Status Controller::evaluatePipetteDispense(State *s) {
 	} else {
 		target = PIPETTE_BUFFER + s->pipetteState.ulVolumeHeldTarget;
 	}
-	//todo: check that it's appropriate to dispense
+	
 	s->pipetteStepper.moveTo(s->pipetteStepper.UnitToPosition(target));
 	if (!s->pipetteStepper.AtTarget()) {
 		return RUNNING;
