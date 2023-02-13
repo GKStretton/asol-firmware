@@ -16,7 +16,7 @@
 #define PIPETTE_INTAKE_Z 40
 
 // Physical calibration of arm positions etc
-#define STAGE_RADIUS_MM 45
+#define STAGE_RADIUS_MM 75
 #define ARM_PATH_RADIUS_MM 164.7
 
 #define YAW_ZERO_OFFSET -21.3
@@ -32,18 +32,18 @@
 #define VIAL_YAW_OFFSET -6
 #define VIAL_YAW_INCREMENT 36.38
 
-#define IK_Z 45
+#define IK_Z 42
 #define HANDOVER_Z 50
 #define HANDOVER_PITCH 70
 #define HANDOVER_INNER_YAW 15
 #define HANDOVER_OUTER_YAW 50
 
 // the maximum value of yaw that it's safe to enter ik mode within
-#define MAX_BOWL_YAW 20
+#define MAX_BOWL_YAW 24
 
 // number of milliseconds to open the air valve for after fluid dispense
 #define FLUID_TRAVEL_TIME_MS 5000
 #define WATER_VOLUME_PER_SECOND_ML 5.5
 #define MILK_VOLUME_PER_SECOND_ML 7.0
-#define DRAIN_VOLUME_PER_SECOND_ML 4.5
+#define DRAIN_VOLUME_PER_SECOND_ML 4.0
 #define MAX_FLUID_LEVEL 500.0

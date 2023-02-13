@@ -25,5 +25,6 @@ int CircleCircleIntersection(double x0, double y0, double r0,
 double AngleBetweenVectors(double x0, double y0, double x1, double y1);
 
 void boundXYToCircle(float *x, float *y, float radius);
+void boundToSignedMaximum(float *n, float range);
 
 bool numInRange(float num, float min, float max);

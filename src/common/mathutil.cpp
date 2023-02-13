@@ -16,6 +16,15 @@ void boundXYToCircle(float *x, float *y, float radius) {
 	}
 }
 
+void boundToSignedMaximum(float *n, float range) {
+	if (*n > range) {
+		*n = range;
+	}
+	if (*n < -range) {
+		*n = -range;
+	}
+}
+
 bool numInRange(float num, float min, float max) {
 	return num >= min && num <= max;
 }
