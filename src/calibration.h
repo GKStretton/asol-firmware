@@ -11,7 +11,7 @@
 #define SPEED_MULT 1
 
 // ul of air to draw in from 0 position before taking in liquid
-#define PIPETTE_BUFFER 100
+#define PIPETTE_BUFFER 200
 // z level from which to take in liquid. (may become dynamic based on dye level in future.)
 #define PIPETTE_INTAKE_Z 40
 
@@ -44,6 +44,6 @@
 // number of milliseconds to open the air valve for after fluid dispense
 #define FLUID_TRAVEL_TIME_MS 5000
 #define WATER_VOLUME_PER_SECOND_ML 5.5
-#define MILK_VOLUME_PER_SECOND_ML 7.0
+#define MILK_VOLUME_PER_SECOND_ML 6.0
 #define DRAIN_VOLUME_PER_SECOND_ML 4.0
 #define MAX_FLUID_LEVEL 500.0
