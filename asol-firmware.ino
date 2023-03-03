@@ -192,9 +192,13 @@ void topicHandler(String topic, String payload)
 		Sleep::Wake();
 		return;
 	}
+	else if (topic == "mega/req/state-report")
+	{
+		StateReport_ForceSend();
+	}
 	if (Sleep::IsSleeping())
 	{
-		// if asleep, only listen for wake
+		// if asleep, only listen for wake and state report
 		return;
 	}
 
@@ -295,10 +299,6 @@ void topicHandler(String topic, String payload)
 	{
 		s.manualRequested = !s.manualRequested;
 		Logger::Info("Toggled manualRequested mode to " + String(s.manualRequested));
-	}
-	else if (topic == "mega/req/state-report")
-	{
-		StateReport_ForceSend();
 	}
 	else if (topic == "mega/req/pin-on")
 	{
