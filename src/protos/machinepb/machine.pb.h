@@ -94,6 +94,8 @@ typedef struct _machine_StateReport {
     uint64_t timestamp_unix_micros;
     machine_Mode mode;
     machine_Status status;
+    /* Useful for synchronisation with footage */
+    bool lights_on;
     bool has_pipette_state;
     machine_PipetteState pipette_state;
     bool has_collection_request;
@@ -104,6 +106,9 @@ typedef struct _machine_StateReport {
     machine_FluidRequest fluid_request;
     bool has_fluid_details;
     machine_FluidDetails fluid_details;
+    /* the following are populated by the backend, useful in post-processing */
+    bool paused;
+    pb_callback_t timestamp_readable;
 } machine_StateReport;
 
 
@@ -132,7 +137,7 @@ extern "C" {
 #define machine_MovementDetails_init_default     {0, 0, 0, 0}
 #define machine_FluidRequest_init_default        {_machine_FluidType_MIN, 0, 0}
 #define machine_FluidDetails_init_default        {0}
-#define machine_StateReport_init_default         {0, _machine_Mode_MIN, _machine_Status_MIN, false, machine_PipetteState_init_default, false, machine_CollectionRequest_init_default, false, machine_MovementDetails_init_default, false, machine_FluidRequest_init_default, false, machine_FluidDetails_init_default}
+#define machine_StateReport_init_default         {0, _machine_Mode_MIN, _machine_Status_MIN, 0, false, machine_PipetteState_init_default, false, machine_CollectionRequest_init_default, false, machine_MovementDetails_init_default, false, machine_FluidRequest_init_default, false, machine_FluidDetails_init_default, 0, {{NULL}, NULL}}
 #define machine_StateReportList_init_default     {{{NULL}, NULL}}
 #define machine_PingResponse_init_zero           {0}
 #define machine_PipetteState_init_zero           {0, 0, 0}
@@ -140,7 +145,7 @@ extern "C" {
 #define machine_MovementDetails_init_zero        {0, 0, 0, 0}
 #define machine_FluidRequest_init_zero           {_machine_FluidType_MIN, 0, 0}
 #define machine_FluidDetails_init_zero           {0}
-#define machine_StateReport_init_zero            {0, _machine_Mode_MIN, _machine_Status_MIN, false, machine_PipetteState_init_zero, false, machine_CollectionRequest_init_zero, false, machine_MovementDetails_init_zero, false, machine_FluidRequest_init_zero, false, machine_FluidDetails_init_zero}
+#define machine_StateReport_init_zero            {0, _machine_Mode_MIN, _machine_Status_MIN, 0, false, machine_PipetteState_init_zero, false, machine_CollectionRequest_init_zero, false, machine_MovementDetails_init_zero, false, machine_FluidRequest_init_zero, false, machine_FluidDetails_init_zero, 0, {{NULL}, NULL}}
 #define machine_StateReportList_init_zero        {{{NULL}, NULL}}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -164,11 +169,14 @@ extern "C" {
 #define machine_StateReport_timestamp_unix_micros_tag 2
 #define machine_StateReport_mode_tag             4
 #define machine_StateReport_status_tag           5
+#define machine_StateReport_lights_on_tag        6
 #define machine_StateReport_pipette_state_tag    10
 #define machine_StateReport_collection_request_tag 11
 #define machine_StateReport_movement_details_tag 12
 #define machine_StateReport_fluid_request_tag    13
 #define machine_StateReport_fluid_details_tag    14
+#define machine_StateReport_paused_tag           50
+#define machine_StateReport_timestamp_readable_tag 51
 
 /* Struct field encoding specification for nanopb */
 #define machine_PingResponse_FIELDLIST(X, a) \
@@ -215,12 +223,15 @@ X(a, STATIC,   SINGULAR, FLOAT,    bowl_fluid_level_ml,   1)
 X(a, STATIC,   SINGULAR, UINT64,   timestamp_unix_micros,   2) \
 X(a, STATIC,   SINGULAR, UENUM,    mode,              4) \
 X(a, STATIC,   SINGULAR, UENUM,    status,            5) \
+X(a, STATIC,   SINGULAR, BOOL,     lights_on,         6) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  pipette_state,    10) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  collection_request,  11) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  movement_details,  12) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  fluid_request,    13) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  fluid_details,    14)
-#define machine_StateReport_CALLBACK NULL
+X(a, STATIC,   OPTIONAL, MESSAGE,  fluid_details,    14) \
+X(a, STATIC,   SINGULAR, BOOL,     paused,           50) \
+X(a, CALLBACK, SINGULAR, STRING,   timestamp_readable,  51)
+#define machine_StateReport_CALLBACK pb_default_field_callback
 #define machine_StateReport_DEFAULT NULL
 #define machine_StateReport_pipette_state_MSGTYPE machine_PipetteState
 #define machine_StateReport_collection_request_MSGTYPE machine_CollectionRequest
@@ -254,6 +265,7 @@ extern const pb_msgdesc_t machine_StateReportList_msg;
 #define machine_StateReportList_fields &machine_StateReportList_msg
 
 /* Maximum encoded size of messages (where known) */
+/* machine_StateReport_size depends on runtime parameters */
 /* machine_StateReportList_size depends on runtime parameters */
 #define machine_CollectionRequest_size           29
 #define machine_FluidDetails_size                5
@@ -261,7 +273,6 @@ extern const pb_msgdesc_t machine_StateReportList_msg;
 #define machine_MovementDetails_size             20
 #define machine_PingResponse_size                6
 #define machine_PipetteState_size                13
-#define machine_StateReport_size                 101
 
 #ifdef __cplusplus
 } /* extern "C" */

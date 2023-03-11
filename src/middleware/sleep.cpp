@@ -6,6 +6,7 @@
 #include "../middleware/logger.h"
 #include "../drivers/ringlight.h"
 #include "../drivers/i2c_eeprom.h"
+#include "../app/state_report.h"
 #include "../config.h"
 
 namespace Sleep {
@@ -44,9 +45,15 @@ namespace Sleep {
 			// turn off power with smart switch
 			SerialMQTT::PublishRawTopic(SMART_SWITCH_TOPIC, SMART_SWITCH_OFF_PAYLOAD);
 			Logger::Info("External power off req sent.");
+
+			StateReport_SetStatus(machine_Status_SLEEPING);
+			StateReport_ForceSend();
 		}
 
 		void onWake() {
+			StateReport_SetStatus(machine_Status_WAKING_UP);
+			StateReport_ForceSend();
+
 			Logger::Info("Waking up, powering up");
 			SerialMQTT::PublishRawTopic(SMART_SWITCH_TOPIC, SMART_SWITCH_ON_PAYLOAD);
 			delay(2000);

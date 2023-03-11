@@ -1,6 +1,7 @@
 #include "state.h"
 #include "../calibration.h"
 #include "../app/navigation.h"
+#include "../app/state_report.h"
 
 bool State::IsArmCalibrated() {
 	return
@@ -45,6 +46,9 @@ void State::ClearState() {
 	this->zStepper.MarkAsNotCalibrated();
 	this->ringStepper.MarkAsNotCalibrated();
 	this->pipetteStepper.MarkAsNotCalibrated();
+
+	StateReport_SetMode(machine_Mode_UNDEFINED_MODE);
+	StateReport_Update(this);
 }
 
 void State::SetGlobalNavigationTarget(Node n) {

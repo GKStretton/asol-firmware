@@ -128,3 +128,10 @@ void StateReport_SetStatus(machine_Status status) {
 		hasChanged = true;
 	}
 }
+
+void StateReport_SetLights(bool on) {
+	if (stateReport.lights_on != on) {
+		stateReport.lights_on = on;
+		hasChanged = true;
+	}
+}

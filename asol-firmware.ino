@@ -61,20 +61,18 @@ void eepromStartup() {
 void sleepHandler(Sleep::SleepStatus sleepStatus) {
 	digitalWrite(STEPPER_SLEEP, LOW);
 
+	RingLight::Off();
+
 	if (Sleep::IsEStopActive()) {
 		StateReport_SetStatus(machine_Status_E_STOP_ACTIVE);
-	} else {
-		StateReport_SetStatus(machine_Status_SLEEPING);
+		StateReport_Update(&s);
 	}
-	StateReport_Update(&s);
 }
 
 void wakeHandler(Sleep::SleepStatus lastSleepStatus) {
-	StateReport_SetStatus(machine_Status_WAKING_UP);
-	StateReport_Update(&s);
-
-	RingLight::Toggle();
 	s.ClearState();
+
+	RingLight::On();
 }
 
 void setup()
