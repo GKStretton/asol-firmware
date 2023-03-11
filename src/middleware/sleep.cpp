@@ -36,11 +36,11 @@ namespace Sleep {
 			SetDualRelay(V12_RELAY_PIN1, false);
 			SetDualRelay(V12_RELAY_PIN2, false);
 
-			delay(200);
+			delay(500);
 
 			SetDualRelay(V5_RELAY_PIN, false);
 
-			delay(200);
+			delay(500);
 
 			// turn off power with smart switch
 			SerialMQTT::PublishRawTopic(SMART_SWITCH_TOPIC, SMART_SWITCH_OFF_PAYLOAD);

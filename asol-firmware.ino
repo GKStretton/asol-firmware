@@ -67,6 +67,8 @@ void sleepHandler(Sleep::SleepStatus sleepStatus) {
 		StateReport_SetStatus(machine_Status_E_STOP_ACTIVE);
 		StateReport_Update(&s);
 	}
+
+	delay(1000);
 }
 
 void wakeHandler(Sleep::SleepStatus lastSleepStatus) {
