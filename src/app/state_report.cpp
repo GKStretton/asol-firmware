@@ -103,12 +103,12 @@ void StateReport_Update(State *s) {
 	updateStateReport(s);
 	if (hasChanged) {
 		StateReport_ForceSend();
-		hasChanged = false;
 	}
 }
 
 void StateReport_ForceSend() {
 	SerialMQTT::PublishProto("state-report", machine_StateReport_fields, &stateReport);
+	hasChanged = false;
 }
 
 /*
