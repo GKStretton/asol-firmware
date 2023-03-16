@@ -80,4 +80,6 @@ struct State {
 	bool forceIdleLocation;
 
 	FluidRequest fluidRequest;
+
+	float ik_target_z;
 };

@@ -42,7 +42,8 @@ State s = {
 	calibrationCleared: false,
 	postCalibrationStopCalled: false,
 	forceIdleLocation: true,
-	fluidRequest: {FluidType::FLUID_UNDEFINED, 0, 0, true}
+	fluidRequest: {FluidType::FLUID_UNDEFINED, 0, 0, true},
+	ik_target_z: IK_Z
 };
 
 Controller controller;
@@ -317,6 +318,14 @@ void topicHandler(String topic, String payload)
 		float volume_ml = values[1].toFloat();
 
 		controller.NewFluidRequest(&s, fluidType, volume_ml);
+	}
+	else if (topic == "mega/req/set-ik-z") {
+		float z = payload.toFloat();
+		if (z < MIN_BOWL_Z || z > s.zStepper.GetMaxUnit()) {
+			Logger::Error("z level " + payload + " out of range.");
+			return;
+		}
+		s.ik_target_z = z;
 	}
 	else
 	{

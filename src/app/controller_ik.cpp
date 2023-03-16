@@ -24,7 +24,9 @@ Status Controller::evaluateIK(State *s) {
 	//? to time the yaw and ring to arrive at the same time?
 	s->yawStepper.moveTo(s->yawStepper.UnitToPosition(s->target_yaw));
 
-	if (s->pitchStepper.AtTarget() && s->ringStepper.AtTarget() && s->yawStepper.AtTarget()) return SUCCESS;
+	s->zStepper.moveTo(s->zStepper.UnitToPosition(s->ik_target_z));
+
+	if (s->pitchStepper.AtTarget() && s->ringStepper.AtTarget() && s->yawStepper.AtTarget() && s->zStepper.AtTarget()) return SUCCESS;
 
 	return RUNNING;
 }

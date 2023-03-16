@@ -26,13 +26,11 @@ typedef enum _machine_Status {
     machine_Status_CALIBRATING = 20, 
     machine_Status_IDLE_STATIONARY = 30, 
     machine_Status_IDLE_MOVING = 31, 
-    machine_Status_FILLING_BOWL = 40, 
-    machine_Status_DRAINING_BOWL = 41, 
-    machine_Status_CLEANING_BOWL = 42, 
     machine_Status_DISPENSING = 50, 
     machine_Status_WAITING_FOR_DISPENSE = 55, 
     machine_Status_COLLECTING = 60, 
-    machine_Status_NAVIGATING_IK = 70 
+    machine_Status_NAVIGATING_IK = 70, 
+    machine_Status_NAVIGATING_OUTER = 75 
 } machine_Status;
 
 typedef enum _machine_FluidType { 
@@ -118,8 +116,8 @@ typedef struct _machine_StateReport {
 #define _machine_Mode_ARRAYSIZE ((machine_Mode)(machine_Mode_AUTONOMOUS+1))
 
 #define _machine_Status_MIN machine_Status_UNDEFINED_STATUS
-#define _machine_Status_MAX machine_Status_NAVIGATING_IK
-#define _machine_Status_ARRAYSIZE ((machine_Status)(machine_Status_NAVIGATING_IK+1))
+#define _machine_Status_MAX machine_Status_NAVIGATING_OUTER
+#define _machine_Status_ARRAYSIZE ((machine_Status)(machine_Status_NAVIGATING_OUTER+1))
 
 #define _machine_FluidType_MIN machine_FluidType_FLUID_UNDEFINED
 #define _machine_FluidType_MAX machine_FluidType_MILK

@@ -96,7 +96,7 @@ void Controller::autoUpdate(State *s) {
 	Status status = Navigation::UpdateNodeNavigation(s);
 	// Block until we're in a safe dispense location
 	if (status == RUNNING || status == FAILURE) {
-		StateReport_SetStatus(machine_Status_NAVIGATING_IK);
+		StateReport_SetStatus(machine_Status_NAVIGATING_OUTER);
 		return;
 	}
 

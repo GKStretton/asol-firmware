@@ -30,6 +30,7 @@ Status Controller::evaluatePipetteCollection(State *s) {
 		return RUNNING;
 	
 	s->pipetteState.ulVolumeHeldTarget = s->collectionRequest.ulVolume;
+	s->pipetteState.vialHeld = s->collectionRequest.vialNumber;
 
 	return SUCCESS;
 }
@@ -48,8 +49,11 @@ Status Controller::evaluatePipetteDispense(State *s) {
 	}
 	
 	// mark as spent if at target of 0
-	if (s->pipetteState.ulVolumeHeldTarget <= 0) {
+	if (s->pipetteState.ulVolumeHeldTarget <= 0 && !s->pipetteState.spent) {
 		s->pipetteState.spent = true;
+		s->pipetteState.vialHeld = 0;
+		// Running here so that we don't get a single report of WAITING_FOR_DISPENSE
+		return RUNNING;
 	}
 	return SUCCESS;
 }

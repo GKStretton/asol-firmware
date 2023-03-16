@@ -47,6 +47,8 @@ void State::ClearState() {
 	this->ringStepper.MarkAsNotCalibrated();
 	this->pipetteStepper.MarkAsNotCalibrated();
 
+	this->ik_target_z = IK_Z;
+
 	StateReport_SetMode(machine_Mode_UNDEFINED_MODE);
 	StateReport_Update(this);
 }
