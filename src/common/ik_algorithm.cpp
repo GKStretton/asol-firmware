@@ -5,7 +5,7 @@
 
 int getRingAndYawFromXY(float x, float y, float lastRing, float *ring, float *yaw, float minRingUnit, float maxRingUnit)
 {
-	boundXYToCircle(&x, &y, 1.0);
+	boundXYToCircle(&x, &y, IK_TARGET_RADIUS_FRAC);
 	// No solutions at centre so just do ring = last, yawOffset = 0
 	if (abs(x) <= 0.001 && abs(y) <= 0.001)
 	{

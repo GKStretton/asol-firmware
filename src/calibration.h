@@ -18,6 +18,9 @@
 // Physical calibration of arm positions etc
 #define STAGE_RADIUS_MM 75
 #define ARM_PATH_RADIUS_MM 164.7
+// The stage is equivalent to the crop area. But the tip can't target -1 to 1.
+// IK target requests will be bounded to a circle THIS portion of the stage radius
+#define IK_TARGET_RADIUS_FRAC 0.8
 
 #define YAW_ZERO_OFFSET -21.3
 #define RING_ZERO_OFFSET 24.8
@@ -39,7 +42,7 @@
 #define HANDOVER_OUTER_YAW 50
 
 // the maximum value of yaw that it's safe to enter ik mode within
-#define MAX_BOWL_YAW 24
+#define MAX_BOWL_YAW -YAW_ZERO_OFFSET
 
 // number of milliseconds to open the air valve for after fluid dispense
 #define FLUID_TRAVEL_TIME_MS 5000
