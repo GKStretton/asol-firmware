@@ -62,6 +62,10 @@ static void updateStateReport(State *s) {
 		stateReport.movement_details.target_y_unit = s->target_y;
 		hasChanged = true;
 	}
+	if (stateReport.movement_details.target_z_ik != s->ik_target_z) {
+		stateReport.movement_details.target_z_ik = s->ik_target_z;
+		hasChanged = true;
+	}
 	if (stateReport.movement_details.target_ring_deg != s->target_ring) {
 		stateReport.movement_details.target_ring_deg = s->target_ring;
 		hasChanged = true;

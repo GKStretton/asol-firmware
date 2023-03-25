@@ -67,6 +67,8 @@ typedef struct _machine_MovementDetails {
     float target_x_unit;
     /* ik target from -1 to 1 */
     float target_y_unit;
+    /* ik z target in mm */
+    float target_z_ik;
     /* fk target in degrees */
     float target_ring_deg;
     /* fk target in degrees */
@@ -132,7 +134,7 @@ extern "C" {
 #define machine_PingResponse_init_default        {0}
 #define machine_PipetteState_init_default        {0, 0, 0}
 #define machine_CollectionRequest_init_default   {0, 0, 0, 0}
-#define machine_MovementDetails_init_default     {0, 0, 0, 0}
+#define machine_MovementDetails_init_default     {0, 0, 0, 0, 0}
 #define machine_FluidRequest_init_default        {_machine_FluidType_MIN, 0, 0}
 #define machine_FluidDetails_init_default        {0}
 #define machine_StateReport_init_default         {0, _machine_Mode_MIN, _machine_Status_MIN, 0, false, machine_PipetteState_init_default, false, machine_CollectionRequest_init_default, false, machine_MovementDetails_init_default, false, machine_FluidRequest_init_default, false, machine_FluidDetails_init_default, 0, {{NULL}, NULL}}
@@ -140,7 +142,7 @@ extern "C" {
 #define machine_PingResponse_init_zero           {0}
 #define machine_PipetteState_init_zero           {0, 0, 0}
 #define machine_CollectionRequest_init_zero      {0, 0, 0, 0}
-#define machine_MovementDetails_init_zero        {0, 0, 0, 0}
+#define machine_MovementDetails_init_zero        {0, 0, 0, 0, 0}
 #define machine_FluidRequest_init_zero           {_machine_FluidType_MIN, 0, 0}
 #define machine_FluidDetails_init_zero           {0}
 #define machine_StateReport_init_zero            {0, _machine_Mode_MIN, _machine_Status_MIN, 0, false, machine_PipetteState_init_zero, false, machine_CollectionRequest_init_zero, false, machine_MovementDetails_init_zero, false, machine_FluidRequest_init_zero, false, machine_FluidDetails_init_zero, 0, {{NULL}, NULL}}
@@ -158,6 +160,7 @@ extern "C" {
 #define machine_FluidRequest_complete_tag        3
 #define machine_MovementDetails_target_x_unit_tag 1
 #define machine_MovementDetails_target_y_unit_tag 2
+#define machine_MovementDetails_target_z_ik_tag  5
 #define machine_MovementDetails_target_ring_deg_tag 10
 #define machine_MovementDetails_target_yaw_deg_tag 11
 #define machine_PingResponse_number_tag          1
@@ -200,6 +203,7 @@ X(a, STATIC,   SINGULAR, FLOAT,    volume_ul,         4)
 #define machine_MovementDetails_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, FLOAT,    target_x_unit,     1) \
 X(a, STATIC,   SINGULAR, FLOAT,    target_y_unit,     2) \
+X(a, STATIC,   SINGULAR, FLOAT,    target_z_ik,       5) \
 X(a, STATIC,   SINGULAR, FLOAT,    target_ring_deg,  10) \
 X(a, STATIC,   SINGULAR, FLOAT,    target_yaw_deg,   11)
 #define machine_MovementDetails_CALLBACK NULL
@@ -268,7 +272,7 @@ extern const pb_msgdesc_t machine_StateReportList_msg;
 #define machine_CollectionRequest_size           29
 #define machine_FluidDetails_size                5
 #define machine_FluidRequest_size                9
-#define machine_MovementDetails_size             20
+#define machine_MovementDetails_size             25
 #define machine_PingResponse_size                6
 #define machine_PipetteState_size                13
 
