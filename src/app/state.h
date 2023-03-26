@@ -21,11 +21,13 @@ enum FluidType {
 	FLUID_UNDEFINED = 0,
 	DRAIN = 1,
 	WATER = 2,
-	MILK = 3
+	MILK = 3,
+	RINSE = 4
 };
 
 struct FluidRequest {
 	FluidType fluidType;
+	bool open_drain;
 	float volume_ml;
 	unsigned long startTime;
 	bool complete;

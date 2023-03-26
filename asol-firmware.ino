@@ -17,6 +17,7 @@
 #include "src/app/state_report.h"
 #include "src/testing/testing.h"
 #include "src/common/mathutil.h"
+#include "src/middleware/fluid_levels.h"
 
 State s = {
 	updatesPerSecond: 0,
@@ -42,7 +43,7 @@ State s = {
 	calibrationCleared: false,
 	postCalibrationStopCalled: false,
 	forceIdleLocation: true,
-	fluidRequest: {FluidType::FLUID_UNDEFINED, 0, 0, true},
+	fluidRequest: {FluidType::FLUID_UNDEFINED, false, 0, 0, true},
 	ik_target_z: IK_Z
 };
 
@@ -224,6 +225,8 @@ void topicHandler(String topic, String payload)
 	{
 		SetDualRelay(DRAINAGE_VALVE_RELAY, true);
 		Logger::Info("draining...");
+		// to make this play nice as an override
+		FluidLevels_WriteBowlLevel(0);
 	}
 	else if (topic == "mega/req/close-drain")
 	{
@@ -312,12 +315,13 @@ void topicHandler(String topic, String payload)
 		digitalWrite(pin, LOW);
 	}
 	else if (topic == "mega/req/fluid") {
-		String values[] = {"", ""};
-		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 2);
+		String values[] = {"", "", ""};
+		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 3);
 		FluidType fluidType = (FluidType) values[0].toInt();
 		float volume_ml = values[1].toFloat();
+		bool open_drain = values[2] == "true";
 
-		controller.NewFluidRequest(&s, fluidType, volume_ml);
+		controller.NewFluidRequest(&s, fluidType, volume_ml, open_drain);
 	}
 	else if (topic == "mega/req/set-ik-z") {
 		float z = payload.toFloat();

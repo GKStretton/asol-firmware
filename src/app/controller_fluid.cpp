@@ -46,14 +46,19 @@ void Controller::fluidUpdate(State *s) {
 
 	uint8_t pin = pinFromFluidType(s->fluidRequest.fluidType);
 	float openTime = getValveOpenTimeFromVolume(s->fluidRequest.fluidType, s->fluidRequest.volume_ml);
+	// time to drain the requested amount of fluid
+	float drainTime = getValveOpenTimeFromVolume(FluidType::DRAIN, s->fluidRequest.volume_ml);
 
 	// start, open the valve
 	if (s->fluidRequest.startTime == 0) {
 		s->fluidRequest.startTime = millis();
 		setValve(pin, true);
+		if (s->fluidRequest.open_drain) {
+			setValve(DRAINAGE_VALVE_RELAY, true);
+		}
 	}
 
-	if (millis() - s-> fluidRequest.startTime >= openTime) {
+	if (millis() - s->fluidRequest.startTime >= openTime) {
 		setValve(pin, false);
 
 		if (s->fluidRequest.fluidType == FluidType::DRAIN) {
@@ -69,13 +74,23 @@ void Controller::fluidUpdate(State *s) {
 		setValve(AIR_VALVE_RELAY, true);
 	}
 
-	if (millis() - s-> fluidRequest.startTime >= openTime + FLUID_TRAVEL_TIME_MS) {
+	if (millis() - s->fluidRequest.startTime >= openTime + FLUID_TRAVEL_TIME_MS) {
 		setValve(AIR_VALVE_RELAY, false);
+		if (!s->fluidRequest.open_drain) {
+			s->fluidRequest.complete = true;
+			return;
+		}
+	}
+
+	if (s->fluidRequest.open_drain &&
+		millis() - s->fluidRequest.startTime >= FLUID_TRAVEL_TIME_MS + drainTime)
+	{
+		setValve(DRAINAGE_VALVE_RELAY, false);
 		s->fluidRequest.complete = true;
 	}
 }
 
-void Controller::NewFluidRequest(State *s, FluidType fluidType, float volume_ml) {
+void Controller::NewFluidRequest(State *s, FluidType fluidType, float volume_ml, bool open_drain) {
 	if (fluidType == FluidType::FLUID_UNDEFINED) {
 		Logger::Warn("undefined fluidType request");
 		return;
@@ -93,11 +108,13 @@ void Controller::NewFluidRequest(State *s, FluidType fluidType, float volume_ml)
 	s->fluidRequest.volume_ml = volume_ml;
 	s->fluidRequest.startTime = 0;
 	s->fluidRequest.complete = false;
+	s->fluidRequest.open_drain = open_drain;
 	Logger::Info("Set fluid request type " +
 		String(fluidType) + " volume " + String(volume_ml));
 
 	if (s->fluidRequest.fluidType != FluidType::FLUID_UNDEFINED &&
-		s->fluidRequest.fluidType != FluidType::DRAIN)
+		s->fluidRequest.fluidType != FluidType::DRAIN &&
+		!s->fluidRequest.open_drain)
 	{
 		FluidLevels_WriteBowlLevel(fluidLevel + s->fluidRequest.volume_ml);
 	}

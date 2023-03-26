@@ -6,7 +6,7 @@ class Controller {
 public:
 	void Init(State *s);
 	void Update(State *s);
-	void NewFluidRequest(State *s, FluidType fluidType, float volume_ml);
+	void NewFluidRequest(State *s, FluidType fluidType, float volume_ml, bool open_drain);
 private:
 	void fluidInit(State *s);
 

@@ -49,6 +49,8 @@ void State::ClearState() {
 
 	this->ik_target_z = IK_Z;
 
+	this->fluidRequest = {FLUID_UNDEFINED, false, 0, 0, true};
+
 	StateReport_SetMode(machine_Mode_UNDEFINED_MODE);
 	StateReport_Update(this);
 }

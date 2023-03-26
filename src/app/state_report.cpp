@@ -83,6 +83,10 @@ static void updateStateReport(State *s) {
 		stateReport.fluid_request.fluidType = (_machine_FluidType) s->fluidRequest.fluidType;
 		hasChanged = true;
 	}
+	if (stateReport.fluid_request.open_drain != s->fluidRequest.open_drain) {
+		stateReport.fluid_request.open_drain = s->fluidRequest.open_drain;
+		hasChanged = true;
+	}
 	if (stateReport.fluid_request.volume_ml != s->fluidRequest.volume_ml) {
 		stateReport.fluid_request.volume_ml = s->fluidRequest.volume_ml;
 		hasChanged = true;
