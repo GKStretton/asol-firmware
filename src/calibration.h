@@ -46,7 +46,8 @@
 
 // number of milliseconds to open the air valve for after fluid dispense
 #define FLUID_TRAVEL_TIME_MS 5000
+#define OPEN_DRAIN_DELAY_MS 12000
 #define WATER_VOLUME_PER_SECOND_ML 5.5
 #define MILK_VOLUME_PER_SECOND_ML 6.0
-#define DRAIN_VOLUME_PER_SECOND_ML 4.0
+#define DRAIN_VOLUME_PER_SECOND_ML 4.5
 #define MAX_FLUID_LEVEL 500.0

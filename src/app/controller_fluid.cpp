@@ -53,10 +53,15 @@ void Controller::fluidUpdate(State *s) {
 	if (s->fluidRequest.startTime == 0) {
 		s->fluidRequest.startTime = millis();
 		setValve(pin, true);
-		if (s->fluidRequest.open_drain) {
-			setValve(DRAINAGE_VALVE_RELAY, true);
-		}
 	}
+
+	// do open_drain after a delay
+	if (s->fluidRequest.open_drain &&
+		millis() - s->fluidRequest.startTime >= OPEN_DRAIN_DELAY_MS + FLUID_TRAVEL_TIME_MS)
+	{
+		setValve(DRAINAGE_VALVE_RELAY, true);
+	}
+
 
 	if (millis() - s->fluidRequest.startTime >= openTime) {
 		setValve(pin, false);
@@ -83,7 +88,7 @@ void Controller::fluidUpdate(State *s) {
 	}
 
 	if (s->fluidRequest.open_drain &&
-		millis() - s->fluidRequest.startTime >= FLUID_TRAVEL_TIME_MS + drainTime)
+		millis() - s->fluidRequest.startTime >= /*FLUID_TRAVEL_TIME_MS + */drainTime + OPEN_DRAIN_DELAY_MS)
 	{
 		setValve(DRAINAGE_VALVE_RELAY, false);
 		s->fluidRequest.complete = true;
