@@ -22,7 +22,6 @@ enum FluidType {
 	DRAIN = 1,
 	WATER = 2,
 	MILK = 3,
-	RINSE = 4
 };
 
 struct FluidRequest {

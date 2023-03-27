@@ -10,6 +10,15 @@
 #endif
 
 /* Enum definitions */
+/* used in requests */
+typedef enum _machine_SolenoidValve { 
+    machine_SolenoidValve_VALVE_UNDEFINED = 0, 
+    machine_SolenoidValve_VALVE_DRAIN = 1, 
+    machine_SolenoidValve_VALVE_WATER = 2, 
+    machine_SolenoidValve_VALVE_MILK = 3, 
+    machine_SolenoidValve_VALVE_AIR = 4 
+} machine_SolenoidValve;
+
 typedef enum _machine_Mode { 
     machine_Mode_UNDEFINED_MODE = 0, 
     machine_Mode_MANUAL = 1, 
@@ -116,6 +125,10 @@ typedef struct _machine_StateReport {
 
 
 /* Helper constants for enums */
+#define _machine_SolenoidValve_MIN machine_SolenoidValve_VALVE_UNDEFINED
+#define _machine_SolenoidValve_MAX machine_SolenoidValve_VALVE_AIR
+#define _machine_SolenoidValve_ARRAYSIZE ((machine_SolenoidValve)(machine_SolenoidValve_VALVE_AIR+1))
+
 #define _machine_Mode_MIN machine_Mode_UNDEFINED_MODE
 #define _machine_Mode_MAX machine_Mode_AUTONOMOUS
 #define _machine_Mode_ARRAYSIZE ((machine_Mode)(machine_Mode_AUTONOMOUS+1))

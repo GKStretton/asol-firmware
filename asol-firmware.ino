@@ -221,17 +221,31 @@ void topicHandler(String topic, String payload)
 		s.pipetteStepper.MarkAsNotCalibrated();
 		s.calibrationCleared = true;
 	}
-	else if (topic == "mega/req/open-drain")
+	else if (topic == "mega/req/set-valve")
 	{
-		SetDualRelay(DRAINAGE_VALVE_RELAY, true);
-		Logger::Info("draining...");
+		String values[] = {"", ""};
+		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 2);
+		machine_SolenoidValve valve = (machine_SolenoidValve)values[0].toInt();
+		bool open = values[1] == "true";
+		uint8_t pin = 0;
+
+		if (valve == machine_SolenoidValve_VALVE_DRAIN) {
+			pin = DRAINAGE_VALVE_RELAY;
+		} else if (valve == machine_SolenoidValve_VALVE_MILK) {
+			pin = MILK_VALVE_RELAY;
+		} else if (valve == machine_SolenoidValve_VALVE_WATER) {
+			pin = WATER_VALVE_RELAY;
+		} else if (valve == machine_SolenoidValve_VALVE_AIR) {
+			pin = AIR_VALVE_RELAY;
+		} else {
+			Logger::Error("unknown valve " + String(valve));
+			return;
+		}
+		SetDualRelay(pin, open);
+		Logger::Info("set valve " + String(valve) + " to " + String(open));
+
 		// to make this play nice as an override
 		FluidLevels_WriteBowlLevel(0);
-	}
-	else if (topic == "mega/req/close-drain")
-	{
-		SetDualRelay(DRAINAGE_VALVE_RELAY, false);
-		Logger::Info("closing drain.");
 	}
 	else if (topic == "mega/req/dispense") {
 		String values[] = {""};
