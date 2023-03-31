@@ -43,6 +43,11 @@ enum Node
 	// The node to enter the lower (vial) regions at
 	LOW_ENTRY_POINT = VIAL_3_ABOVE,
 
+	// High z but otherwise aligned for rinse container
+	RINSE_CONTAINER_ENTRY = 80,
+	// Low z and aligned for rinse container (in water)
+	RINSE_CONTAINER_LOW = 85,
+
 	OUTER_HANDOVER = 90,
 	INNER_HANDOVER = 110,
 	INVERSE_KINEMATICS_POSITION = 150,

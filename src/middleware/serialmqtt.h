@@ -1,10 +1,9 @@
 #pragma once
 
 #include <Arduino.h>
-#include "../protos/nanopb/pb_encode.h"
+#include "../extras/nanopb/pb_encode.h"
 
 #define SERIAL_MQTT_BUFFER_SIZE 256
-#define SERIAL_MQTT_SEND_PREFIX "mega/"
 #define SERIAL_MQTT_MESSAGE_START '>'
 #define SERIAL_MQTT_PLAINTEXT_IDENTIFIER '#'
 #define SERIAL_MQTT_PROTOBUF_IDENTIFIER '$'
@@ -16,10 +15,8 @@ namespace SerialMQTT {
 	void SetTopicHandler(void (*f)(String topic, String payload));
 	// Process Serial input and call handler if \n is reached
 	void Update();
-	// PublishMega a payload to a topic via SerialMQTT with mega prefix
-	void PublishMega(String topic, String payload);
-	// Publish to a raw topic without mega prefix
-	void PublishRawTopic(String topic, String payload);
+	// Publish to a topic
+	void Publish(String topic, String payload);
 
 	// Payload helpers
 	// Unpacks n values separated by commas into values[].

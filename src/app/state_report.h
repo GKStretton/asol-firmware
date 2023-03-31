@@ -1,7 +1,7 @@
 #pragma once
 
 #include "state.h"
-#include "../protos/machinepb/machine.pb.h"
+#include "../extras/machinepb/machine.pb.h"
 
 // Called to check for updates and publish a report if anything's changed.
 // Call every control update.

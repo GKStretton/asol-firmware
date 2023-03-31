@@ -1,9 +1,10 @@
 #include "state_report.h"
 #include <Arduino.h>
-#include "../protos/nanopb/pb_encode.h"
+#include "../extras/nanopb/pb_encode.h"
 #include "../middleware/serialmqtt.h"
 #include "../middleware/logger.h"
 #include "../middleware/fluid_levels.h"
+#include "../extras/topics_firmware/topics_firmware.h"
 
 static machine_StateReport stateReport = machine_StateReport_init_default;
 // set to true if a state report should be sent out next time
@@ -115,7 +116,7 @@ void StateReport_Update(State *s) {
 }
 
 void StateReport_ForceSend() {
-	SerialMQTT::PublishProto("state-report", machine_StateReport_fields, &stateReport);
+	SerialMQTT::PublishProto(TOPIC_STATE_REPORT_RAW, machine_StateReport_fields, &stateReport);
 	hasChanged = false;
 }
 

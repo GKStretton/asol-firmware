@@ -18,6 +18,7 @@
 #include "src/testing/testing.h"
 #include "src/common/mathutil.h"
 #include "src/middleware/fluid_levels.h"
+#include "src/extras/topics_firmware/topics_firmware.h"
 
 State s = {
 	updatesPerSecond: 0,
@@ -189,12 +190,12 @@ void initSteppers() {
 void topicHandler(String topic, String payload)
 {
 	Logger::Debug("topic handler start");
-	if (topic == "mega/req/wake")
+	if (topic == TOPIC_WAKE)
 	{
 		Sleep::Wake();
 		return;
 	}
-	else if (topic == "mega/req/state-report")
+	else if (topic == TOPIC_STATE_REPORT_REQUEST)
 	{
 		StateReport_ForceSend();
 	}
@@ -204,15 +205,15 @@ void topicHandler(String topic, String payload)
 		return;
 	}
 
-	if (topic == "mega/req/sleep")
+	if (topic == TOPIC_SLEEP)
 	{
 		Sleep::Sleep(Sleep::UNKNOWN);
 	}
-	else if (topic == "mega/req/shutdown")
+	else if (topic == TOPIC_SHUTDOWN)
 	{
 		s.shutdownRequested = true;
 	}
-	else if (topic == "mega/req/uncalibrate")
+	else if (topic == TOPIC_UNCALIBRATE)
 	{
 		s.pitchStepper.MarkAsNotCalibrated();
 		s.yawStepper.MarkAsNotCalibrated();
@@ -221,7 +222,7 @@ void topicHandler(String topic, String payload)
 		s.pipetteStepper.MarkAsNotCalibrated();
 		s.calibrationCleared = true;
 	}
-	else if (topic == "mega/req/set-valve")
+	else if (topic == TOPIC_SET_VALVE)
 	{
 		String values[] = {"", ""};
 		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 2);
@@ -247,7 +248,7 @@ void topicHandler(String topic, String payload)
 		// to make this play nice as an override
 		FluidLevels_WriteBowlLevel(0);
 	}
-	else if (topic == "mega/req/dispense") {
+	else if (topic == TOPIC_DISPENSE) {
 		String values[] = {""};
 		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 1);
 		float ul = values[0].toFloat();
@@ -261,7 +262,7 @@ void topicHandler(String topic, String payload)
 			Logger::Info("Cannot dispense because already spent");
 		}
 	}
-	else if (topic == "mega/req/collect") {
+	else if (topic == TOPIC_COLLECT) {
 		String values[] = {"", ""};
 		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 2);
 		int vial = values[0].toInt();
@@ -277,14 +278,14 @@ void topicHandler(String topic, String payload)
 			Logger::Info("created collection request " + String(s.collectionRequest.requestNumber) + " for " + String(ul) + "ul of vial " + String(vial));
 		}
 	}
-	else if (topic == "mega/req/goto-node")
+	else if (topic == TOPIC_GOTO_NODE)
 	{
 		long num = payload.toInt();
 		s.forceIdleLocation = num == IDLE_LOCATION;
 		s.SetGlobalNavigationTarget((Node)num);
 		Logger::Debug("Set globalTargetNode to " + String(num));
 	}
-	else if (topic == "mega/req/goto-xy") {
+	else if (topic == TOPIC_GOTO_XY) {
 		String values[] = {"", ""};
 		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 2);
 		float target_x = values[0].toFloat();
@@ -313,22 +314,22 @@ void topicHandler(String topic, String payload)
 		s.target_ring = ring;
 		s.target_yaw = yaw;
 	}
-	else if (topic == "mega/req/manual")
+	else if (topic == TOPIC_TOGGLE_MANUAL)
 	{
 		s.manualRequested = !s.manualRequested;
 		Logger::Info("Toggled manualRequested mode to " + String(s.manualRequested));
 	}
-	else if (topic == "mega/req/pin-on")
+	else if (topic == TOPIC_PIN_ON)
 	{
 		uint8_t pin = (uint8_t) payload.toInt();
 		digitalWrite(pin, HIGH);
 	}
-	else if (topic == "mega/req/pin-off")
+	else if (topic == TOPIC_PIN_OFF)
 	{
 		uint8_t pin = (uint8_t) payload.toInt();
 		digitalWrite(pin, LOW);
 	}
-	else if (topic == "mega/req/fluid") {
+	else if (topic == TOPIC_FLUID) {
 		String values[] = {"", "", ""};
 		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 3);
 		FluidType fluidType = (FluidType) values[0].toInt();
@@ -337,7 +338,7 @@ void topicHandler(String topic, String payload)
 
 		controller.NewFluidRequest(&s, fluidType, volume_ml, open_drain);
 	}
-	else if (topic == "mega/req/set-ik-z") {
+	else if (topic == TOPIC_SET_IK_Z) {
 		float z = payload.toFloat();
 		if (z < MIN_BOWL_Z || z > s.zStepper.GetMaxUnit()) {
 			Logger::Error("z level " + payload + " out of range.");
@@ -376,17 +377,17 @@ void dataUpdate()
 	// SerialMQTT::PublishMega("d/Z_POS", String(s.zStepper.currentPosition()));
 	// SerialMQTT::PublishMega("d/Y_POS", String(s.yawStepper.currentPosition()));
 	// SerialMQTT::PublishMega("d/P_POS", String(s.pitchStepper.currentPosition()));
-	SerialMQTT::PublishMega("d/PP_POS", String(s.pipetteStepper.currentPosition()));
+	// SerialMQTT::PublishMega("d/PP_POS", String(s.pipetteStepper.currentPosition()));
 
 	// stepper units
-	SerialMQTT::PublishMega("d/R_UNIT", String(s.ringStepper.PositionToUnit(s.ringStepper.currentPosition())));
-	// SerialMQTT::PublishMega("d/Z_UNIT", String(s.zStepper.PositionToUnit(s.zStepper.currentPosition())));
-	SerialMQTT::PublishMega("d/Y_UNIT", String(s.yawStepper.PositionToUnit(s.yawStepper.currentPosition())));
-	// SerialMQTT::PublishMega("d/P_UNIT", String(s.pitchStepper.PositionToUnit(s.pitchStepper.currentPosition())));
-	SerialMQTT::PublishMega("d/PP_UNIT", String(s.pipetteStepper.PositionToUnit(s.pipetteStepper.currentPosition())));
+	// SerialMQTT::PublishMega("d/R_UNIT", String(s.ringStepper.PositionToUnit(s.ringStepper.currentPosition())));
+	SerialMQTT::Publish("mega/d/Z_UNIT", String(s.zStepper.PositionToUnit(s.zStepper.currentPosition())));
+	SerialMQTT::Publish("mega/d/Y_UNIT", String(s.yawStepper.PositionToUnit(s.yawStepper.currentPosition())));
+	SerialMQTT::Publish("mega/d/P_UNIT", String(s.pitchStepper.PositionToUnit(s.pitchStepper.currentPosition())));
+	// SerialMQTT::PublishMega("d/PP_UNIT", String(s.pipetteStepper.PositionToUnit(s.pipetteStepper.currentPosition())));
 
-	SerialMQTT::PublishMega("d/PP_L_SW", String(digitalRead(PIPETTE_LIMIT_SWITCH)));
-	SerialMQTT::PublishMega("d/PP_CALI", String(s.pipetteStepper.IsCalibrated()));
+	// SerialMQTT::PublishMega("d/PP_L_SW", String(digitalRead(PIPETTE_LIMIT_SWITCH)));
+	// SerialMQTT::PublishMega("d/PP_CALI", String(s.pipetteStepper.IsCalibrated()));
 
 	// SerialMQTT::PublishMega("d/DATA_MS", String(millis() - start));
 	// SerialMQTT::PublishMega("d/UPS", String(s.updatesPerSecond));

@@ -35,6 +35,7 @@ typedef enum _machine_Status {
     machine_Status_CALIBRATING = 20, 
     machine_Status_IDLE_STATIONARY = 30, 
     machine_Status_IDLE_MOVING = 31, 
+    machine_Status_RINSING_PIPETTE = 40, 
     machine_Status_DISPENSING = 50, 
     machine_Status_WAITING_FOR_DISPENSE = 55, 
     machine_Status_COLLECTING = 60, 
@@ -44,9 +45,9 @@ typedef enum _machine_Status {
 
 typedef enum _machine_FluidType { 
     machine_FluidType_FLUID_UNDEFINED = 0, 
-    machine_FluidType_DRAIN = 1, 
-    machine_FluidType_WATER = 2, 
-    machine_FluidType_MILK = 3 
+    machine_FluidType_FLUID_DRAIN = 1, 
+    machine_FluidType_FLUID_WATER = 2, 
+    machine_FluidType_FLUID_MILK = 3 
 } machine_FluidType;
 
 /* Struct definitions */
@@ -89,10 +90,6 @@ typedef struct _machine_MovementDetails {
  regularly. Regular info can come through a controls
  / realtime report. */
 } machine_MovementDetails;
-
-typedef struct _machine_PingResponse { 
-    uint32_t number;
-} machine_PingResponse;
 
 typedef struct _machine_PipetteState { 
     bool spent;
@@ -138,8 +135,8 @@ typedef struct _machine_StateReport {
 #define _machine_Status_ARRAYSIZE ((machine_Status)(machine_Status_NAVIGATING_OUTER+1))
 
 #define _machine_FluidType_MIN machine_FluidType_FLUID_UNDEFINED
-#define _machine_FluidType_MAX machine_FluidType_MILK
-#define _machine_FluidType_ARRAYSIZE ((machine_FluidType)(machine_FluidType_MILK+1))
+#define _machine_FluidType_MAX machine_FluidType_FLUID_MILK
+#define _machine_FluidType_ARRAYSIZE ((machine_FluidType)(machine_FluidType_FLUID_MILK+1))
 
 
 #ifdef __cplusplus
@@ -147,7 +144,6 @@ extern "C" {
 #endif
 
 /* Initializer values for message structs */
-#define machine_PingResponse_init_default        {0}
 #define machine_PipetteState_init_default        {0, 0, 0}
 #define machine_CollectionRequest_init_default   {0, 0, 0, 0}
 #define machine_MovementDetails_init_default     {0, 0, 0, 0, 0}
@@ -155,7 +151,6 @@ extern "C" {
 #define machine_FluidDetails_init_default        {0}
 #define machine_StateReport_init_default         {0, _machine_Mode_MIN, _machine_Status_MIN, 0, false, machine_PipetteState_init_default, false, machine_CollectionRequest_init_default, false, machine_MovementDetails_init_default, false, machine_FluidRequest_init_default, false, machine_FluidDetails_init_default, 0, {{NULL}, NULL}}
 #define machine_StateReportList_init_default     {{{NULL}, NULL}}
-#define machine_PingResponse_init_zero           {0}
 #define machine_PipetteState_init_zero           {0, 0, 0}
 #define machine_CollectionRequest_init_zero      {0, 0, 0, 0}
 #define machine_MovementDetails_init_zero        {0, 0, 0, 0, 0}
@@ -180,7 +175,6 @@ extern "C" {
 #define machine_MovementDetails_target_z_ik_tag  5
 #define machine_MovementDetails_target_ring_deg_tag 10
 #define machine_MovementDetails_target_yaw_deg_tag 11
-#define machine_PingResponse_number_tag          1
 #define machine_PipetteState_spent_tag           1
 #define machine_PipetteState_vial_held_tag       2
 #define machine_PipetteState_volume_target_ul_tag 3
@@ -197,11 +191,6 @@ extern "C" {
 #define machine_StateReport_timestamp_readable_tag 51
 
 /* Struct field encoding specification for nanopb */
-#define machine_PingResponse_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   number,            1)
-#define machine_PingResponse_CALLBACK NULL
-#define machine_PingResponse_DEFAULT NULL
-
 #define machine_PipetteState_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, BOOL,     spent,             1) \
 X(a, STATIC,   SINGULAR, UINT32,   vial_held,         2) \
@@ -265,7 +254,6 @@ X(a, CALLBACK, REPEATED, MESSAGE,  StateReports,      1)
 #define machine_StateReportList_DEFAULT NULL
 #define machine_StateReportList_StateReports_MSGTYPE machine_StateReport
 
-extern const pb_msgdesc_t machine_PingResponse_msg;
 extern const pb_msgdesc_t machine_PipetteState_msg;
 extern const pb_msgdesc_t machine_CollectionRequest_msg;
 extern const pb_msgdesc_t machine_MovementDetails_msg;
@@ -275,7 +263,6 @@ extern const pb_msgdesc_t machine_StateReport_msg;
 extern const pb_msgdesc_t machine_StateReportList_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
-#define machine_PingResponse_fields &machine_PingResponse_msg
 #define machine_PipetteState_fields &machine_PipetteState_msg
 #define machine_CollectionRequest_fields &machine_CollectionRequest_msg
 #define machine_MovementDetails_fields &machine_MovementDetails_msg
@@ -291,7 +278,6 @@ extern const pb_msgdesc_t machine_StateReportList_msg;
 #define machine_FluidDetails_size                5
 #define machine_FluidRequest_size                11
 #define machine_MovementDetails_size             25
-#define machine_PingResponse_size                6
 #define machine_PipetteState_size                13
 
 #ifdef __cplusplus

@@ -51,3 +51,10 @@
 #define MILK_VOLUME_PER_SECOND_ML 6.0
 #define DRAIN_VOLUME_PER_SECOND_ML 4.5
 #define MAX_FLUID_LEVEL 500.0
+
+// Rinse node calibration
+// todo: calibrate
+#define RINSE_CONTAINER_ENTRY_Z 73
+#define RINSE_CONTAINER_LOW_Z 60
+#define RINSE_CONTAINER_PITCH 20
+#define RINSE_CONTAINER_YAW 110

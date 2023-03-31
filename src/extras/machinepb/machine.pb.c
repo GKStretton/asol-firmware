@@ -6,9 +6,6 @@
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
-PB_BIND(machine_PingResponse, machine_PingResponse, AUTO)
-
-
 PB_BIND(machine_PipetteState, machine_PipetteState, AUTO)
 
 

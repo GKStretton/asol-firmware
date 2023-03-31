@@ -8,6 +8,7 @@
 #include "../drivers/i2c_eeprom.h"
 #include "../app/state_report.h"
 #include "../config.h"
+#include "../extras/topics_backend/topics_backend.h"
 
 namespace Sleep {
 	namespace {
@@ -43,7 +44,7 @@ namespace Sleep {
 			delay(500);
 
 			// turn off power with smart switch
-			SerialMQTT::PublishRawTopic(SMART_SWITCH_TOPIC, SMART_SWITCH_OFF_PAYLOAD);
+			SerialMQTT::Publish(TOPIC_SMART_SWITCH, PAYLOAD_SMART_SWITCH_OFF);
 			Logger::Info("External power off req sent.");
 
 			StateReport_SetStatus(machine_Status_SLEEPING);
@@ -55,7 +56,7 @@ namespace Sleep {
 			StateReport_ForceSend();
 
 			Logger::Info("Waking up, powering up");
-			SerialMQTT::PublishRawTopic(SMART_SWITCH_TOPIC, SMART_SWITCH_ON_PAYLOAD);
+			SerialMQTT::Publish(TOPIC_SMART_SWITCH, PAYLOAD_SMART_SWITCH_ON);
 			delay(2000);
 			SetDualRelay(V5_RELAY_PIN, true);
 			SetDualRelay(V12_RELAY_PIN1, true);

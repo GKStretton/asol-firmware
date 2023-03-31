@@ -34,7 +34,7 @@ Node calculateNextNode(Node lastNode, Node targetNode) {
 		if (targetNode >= MIN_VIAL_INSIDE && targetNode <= MAX_VIAL_INSIDE && targetNode % 10 == 5)
 			// go to to correct above vial node
 			return (Node) (targetNode - 5);
-		if (targetNode >= OUTER_HANDOVER)
+		if (targetNode >= RINSE_CONTAINER_ENTRY)
 			return LOW_ENTRY_POINT;
 	}
 
@@ -42,6 +42,8 @@ Node calculateNextNode(Node lastNode, Node targetNode) {
 	{
 		if (targetNode <= HOME_TOP)
 			return HOME_TOP;
+		if (targetNode >= RINSE_CONTAINER_ENTRY && targetNode <= RINSE_CONTAINER_LOW)
+			return RINSE_CONTAINER_ENTRY;
 		if (targetNode >= OUTER_HANDOVER)
 			return OUTER_HANDOVER;
 	}
@@ -51,7 +53,7 @@ Node calculateNextNode(Node lastNode, Node targetNode) {
 	{
 		if (targetNode <= HOME_TOP)
 			return HOME_TOP;
-		if (targetNode >= OUTER_HANDOVER)
+		if (targetNode >= RINSE_CONTAINER_ENTRY)
 			return LOW_ENTRY_POINT;
 		if (targetNode >= MIN_VIAL_ABOVE && targetNode <= MAX_VIAL_ABOVE && targetNode % 10 == 0)
 			return targetNode;
@@ -72,8 +74,24 @@ Node calculateNextNode(Node lastNode, Node targetNode) {
 			return (Node) (lastNode - 5);
 	}
 
+	if (lastNode == RINSE_CONTAINER_ENTRY) {
+		if (targetNode < RINSE_CONTAINER_ENTRY)
+			return LOW_ENTRY_POINT;
+		if (targetNode >= OUTER_HANDOVER)
+			return OUTER_HANDOVER;
+		if (targetNode == RINSE_CONTAINER_LOW)
+			return RINSE_CONTAINER_LOW;
+	}
+
+	if (lastNode == RINSE_CONTAINER_LOW) {
+		if (targetNode != RINSE_CONTAINER_LOW)
+			return RINSE_CONTAINER_ENTRY;
+	}
+
 	if (lastNode == OUTER_HANDOVER)
 	{
+		if (targetNode >= RINSE_CONTAINER_ENTRY && targetNode <= RINSE_CONTAINER_LOW)
+			return RINSE_CONTAINER_ENTRY;
 		if (targetNode < OUTER_HANDOVER)
 			return LOW_ENTRY_POINT;
 		if (targetNode >= INNER_HANDOVER)
@@ -140,6 +158,22 @@ void goToNode(State *s, Node node) {
 		// so we let the above position carry over. Movement within this node
 		// is controlled from outside the navigation system, to reduce complexity
 		// here. 
+		return;
+	}
+
+	if (node == RINSE_CONTAINER_ENTRY)
+	{
+		s->zStepper.moveTo(s->zStepper.UnitToPosition(RINSE_CONTAINER_ENTRY_Z));
+		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(RINSE_CONTAINER_PITCH));
+		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(RINSE_CONTAINER_YAW));
+		return;
+	}
+
+	if (node == RINSE_CONTAINER_LOW)
+	{
+		s->zStepper.moveTo(s->zStepper.UnitToPosition(RINSE_CONTAINER_LOW_Z));
+		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(RINSE_CONTAINER_PITCH));
+		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(RINSE_CONTAINER_YAW));
 		return;
 	}
 

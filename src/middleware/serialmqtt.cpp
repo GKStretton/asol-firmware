@@ -1,6 +1,6 @@
 #include "serialmqtt.h"
 #include "../config.h"
-#include "../protos/pb_arduino/pb_arduino.h"
+#include "../extras/pb_arduino/pb_arduino.h"
 
 char buffer[SERIAL_MQTT_BUFFER_SIZE];
 int bufferIndex = 0;
@@ -70,17 +70,7 @@ void SerialMQTT::Update() {
 	}
 }
 
-void SerialMQTT::PublishMega(String topic, String payload) {
-	Serial.print(SERIAL_MQTT_MESSAGE_START);
-	Serial.print(SERIAL_MQTT_SEND_PREFIX);
-	Serial.print(topic);
-	Serial.print(SERIAL_MQTT_TOPIC_END);
-	Serial.print(SERIAL_MQTT_PLAINTEXT_IDENTIFIER);
-	Serial.print(payload);
-	Serial.print(SERIAL_MQTT_MESSAGE_END);
-}
-
-void SerialMQTT::PublishRawTopic(String topic, String payload) {
+void SerialMQTT::Publish(String topic, String payload) {
 	Serial.print(SERIAL_MQTT_MESSAGE_START);
 	Serial.print(topic);
 	Serial.print(SERIAL_MQTT_TOPIC_END);
@@ -113,7 +103,6 @@ void SerialMQTT::PublishProto(String topic, const pb_msgdesc_t *fields, const vo
 	// Serial.print("going to publish proto to " + topic + "\n");
 
 	Serial.print(SERIAL_MQTT_MESSAGE_START);
-	Serial.print(SERIAL_MQTT_SEND_PREFIX);
 	Serial.print(topic);
 	Serial.print(SERIAL_MQTT_TOPIC_END);
 	Serial.print(SERIAL_MQTT_PROTOBUF_IDENTIFIER);
