@@ -55,6 +55,6 @@
 // Rinse node calibration
 // todo: calibrate
 #define RINSE_CONTAINER_ENTRY_Z 73
-#define RINSE_CONTAINER_LOW_Z 60
-#define RINSE_CONTAINER_PITCH 20
-#define RINSE_CONTAINER_YAW 110
+#define RINSE_CONTAINER_LOW_Z 0
+#define RINSE_CONTAINER_PITCH 26.2
+#define RINSE_CONTAINER_YAW 63.0
