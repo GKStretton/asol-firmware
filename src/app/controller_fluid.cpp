@@ -88,7 +88,7 @@ void Controller::fluidUpdate(State *s) {
 	}
 
 	if (s->fluidRequest.open_drain &&
-		millis() - s->fluidRequest.startTime >= /*FLUID_TRAVEL_TIME_MS + */drainTime + OPEN_DRAIN_DELAY_MS)
+		millis() - s->fluidRequest.startTime >= FLUID_TRAVEL_TIME_MS + drainTime + OPEN_DRAIN_DELAY_MS)
 	{
 		setValve(DRAINAGE_VALVE_RELAY, false);
 		s->fluidRequest.complete = true;
