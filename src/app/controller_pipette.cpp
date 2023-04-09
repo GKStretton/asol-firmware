@@ -40,7 +40,7 @@ Status Controller::evaluatePipetteDispense(State *s) {
 	if (s->pipetteState.ulVolumeHeldTarget <= 0) {
 		target = 0;
 	} else {
-		target = PIPETTE_BUFFER + s->pipetteState.ulVolumeHeldTarget;
+		target = PIPETTE_BUFFER + s->pipetteState.ulVolumeHeldTarget - PIPETTE_BACKLASH_UL;
 	}
 	
 	s->pipetteStepper.moveTo(s->pipetteStepper.UnitToPosition(target));
