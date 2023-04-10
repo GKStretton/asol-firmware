@@ -361,37 +361,37 @@ void dataUpdate()
 
 	unsigned long start = millis();
 	// Board input
-	// SerialMQTT::PublishMega("d/S_A", String(digitalRead(SWITCH_A)));
-	// SerialMQTT::PublishMega("d/S_B", String(digitalRead(SWITCH_B)));
-	// SerialMQTT::PublishMega("d/B_A", String(digitalRead(BUTTON_A)));
+	// SerialMQTT::Publish("mega/d/S_A", String(digitalRead(SWITCH_A)));
+	// SerialMQTT::Publish("mega/d/S_B", String(digitalRead(SWITCH_B)));
+	// SerialMQTT::Publish("mega/d/B_A", String(digitalRead(BUTTON_A)));
 
 	// Power
-	// SerialMQTT::PublishMega("d/V12_C", String(analogRead(V12_CURRENT)));
-	// SerialMQTT::PublishMega("d/V5_C", String(analogRead(V5_CURRENT)));
+	// SerialMQTT::Publish("mega/d/V12_C", String(analogRead(V12_CURRENT)));
+	// SerialMQTT::Publish("mega/d/V5_C", String(analogRead(V5_CURRENT)));
 
 	// RX Controller data
 	// FS_I6::PrintRawChannels();
 	// FS_I6::PrintProcessedChannels();
 
 	// stepper raw position
-	// SerialMQTT::PublishMega("d/R_POS", String(s.ringStepper.currentPosition()));
-	// SerialMQTT::PublishMega("d/Z_POS", String(s.zStepper.currentPosition()));
-	// SerialMQTT::PublishMega("d/Y_POS", String(s.yawStepper.currentPosition()));
-	// SerialMQTT::PublishMega("d/P_POS", String(s.pitchStepper.currentPosition()));
-	// SerialMQTT::PublishMega("d/PP_POS", String(s.pipetteStepper.currentPosition()));
+	// SerialMQTT::Publish("mega/d/R_POS", String(s.ringStepper.currentPosition()));
+	// SerialMQTT::Publish("mega/d/Z_POS", String(s.zStepper.currentPosition()));
+	// SerialMQTT::Publish("mega/d/Y_POS", String(s.yawStepper.currentPosition()));
+	// SerialMQTT::Publish("mega/d/P_POS", String(s.pitchStepper.currentPosition()));
+	// SerialMQTT::Publish("mega/d/PP_POS", String(s.pipetteStepper.currentPosition()));
 
 	// stepper units
-	// SerialMQTT::PublishMega("d/R_UNIT", String(s.ringStepper.PositionToUnit(s.ringStepper.currentPosition())));
-	SerialMQTT::Publish("mega/d/Z_UNIT", String(s.zStepper.PositionToUnit(s.zStepper.currentPosition())));
-	SerialMQTT::Publish("mega/d/Y_UNIT", String(s.yawStepper.PositionToUnit(s.yawStepper.currentPosition())));
-	SerialMQTT::Publish("mega/d/P_UNIT", String(s.pitchStepper.PositionToUnit(s.pitchStepper.currentPosition())));
-	// SerialMQTT::PublishMega("d/PP_UNIT", String(s.pipetteStepper.PositionToUnit(s.pipetteStepper.currentPosition())));
+	// SerialMQTT::Publish("mega/d/R_UNIT", String(s.ringStepper.PositionToUnit(s.ringStepper.currentPosition())));
+	// SerialMQTT::Publish("mega/d/Z_UNIT", String(s.zStepper.PositionToUnit(s.zStepper.currentPosition())));
+	// SerialMQTT::Publish("mega/d/Y_UNIT", String(s.yawStepper.PositionToUnit(s.yawStepper.currentPosition())));
+	// SerialMQTT::Publish("mega/d/P_UNIT", String(s.pitchStepper.PositionToUnit(s.pitchStepper.currentPosition())));
+	SerialMQTT::Publish("mega/d/PP_UNIT", String(s.pipetteStepper.PositionToUnit(s.pipetteStepper.currentPosition())));
 
-	// SerialMQTT::PublishMega("d/PP_L_SW", String(digitalRead(PIPETTE_LIMIT_SWITCH)));
-	// SerialMQTT::PublishMega("d/PP_CALI", String(s.pipetteStepper.IsCalibrated()));
+	// SerialMQTT::Publish("mega/d/PP_L_SW", String(digitalRead(PIPETTE_LIMIT_SWITCH)));
+	// SerialMQTT::Publish("mega/d/PP_CALI", String(s.pipetteStepper.IsCalibrated()));
 
-	// SerialMQTT::PublishMega("d/DATA_MS", String(millis() - start));
-	// SerialMQTT::PublishMega("d/UPS", String(s.updatesPerSecond));
+	// SerialMQTT::Publish("mega/d/DATA_MS", String(millis() - start));
+	// SerialMQTT::Publish("mega/d/UPS", String(s.updatesPerSecond));
 }
 
 void runSteppers(State *s)
