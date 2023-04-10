@@ -11,7 +11,7 @@
 #define SPEED_MULT 1
 
 // ul of air to draw in from 0 position before taking in liquid
-#define PIPETTE_BUFFER 100
+#define PIPETTE_BUFFER 50
 // z level from which to take in liquid. (may become dynamic based on dye level in future.)
 #define PIPETTE_INTAKE_Z 40
 // The amount of backlash / slop in ul when changing from collect to dispense.
