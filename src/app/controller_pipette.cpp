@@ -31,6 +31,7 @@ Status Controller::evaluatePipetteCollection(State *s) {
 	
 	s->pipetteState.ulVolumeHeldTarget = s->collectionRequest.ulVolume;
 	s->pipetteState.vialHeld = s->collectionRequest.vialNumber;
+	s->pipetteState.dispenseRequested = false;
 
 	return SUCCESS;
 }
@@ -40,7 +41,8 @@ Status Controller::evaluatePipetteDispense(State *s) {
 	if (s->pipetteState.ulVolumeHeldTarget <= 0) {
 		target = 0;
 	} else {
-		target = PIPETTE_BUFFER + s->pipetteState.ulVolumeHeldTarget - PIPETTE_BACKLASH_UL;
+		target = PIPETTE_BUFFER + s->pipetteState.ulVolumeHeldTarget - 
+			s->pipetteState.dispenseRequested ? PIPETTE_BACKLASH_UL : 0;
 	}
 	
 	s->pipetteStepper.moveTo(s->pipetteStepper.UnitToPosition(target));

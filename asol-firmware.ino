@@ -38,7 +38,7 @@ State s = {
 	target_ring: RING_ZERO_OFFSET,
 	target_yaw: 0.0,
 	collectionRequest: {true, 0, 0, 0.0},
-	pipetteState: {true, 0, 0.0},
+	pipetteState: {true, 0, 0.0, false},
 	collectionInProgress: false,
 	shutdownRequested: false,
 	calibrationCleared: false,
@@ -253,6 +253,7 @@ void topicHandler(String topic, String payload)
 		SerialMQTT::UnpackCommaSeparatedValues(payload, values, 1);
 		float ul = values[0].toFloat();
 		if (!s.pipetteState.spent) {
+			s.pipetteState.dispenseRequested = true;
 			s.pipetteState.ulVolumeHeldTarget -= ul;
 			if (s.pipetteState.ulVolumeHeldTarget <= 0) {
 				s.pipetteState.ulVolumeHeldTarget = 0;

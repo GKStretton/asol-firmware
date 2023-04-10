@@ -15,6 +15,10 @@ struct PipetteState {
 	bool spent;
 	int vialHeld;
 	float ulVolumeHeldTarget;
+	// true once a dispense has been requested. Used to enable backlash
+	// compensation on the first dispense so that the state report doesn't show
+	// dispensing when waiting for first dispense.
+	bool dispenseRequested;
 };
 
 enum FluidType {

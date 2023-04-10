@@ -6,6 +6,11 @@
 #include "../drivers/i2c_eeprom.h"
 #include "state_report.h"
 
+// this structure is like a pseudo behavior tree. Every update, the program
+// steps through here to decide what to do next. sub-functions return 
+// RUNNING / SUCCESS / FAILURE to indicate what happened. Higher priority
+// tasks are at the start of the function, often returning early if they
+// are running.
 void Controller::autoUpdate(State *s) {
 	// wake steppers
 	digitalWrite(STEPPER_SLEEP, HIGH);
@@ -122,12 +127,6 @@ void Controller::autoUpdate(State *s) {
 		StateReport_SetStatus(machine_Status_NAVIGATING_IK);
 		return;
 	}
-
-	//todo: z control, depending on dispense too
-
-	//? unify CollectionRequest.ulVolume and PipetteState.ulVolumeHeldTarget???
-	// because you can just decrease the collection volume as it gets dispensed?
-	// But will this work at edge cases?
 
 	status = evaluatePipetteDispense(s);
 	if (status == RUNNING) {
