@@ -95,12 +95,28 @@ typedef struct _machine_PipetteState {
     bool spent;
     uint32_t vial_held;
     float volume_target_ul;
+    /* incremented every time a dispense is requested */
+    uint32_t dispense_request_number;
 } machine_PipetteState;
+
+typedef struct _machine_SessionStatus { 
+    uint64_t id;
+    bool paused;
+    bool complete;
+    bool production;
+    uint64_t production_id;
+} machine_SessionStatus;
+
+typedef struct _machine_StreamStatus { 
+    bool live;
+} machine_StreamStatus;
 
 typedef struct _machine_StateReport { 
     /* timestamp in microseconds since unix epoch, UTC. Added
  by gateway since firmware doesn't know real time. */
     uint64_t timestamp_unix_micros;
+    /* incremented on startup, currently 1 byte */
+    uint64_t startup_counter;
     machine_Mode mode;
     machine_Status status;
     /* Useful for synchronisation with footage */
@@ -144,20 +160,24 @@ extern "C" {
 #endif
 
 /* Initializer values for message structs */
-#define machine_PipetteState_init_default        {0, 0, 0}
+#define machine_PipetteState_init_default        {0, 0, 0, 0}
 #define machine_CollectionRequest_init_default   {0, 0, 0, 0}
 #define machine_MovementDetails_init_default     {0, 0, 0, 0, 0}
 #define machine_FluidRequest_init_default        {_machine_FluidType_MIN, 0, 0, 0}
 #define machine_FluidDetails_init_default        {0}
-#define machine_StateReport_init_default         {0, _machine_Mode_MIN, _machine_Status_MIN, 0, false, machine_PipetteState_init_default, false, machine_CollectionRequest_init_default, false, machine_MovementDetails_init_default, false, machine_FluidRequest_init_default, false, machine_FluidDetails_init_default, 0, {{NULL}, NULL}}
+#define machine_StateReport_init_default         {0, 0, _machine_Mode_MIN, _machine_Status_MIN, 0, false, machine_PipetteState_init_default, false, machine_CollectionRequest_init_default, false, machine_MovementDetails_init_default, false, machine_FluidRequest_init_default, false, machine_FluidDetails_init_default, 0, {{NULL}, NULL}}
 #define machine_StateReportList_init_default     {{{NULL}, NULL}}
-#define machine_PipetteState_init_zero           {0, 0, 0}
+#define machine_SessionStatus_init_default       {0, 0, 0, 0, 0}
+#define machine_StreamStatus_init_default        {0}
+#define machine_PipetteState_init_zero           {0, 0, 0, 0}
 #define machine_CollectionRequest_init_zero      {0, 0, 0, 0}
 #define machine_MovementDetails_init_zero        {0, 0, 0, 0, 0}
 #define machine_FluidRequest_init_zero           {_machine_FluidType_MIN, 0, 0, 0}
 #define machine_FluidDetails_init_zero           {0}
-#define machine_StateReport_init_zero            {0, _machine_Mode_MIN, _machine_Status_MIN, 0, false, machine_PipetteState_init_zero, false, machine_CollectionRequest_init_zero, false, machine_MovementDetails_init_zero, false, machine_FluidRequest_init_zero, false, machine_FluidDetails_init_zero, 0, {{NULL}, NULL}}
+#define machine_StateReport_init_zero            {0, 0, _machine_Mode_MIN, _machine_Status_MIN, 0, false, machine_PipetteState_init_zero, false, machine_CollectionRequest_init_zero, false, machine_MovementDetails_init_zero, false, machine_FluidRequest_init_zero, false, machine_FluidDetails_init_zero, 0, {{NULL}, NULL}}
 #define machine_StateReportList_init_zero        {{{NULL}, NULL}}
+#define machine_SessionStatus_init_zero          {0, 0, 0, 0, 0}
+#define machine_StreamStatus_init_zero           {0}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define machine_StateReportList_StateReports_tag 1
@@ -178,7 +198,15 @@ extern "C" {
 #define machine_PipetteState_spent_tag           1
 #define machine_PipetteState_vial_held_tag       2
 #define machine_PipetteState_volume_target_ul_tag 3
+#define machine_PipetteState_dispense_request_number_tag 4
+#define machine_SessionStatus_id_tag             1
+#define machine_SessionStatus_paused_tag         2
+#define machine_SessionStatus_complete_tag       3
+#define machine_SessionStatus_production_tag     4
+#define machine_SessionStatus_production_id_tag  5
+#define machine_StreamStatus_live_tag            1
 #define machine_StateReport_timestamp_unix_micros_tag 2
+#define machine_StateReport_startup_counter_tag  3
 #define machine_StateReport_mode_tag             4
 #define machine_StateReport_status_tag           5
 #define machine_StateReport_lights_on_tag        6
@@ -194,7 +222,8 @@ extern "C" {
 #define machine_PipetteState_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, BOOL,     spent,             1) \
 X(a, STATIC,   SINGULAR, UINT32,   vial_held,         2) \
-X(a, STATIC,   SINGULAR, FLOAT,    volume_target_ul,   3)
+X(a, STATIC,   SINGULAR, FLOAT,    volume_target_ul,   3) \
+X(a, STATIC,   SINGULAR, UINT32,   dispense_request_number,   4)
 #define machine_PipetteState_CALLBACK NULL
 #define machine_PipetteState_DEFAULT NULL
 
@@ -230,6 +259,7 @@ X(a, STATIC,   SINGULAR, FLOAT,    bowl_fluid_level_ml,   1)
 
 #define machine_StateReport_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT64,   timestamp_unix_micros,   2) \
+X(a, STATIC,   SINGULAR, UINT64,   startup_counter,   3) \
 X(a, STATIC,   SINGULAR, UENUM,    mode,              4) \
 X(a, STATIC,   SINGULAR, UENUM,    status,            5) \
 X(a, STATIC,   SINGULAR, BOOL,     lights_on,         6) \
@@ -254,6 +284,20 @@ X(a, CALLBACK, REPEATED, MESSAGE,  StateReports,      1)
 #define machine_StateReportList_DEFAULT NULL
 #define machine_StateReportList_StateReports_MSGTYPE machine_StateReport
 
+#define machine_SessionStatus_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT64,   id,                1) \
+X(a, STATIC,   SINGULAR, BOOL,     paused,            2) \
+X(a, STATIC,   SINGULAR, BOOL,     complete,          3) \
+X(a, STATIC,   SINGULAR, BOOL,     production,        4) \
+X(a, STATIC,   SINGULAR, UINT64,   production_id,     5)
+#define machine_SessionStatus_CALLBACK NULL
+#define machine_SessionStatus_DEFAULT NULL
+
+#define machine_StreamStatus_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, BOOL,     live,              1)
+#define machine_StreamStatus_CALLBACK NULL
+#define machine_StreamStatus_DEFAULT NULL
+
 extern const pb_msgdesc_t machine_PipetteState_msg;
 extern const pb_msgdesc_t machine_CollectionRequest_msg;
 extern const pb_msgdesc_t machine_MovementDetails_msg;
@@ -261,6 +305,8 @@ extern const pb_msgdesc_t machine_FluidRequest_msg;
 extern const pb_msgdesc_t machine_FluidDetails_msg;
 extern const pb_msgdesc_t machine_StateReport_msg;
 extern const pb_msgdesc_t machine_StateReportList_msg;
+extern const pb_msgdesc_t machine_SessionStatus_msg;
+extern const pb_msgdesc_t machine_StreamStatus_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define machine_PipetteState_fields &machine_PipetteState_msg
@@ -270,6 +316,8 @@ extern const pb_msgdesc_t machine_StateReportList_msg;
 #define machine_FluidDetails_fields &machine_FluidDetails_msg
 #define machine_StateReport_fields &machine_StateReport_msg
 #define machine_StateReportList_fields &machine_StateReportList_msg
+#define machine_SessionStatus_fields &machine_SessionStatus_msg
+#define machine_StreamStatus_fields &machine_StreamStatus_msg
 
 /* Maximum encoded size of messages (where known) */
 /* machine_StateReport_size depends on runtime parameters */
@@ -278,7 +326,9 @@ extern const pb_msgdesc_t machine_StateReportList_msg;
 #define machine_FluidDetails_size                5
 #define machine_FluidRequest_size                11
 #define machine_MovementDetails_size             25
-#define machine_PipetteState_size                13
+#define machine_PipetteState_size                19
+#define machine_SessionStatus_size               28
+#define machine_StreamStatus_size                2
 
 #ifdef __cplusplus
 } /* extern "C" */

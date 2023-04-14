@@ -27,6 +27,12 @@ PB_BIND(machine_StateReport, machine_StateReport, AUTO)
 PB_BIND(machine_StateReportList, machine_StateReportList, AUTO)
 
 
+PB_BIND(machine_SessionStatus, machine_SessionStatus, AUTO)
+
+
+PB_BIND(machine_StreamStatus, machine_StreamStatus, AUTO)
+
+
 
 
 

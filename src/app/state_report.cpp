@@ -13,6 +13,11 @@ static bool hasChanged = false;
 // Ensures everything that isn't set through public functions gets updated.
 // Will set hasChanged = true if something changed.
 static void updateStateReport(State *s) {
+	if (stateReport.startup_counter != s->startup_counter) {
+		stateReport.startup_counter = s->startup_counter;
+		hasChanged = true;
+	}
+
 	/*
 		pipette_state
 	*/
@@ -27,6 +32,10 @@ static void updateStateReport(State *s) {
 	}
 	if (stateReport.pipette_state.volume_target_ul != s->pipetteState.ulVolumeHeldTarget) {
 		stateReport.pipette_state.volume_target_ul = s->pipetteState.ulVolumeHeldTarget;
+		hasChanged = true;
+	}
+	if (stateReport.pipette_state.dispense_request_number != s->pipetteState.dispenseRequestNumber) {
+		stateReport.pipette_state.dispense_request_number = s->pipetteState.dispenseRequestNumber;
 		hasChanged = true;
 	}
 

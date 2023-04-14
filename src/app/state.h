@@ -19,6 +19,7 @@ struct PipetteState {
 	// compensation on the first dispense so that the state report doesn't show
 	// dispensing when waiting for first dispense.
 	bool dispenseRequested;
+	int dispenseRequestNumber;
 };
 
 enum FluidType {
@@ -87,4 +88,6 @@ struct State {
 	FluidRequest fluidRequest;
 
 	float ik_target_z;
+
+	uint8_t startup_counter;
 };

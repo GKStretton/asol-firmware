@@ -38,14 +38,15 @@ State s = {
 	target_ring: RING_ZERO_OFFSET,
 	target_yaw: 0.0,
 	collectionRequest: {true, 0, 0, 0.0},
-	pipetteState: {true, 0, 0.0, false},
+	pipetteState: {true, 0, 0.0, false, 0},
 	collectionInProgress: false,
 	shutdownRequested: false,
 	calibrationCleared: false,
 	postCalibrationStopCalled: false,
 	forceIdleLocation: true,
 	fluidRequest: {FluidType::FLUID_UNDEFINED, false, 0, 0, true},
-	ik_target_z: IK_Z
+	ik_target_z: IK_Z,
+	startup_counter: 0
 };
 
 Controller controller;
@@ -59,6 +60,7 @@ void eepromStartup() {
 	counter++;
 	I2C_EEPROM::WriteByte(STARTUP_COUNTER_MEM_ADDR, counter);
 	Logger::Info("Startup counter incremented to " + String(counter));
+	s.startup_counter = counter;
 }
 
 void sleepHandler(Sleep::SleepStatus sleepStatus) {
@@ -255,6 +257,7 @@ void topicHandler(String topic, String payload)
 		if (!s.pipetteState.spent) {
 			s.pipetteState.dispenseRequested = true;
 			s.pipetteState.ulVolumeHeldTarget -= ul;
+			s.pipetteState.dispenseRequestNumber++;
 			if (s.pipetteState.ulVolumeHeldTarget <= 0) {
 				s.pipetteState.ulVolumeHeldTarget = 0;
 			}
