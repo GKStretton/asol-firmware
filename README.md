@@ -1,6 +1,9 @@
 # Light
 
-This is the firmware for [A Study of Light](https://www.youtube.com/@StudyOfLight). Written for an Arduino Mega 2560.
+This is the firmware for [A Study of Light](https://www.youtube.com/@StudyOfLight). Written for an Arduino Mega 2560. Also see other repos:
+
+- [Backend](https://github.com/GKStretton/asol-backend)
+- [Protos](https://github.com/GKStretton/asol-protos)
 
 ## Dependencies
 
