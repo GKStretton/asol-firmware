@@ -1,5 +1,6 @@
 #include "controller.h"
 #include "../middleware/sleep.h"
+#include "../middleware/logger.h"
 
 Status Controller::evaluateCalibration(State *s) {
 	// Only auto-calibrate if last shutdown was safe.
@@ -9,6 +10,7 @@ Status Controller::evaluateCalibration(State *s) {
 
 	// prevent autocalibration after manual clear
 	if (s->calibrationCleared) {
+		Logger::Warn("Calibration cleared, preventing auto-calibration");
 		return FAILURE;
 	}
 

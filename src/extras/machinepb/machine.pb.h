@@ -50,7 +50,42 @@ typedef enum _machine_FluidType {
     machine_FluidType_FLUID_MILK = 3 
 } machine_FluidType;
 
+typedef enum _machine_ContentType { 
+    machine_ContentType_CONTENT_TYPE_UNDEFINED = 0, 
+    machine_ContentType_CONTENT_TYPE_LONGFORM = 1, 
+    machine_ContentType_CONTENT_TYPE_SHORTFORM = 2, 
+    machine_ContentType_CONTENT_TYPE_CLEANING = 3, 
+    machine_ContentType_CONTENT_TYPE_DSLR = 4, 
+    machine_ContentType_CONTENT_TYPE_STILL = 5 
+} machine_ContentType;
+
+typedef enum _machine_SocialPlatform { 
+    machine_SocialPlatform_SOCIAL_PLATFORM_UNDEFINED = 0, 
+    machine_SocialPlatform_SOCIAL_PLATFORM_YOUTUBE = 1, 
+    machine_SocialPlatform_SOCIAL_PLATFORM_TIKTOK = 2, 
+    machine_SocialPlatform_SOCIAL_PLATFORM_INSTAGRAM = 3, 
+    machine_SocialPlatform_SOCIAL_PLATFORM_FACEBOOK = 4, 
+    machine_SocialPlatform_SOCIAL_PLATFORM_TWITTER = 5, 
+    machine_SocialPlatform_SOCIAL_PLATFORM_REDDIT = 6 
+} machine_SocialPlatform;
+
 /* Struct definitions */
+typedef struct _machine_ContentTypeStatus { 
+    pb_callback_t raw_title;
+    pb_callback_t raw_description;
+    pb_callback_t caption;
+    pb_callback_t posts;
+} machine_ContentTypeStatus;
+
+typedef struct _machine_ContentTypeStatuses { 
+    pb_callback_t content_statuses;
+} machine_ContentTypeStatuses;
+
+typedef struct _machine_DispenseMetadataMap { 
+    /* [startupCounter]_[dispenseRequestNumber] */
+    pb_callback_t dispense_metadata;
+} machine_DispenseMetadataMap;
+
 typedef struct _machine_StateReportList { 
     pb_callback_t StateReports;
 } machine_StateReportList;
@@ -61,6 +96,20 @@ typedef struct _machine_CollectionRequest {
     uint64_t vial_number;
     float volume_ul;
 } machine_CollectionRequest;
+
+typedef struct _machine_ContentTypeStatuses_ContentStatusesEntry { 
+    pb_callback_t key;
+    /* e.g. subreddit */
+    bool has_value;
+    machine_ContentTypeStatus value;
+} machine_ContentTypeStatuses_ContentStatusesEntry;
+
+/* statuses for all the content types for a specific session */
+typedef struct _machine_DispenseMetadata { 
+    /* str(ContentType) -> ContentTypeStatus */
+    bool failedDispense;
+    uint64_t dispenseDelayMs;
+} machine_DispenseMetadata;
 
 typedef struct _machine_FluidDetails { 
     float bowl_fluid_level_ml;
@@ -99,6 +148,17 @@ typedef struct _machine_PipetteState {
     uint32_t dispense_request_number;
 } machine_PipetteState;
 
+typedef struct _machine_Post { 
+    machine_SocialPlatform platform;
+    pb_callback_t sub_platform;
+    pb_callback_t title;
+    pb_callback_t description;
+    bool uploaded;
+    pb_callback_t url;
+    bool crosspost;
+    uint64_t scheduled_unix_timetamp;
+} machine_Post;
+
 typedef struct _machine_SessionStatus { 
     uint64_t id;
     bool paused;
@@ -110,6 +170,13 @@ typedef struct _machine_SessionStatus {
 typedef struct _machine_StreamStatus { 
     bool live;
 } machine_StreamStatus;
+
+typedef struct _machine_DispenseMetadataMap_DispenseMetadataEntry { 
+    pb_callback_t key;
+    /* how many ms later than expected the dispense happened */
+    bool has_value;
+    machine_DispenseMetadata value;
+} machine_DispenseMetadataMap_DispenseMetadataEntry;
 
 typedef struct _machine_StateReport { 
     /* timestamp in microseconds since unix epoch, UTC. Added
@@ -134,6 +201,8 @@ typedef struct _machine_StateReport {
     /* the following are populated by the backend, useful in post-processing */
     bool paused;
     pb_callback_t timestamp_readable;
+    /* e.g. 1 for 0001.jpg */
+    uint64_t latest_dslr_file_number;
 } machine_StateReport;
 
 
@@ -154,6 +223,14 @@ typedef struct _machine_StateReport {
 #define _machine_FluidType_MAX machine_FluidType_FLUID_MILK
 #define _machine_FluidType_ARRAYSIZE ((machine_FluidType)(machine_FluidType_FLUID_MILK+1))
 
+#define _machine_ContentType_MIN machine_ContentType_CONTENT_TYPE_UNDEFINED
+#define _machine_ContentType_MAX machine_ContentType_CONTENT_TYPE_STILL
+#define _machine_ContentType_ARRAYSIZE ((machine_ContentType)(machine_ContentType_CONTENT_TYPE_STILL+1))
+
+#define _machine_SocialPlatform_MIN machine_SocialPlatform_SOCIAL_PLATFORM_UNDEFINED
+#define _machine_SocialPlatform_MAX machine_SocialPlatform_SOCIAL_PLATFORM_REDDIT
+#define _machine_SocialPlatform_ARRAYSIZE ((machine_SocialPlatform)(machine_SocialPlatform_SOCIAL_PLATFORM_REDDIT+1))
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -165,26 +242,50 @@ extern "C" {
 #define machine_MovementDetails_init_default     {0, 0, 0, 0, 0}
 #define machine_FluidRequest_init_default        {_machine_FluidType_MIN, 0, 0, 0}
 #define machine_FluidDetails_init_default        {0}
-#define machine_StateReport_init_default         {0, 0, _machine_Mode_MIN, _machine_Status_MIN, 0, false, machine_PipetteState_init_default, false, machine_CollectionRequest_init_default, false, machine_MovementDetails_init_default, false, machine_FluidRequest_init_default, false, machine_FluidDetails_init_default, 0, {{NULL}, NULL}}
+#define machine_StateReport_init_default         {0, 0, _machine_Mode_MIN, _machine_Status_MIN, 0, false, machine_PipetteState_init_default, false, machine_CollectionRequest_init_default, false, machine_MovementDetails_init_default, false, machine_FluidRequest_init_default, false, machine_FluidDetails_init_default, 0, {{NULL}, NULL}, 0}
 #define machine_StateReportList_init_default     {{{NULL}, NULL}}
 #define machine_SessionStatus_init_default       {0, 0, 0, 0, 0}
 #define machine_StreamStatus_init_default        {0}
+#define machine_DispenseMetadataMap_init_default {{{NULL}, NULL}}
+#define machine_DispenseMetadataMap_DispenseMetadataEntry_init_default {{{NULL}, NULL}, false, machine_DispenseMetadata_init_default}
+#define machine_DispenseMetadata_init_default    {0, 0}
+#define machine_ContentTypeStatuses_init_default {{{NULL}, NULL}}
+#define machine_ContentTypeStatuses_ContentStatusesEntry_init_default {{{NULL}, NULL}, false, machine_ContentTypeStatus_init_default}
+#define machine_ContentTypeStatus_init_default   {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
+#define machine_Post_init_default                {_machine_SocialPlatform_MIN, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, 0, {{NULL}, NULL}, 0, 0}
 #define machine_PipetteState_init_zero           {0, 0, 0, 0}
 #define machine_CollectionRequest_init_zero      {0, 0, 0, 0}
 #define machine_MovementDetails_init_zero        {0, 0, 0, 0, 0}
 #define machine_FluidRequest_init_zero           {_machine_FluidType_MIN, 0, 0, 0}
 #define machine_FluidDetails_init_zero           {0}
-#define machine_StateReport_init_zero            {0, 0, _machine_Mode_MIN, _machine_Status_MIN, 0, false, machine_PipetteState_init_zero, false, machine_CollectionRequest_init_zero, false, machine_MovementDetails_init_zero, false, machine_FluidRequest_init_zero, false, machine_FluidDetails_init_zero, 0, {{NULL}, NULL}}
+#define machine_StateReport_init_zero            {0, 0, _machine_Mode_MIN, _machine_Status_MIN, 0, false, machine_PipetteState_init_zero, false, machine_CollectionRequest_init_zero, false, machine_MovementDetails_init_zero, false, machine_FluidRequest_init_zero, false, machine_FluidDetails_init_zero, 0, {{NULL}, NULL}, 0}
 #define machine_StateReportList_init_zero        {{{NULL}, NULL}}
 #define machine_SessionStatus_init_zero          {0, 0, 0, 0, 0}
 #define machine_StreamStatus_init_zero           {0}
+#define machine_DispenseMetadataMap_init_zero    {{{NULL}, NULL}}
+#define machine_DispenseMetadataMap_DispenseMetadataEntry_init_zero {{{NULL}, NULL}, false, machine_DispenseMetadata_init_zero}
+#define machine_DispenseMetadata_init_zero       {0, 0}
+#define machine_ContentTypeStatuses_init_zero    {{{NULL}, NULL}}
+#define machine_ContentTypeStatuses_ContentStatusesEntry_init_zero {{{NULL}, NULL}, false, machine_ContentTypeStatus_init_zero}
+#define machine_ContentTypeStatus_init_zero      {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
+#define machine_Post_init_zero                   {_machine_SocialPlatform_MIN, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, 0, {{NULL}, NULL}, 0, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
+#define machine_ContentTypeStatus_raw_title_tag  1
+#define machine_ContentTypeStatus_raw_description_tag 2
+#define machine_ContentTypeStatus_caption_tag    3
+#define machine_ContentTypeStatus_posts_tag      4
+#define machine_ContentTypeStatuses_content_statuses_tag 1
+#define machine_DispenseMetadataMap_dispense_metadata_tag 1
 #define machine_StateReportList_StateReports_tag 1
 #define machine_CollectionRequest_completed_tag  1
 #define machine_CollectionRequest_request_number_tag 2
 #define machine_CollectionRequest_vial_number_tag 3
 #define machine_CollectionRequest_volume_ul_tag  4
+#define machine_ContentTypeStatuses_ContentStatusesEntry_key_tag 1
+#define machine_ContentTypeStatuses_ContentStatusesEntry_value_tag 2
+#define machine_DispenseMetadata_failedDispense_tag 1
+#define machine_DispenseMetadata_dispenseDelayMs_tag 2
 #define machine_FluidDetails_bowl_fluid_level_ml_tag 1
 #define machine_FluidRequest_fluidType_tag       1
 #define machine_FluidRequest_volume_ml_tag       2
@@ -199,12 +300,22 @@ extern "C" {
 #define machine_PipetteState_vial_held_tag       2
 #define machine_PipetteState_volume_target_ul_tag 3
 #define machine_PipetteState_dispense_request_number_tag 4
+#define machine_Post_platform_tag                1
+#define machine_Post_sub_platform_tag            2
+#define machine_Post_title_tag                   3
+#define machine_Post_description_tag             4
+#define machine_Post_uploaded_tag                5
+#define machine_Post_url_tag                     6
+#define machine_Post_crosspost_tag               7
+#define machine_Post_scheduled_unix_timetamp_tag 8
 #define machine_SessionStatus_id_tag             1
 #define machine_SessionStatus_paused_tag         2
 #define machine_SessionStatus_complete_tag       3
 #define machine_SessionStatus_production_tag     4
 #define machine_SessionStatus_production_id_tag  5
 #define machine_StreamStatus_live_tag            1
+#define machine_DispenseMetadataMap_DispenseMetadataEntry_key_tag 1
+#define machine_DispenseMetadataMap_DispenseMetadataEntry_value_tag 2
 #define machine_StateReport_timestamp_unix_micros_tag 2
 #define machine_StateReport_startup_counter_tag  3
 #define machine_StateReport_mode_tag             4
@@ -217,6 +328,7 @@ extern "C" {
 #define machine_StateReport_fluid_details_tag    14
 #define machine_StateReport_paused_tag           50
 #define machine_StateReport_timestamp_readable_tag 51
+#define machine_StateReport_latest_dslr_file_number_tag 52
 
 /* Struct field encoding specification for nanopb */
 #define machine_PipetteState_FIELDLIST(X, a) \
@@ -269,7 +381,8 @@ X(a, STATIC,   OPTIONAL, MESSAGE,  movement_details,  12) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  fluid_request,    13) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  fluid_details,    14) \
 X(a, STATIC,   SINGULAR, BOOL,     paused,           50) \
-X(a, CALLBACK, SINGULAR, STRING,   timestamp_readable,  51)
+X(a, CALLBACK, SINGULAR, STRING,   timestamp_readable,  51) \
+X(a, STATIC,   SINGULAR, UINT64,   latest_dslr_file_number,  52)
 #define machine_StateReport_CALLBACK pb_default_field_callback
 #define machine_StateReport_DEFAULT NULL
 #define machine_StateReport_pipette_state_MSGTYPE machine_PipetteState
@@ -298,6 +411,59 @@ X(a, STATIC,   SINGULAR, BOOL,     live,              1)
 #define machine_StreamStatus_CALLBACK NULL
 #define machine_StreamStatus_DEFAULT NULL
 
+#define machine_DispenseMetadataMap_FIELDLIST(X, a) \
+X(a, CALLBACK, REPEATED, MESSAGE,  dispense_metadata,   1)
+#define machine_DispenseMetadataMap_CALLBACK pb_default_field_callback
+#define machine_DispenseMetadataMap_DEFAULT NULL
+#define machine_DispenseMetadataMap_dispense_metadata_MSGTYPE machine_DispenseMetadataMap_DispenseMetadataEntry
+
+#define machine_DispenseMetadataMap_DispenseMetadataEntry_FIELDLIST(X, a) \
+X(a, CALLBACK, SINGULAR, STRING,   key,               1) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  value,             2)
+#define machine_DispenseMetadataMap_DispenseMetadataEntry_CALLBACK pb_default_field_callback
+#define machine_DispenseMetadataMap_DispenseMetadataEntry_DEFAULT NULL
+#define machine_DispenseMetadataMap_DispenseMetadataEntry_value_MSGTYPE machine_DispenseMetadata
+
+#define machine_DispenseMetadata_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, BOOL,     failedDispense,    1) \
+X(a, STATIC,   SINGULAR, UINT64,   dispenseDelayMs,   2)
+#define machine_DispenseMetadata_CALLBACK NULL
+#define machine_DispenseMetadata_DEFAULT NULL
+
+#define machine_ContentTypeStatuses_FIELDLIST(X, a) \
+X(a, CALLBACK, REPEATED, MESSAGE,  content_statuses,   1)
+#define machine_ContentTypeStatuses_CALLBACK pb_default_field_callback
+#define machine_ContentTypeStatuses_DEFAULT NULL
+#define machine_ContentTypeStatuses_content_statuses_MSGTYPE machine_ContentTypeStatuses_ContentStatusesEntry
+
+#define machine_ContentTypeStatuses_ContentStatusesEntry_FIELDLIST(X, a) \
+X(a, CALLBACK, SINGULAR, STRING,   key,               1) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  value,             2)
+#define machine_ContentTypeStatuses_ContentStatusesEntry_CALLBACK pb_default_field_callback
+#define machine_ContentTypeStatuses_ContentStatusesEntry_DEFAULT NULL
+#define machine_ContentTypeStatuses_ContentStatusesEntry_value_MSGTYPE machine_ContentTypeStatus
+
+#define machine_ContentTypeStatus_FIELDLIST(X, a) \
+X(a, CALLBACK, SINGULAR, STRING,   raw_title,         1) \
+X(a, CALLBACK, SINGULAR, STRING,   raw_description,   2) \
+X(a, CALLBACK, SINGULAR, STRING,   caption,           3) \
+X(a, CALLBACK, REPEATED, MESSAGE,  posts,             4)
+#define machine_ContentTypeStatus_CALLBACK pb_default_field_callback
+#define machine_ContentTypeStatus_DEFAULT NULL
+#define machine_ContentTypeStatus_posts_MSGTYPE machine_Post
+
+#define machine_Post_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    platform,          1) \
+X(a, CALLBACK, SINGULAR, STRING,   sub_platform,      2) \
+X(a, CALLBACK, SINGULAR, STRING,   title,             3) \
+X(a, CALLBACK, SINGULAR, STRING,   description,       4) \
+X(a, STATIC,   SINGULAR, BOOL,     uploaded,          5) \
+X(a, CALLBACK, SINGULAR, STRING,   url,               6) \
+X(a, STATIC,   SINGULAR, BOOL,     crosspost,         7) \
+X(a, STATIC,   SINGULAR, UINT64,   scheduled_unix_timetamp,   8)
+#define machine_Post_CALLBACK pb_default_field_callback
+#define machine_Post_DEFAULT NULL
+
 extern const pb_msgdesc_t machine_PipetteState_msg;
 extern const pb_msgdesc_t machine_CollectionRequest_msg;
 extern const pb_msgdesc_t machine_MovementDetails_msg;
@@ -307,6 +473,13 @@ extern const pb_msgdesc_t machine_StateReport_msg;
 extern const pb_msgdesc_t machine_StateReportList_msg;
 extern const pb_msgdesc_t machine_SessionStatus_msg;
 extern const pb_msgdesc_t machine_StreamStatus_msg;
+extern const pb_msgdesc_t machine_DispenseMetadataMap_msg;
+extern const pb_msgdesc_t machine_DispenseMetadataMap_DispenseMetadataEntry_msg;
+extern const pb_msgdesc_t machine_DispenseMetadata_msg;
+extern const pb_msgdesc_t machine_ContentTypeStatuses_msg;
+extern const pb_msgdesc_t machine_ContentTypeStatuses_ContentStatusesEntry_msg;
+extern const pb_msgdesc_t machine_ContentTypeStatus_msg;
+extern const pb_msgdesc_t machine_Post_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define machine_PipetteState_fields &machine_PipetteState_msg
@@ -318,11 +491,25 @@ extern const pb_msgdesc_t machine_StreamStatus_msg;
 #define machine_StateReportList_fields &machine_StateReportList_msg
 #define machine_SessionStatus_fields &machine_SessionStatus_msg
 #define machine_StreamStatus_fields &machine_StreamStatus_msg
+#define machine_DispenseMetadataMap_fields &machine_DispenseMetadataMap_msg
+#define machine_DispenseMetadataMap_DispenseMetadataEntry_fields &machine_DispenseMetadataMap_DispenseMetadataEntry_msg
+#define machine_DispenseMetadata_fields &machine_DispenseMetadata_msg
+#define machine_ContentTypeStatuses_fields &machine_ContentTypeStatuses_msg
+#define machine_ContentTypeStatuses_ContentStatusesEntry_fields &machine_ContentTypeStatuses_ContentStatusesEntry_msg
+#define machine_ContentTypeStatus_fields &machine_ContentTypeStatus_msg
+#define machine_Post_fields &machine_Post_msg
 
 /* Maximum encoded size of messages (where known) */
 /* machine_StateReport_size depends on runtime parameters */
 /* machine_StateReportList_size depends on runtime parameters */
+/* machine_DispenseMetadataMap_size depends on runtime parameters */
+/* machine_DispenseMetadataMap_DispenseMetadataEntry_size depends on runtime parameters */
+/* machine_ContentTypeStatuses_size depends on runtime parameters */
+/* machine_ContentTypeStatuses_ContentStatusesEntry_size depends on runtime parameters */
+/* machine_ContentTypeStatus_size depends on runtime parameters */
+/* machine_Post_size depends on runtime parameters */
 #define machine_CollectionRequest_size           29
+#define machine_DispenseMetadata_size            13
 #define machine_FluidDetails_size                5
 #define machine_FluidRequest_size                11
 #define machine_MovementDetails_size             25

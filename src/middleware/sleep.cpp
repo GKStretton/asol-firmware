@@ -148,6 +148,10 @@ namespace Sleep {
 		return lastSleepStatus;
 	}
 
+	void OverrideLastSleepStatus(SleepStatus status) {
+		lastSleepStatus = status;
+	}
+
 	void SetOnSleepHandler(void (*f)(SleepStatus)) {
 		externalSleepHandler = f;
 	}

@@ -12,6 +12,7 @@
 #define TOPIC_LOGS_ERROR "mega/l/error"
 #define TOPIC_LOGS_INFO "mega/l/info"
 #define TOPIC_LOGS_WARN "mega/l/warn"
+#define TOPIC_MARK_SAFE_TO_CALIBRATE "mega/req/safe-to-calibrate"
 #define TOPIC_PIN_OFF "mega/req/pin-off"
 #define TOPIC_PIN_ON "mega/req/pin-on"
 #define TOPIC_SET_IK_Z "mega/req/set-ik-z"

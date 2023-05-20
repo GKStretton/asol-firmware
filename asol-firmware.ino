@@ -350,6 +350,10 @@ void topicHandler(String topic, String payload)
 		}
 		s.ik_target_z = z;
 	}
+	else if (topic == TOPIC_MARK_SAFE_TO_CALIBRATE) {
+		Sleep::OverrideLastSleepStatus(Sleep::SAFE);
+		Logger::Info("Set last sleep status to SAFE per mqtt request");
+	}
 	else
 	{
 		Logger::Debug("no handler for " + topic + " (payload = " + payload + ")");
