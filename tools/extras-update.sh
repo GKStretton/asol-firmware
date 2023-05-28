@@ -11,7 +11,7 @@ cd $EXTRAS_DIR
 docker-compose up
 
 cd $cwd
-mkdir -p ./src/protos
+mkdir -p ./src/extras/
 cp -r $EXTRAS_DIR/c/* ./src/extras/
 
 # Work-around because `--library ./src/extras/nanopb` in the build script

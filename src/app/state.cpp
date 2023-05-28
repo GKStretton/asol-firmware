@@ -24,9 +24,9 @@ float State::GetPipetteVolumeHeld() {
 }
 
 void State::ClearState() {
-	this->lastNode = HOME;
-	this->localTargetNode = UNDEFINED;
-	this->globalTargetNode = HOME;
+	this->lastNode = machine_Node_HOME;
+	this->localTargetNode = machine_Node_UNDEFINED;
+	this->globalTargetNode = machine_Node_HOME;
 	this->target_x = 0.0;
 	this->target_y = 0.0;
 	this->target_ring = RING_ZERO_OFFSET;
@@ -55,7 +55,7 @@ void State::ClearState() {
 	StateReport_Update(this);
 }
 
-void State::SetGlobalNavigationTarget(Node n) {
+void State::SetGlobalNavigationTarget(machine_Node n) {
 	//todo: refactor so all navigation state is inside navigation (make nav a
 	//todo: class)
 	Navigation::SetGlobalNavigationTarget(this, n);

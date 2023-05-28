@@ -8,7 +8,7 @@
 #define TOPIC_KV_GET_RESP "asol/kv/get-resp/"
 #define TOPIC_KV_SET "asol/kv/set/"
 #define TOPIC_KV_SET_RESP "asol/kv/set-resp/"
-#define TOPIC_MARK_DELAYED_DISPENSE "asol/mark-failed-dispense"
+#define TOPIC_MARK_DELAYED_DISPENSE "asol/mark-delayed-dispense"
 #define TOPIC_MARK_FAILED_DISPENSE "asol/mark-failed-dispense"
 #define TOPIC_MONITOR_OFF "asol/monitor_off"
 #define TOPIC_MONITOR_ON "asol/monitor_on"

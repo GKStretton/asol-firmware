@@ -32,7 +32,7 @@ Status Controller::evaluateShutdown(State *s) {
 
 	// Arm shutdown behaviour
 	if (s->IsArmCalibrated()) {
-		s->SetGlobalNavigationTarget(Node::HOME);
+		s->SetGlobalNavigationTarget(machine_Node_HOME);
 		Status status = Navigation::UpdateNodeNavigation(s);
 		if (status == FAILURE) failureMarked = true;
 		else if (status == RUNNING) somethingRunning = true;

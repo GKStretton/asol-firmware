@@ -79,7 +79,7 @@ void Controller::autoUpdate(State *s) {
 			Logger::Debug("No collection request, idling...");
 
 			// Nothing to do. Wait at outer handover
-			if (s->forceIdleLocation) s->SetGlobalNavigationTarget(IDLE_LOCATION);
+			if (s->forceIdleLocation) s->SetGlobalNavigationTarget(machine_Node_IDLE_LOCATION);
 			Status status = Navigation::UpdateNodeNavigation(s);
 			if (status == RUNNING) {
 				StateReport_SetStatus(machine_Status_IDLE_MOVING);
@@ -104,7 +104,7 @@ void Controller::autoUpdate(State *s) {
 
 	// At this point, we have collected liquid from a vial
 
-	Navigation::SetGlobalNavigationTarget(s, INVERSE_KINEMATICS_POSITION);
+	Navigation::SetGlobalNavigationTarget(s, machine_Node_INVERSE_KINEMATICS_POSITION);
 	Status status = Navigation::UpdateNodeNavigation(s);
 	// Block until we're in a safe dispense location
 	if (status == RUNNING || status == FAILURE) {

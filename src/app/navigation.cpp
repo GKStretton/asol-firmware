@@ -10,114 +10,114 @@ bool atLocalTargetNode(State *s) {
 	return result;
 }
 
-Node calculateNextNode(Node lastNode, Node targetNode) {
-	if (lastNode == UNDEFINED || targetNode == UNDEFINED)
-		return UNDEFINED;
+machine_Node calculateNextNode(machine_Node lastNode, machine_Node targetNode) {
+	if (lastNode == machine_Node_UNDEFINED || targetNode == machine_Node_UNDEFINED)
+		return machine_Node_UNDEFINED;
 
 	if (lastNode == targetNode)
 		return targetNode;
 
-	if (lastNode == HOME)
+	if (lastNode == machine_Node_HOME)
 	{
-		if (targetNode > HOME)
+		if (targetNode > machine_Node_HOME)
 		{
-			return HOME_TOP;
+			return machine_Node_HOME_TOP;
 		}
 	}
 
-	if (lastNode == HOME_TOP)
+	if (lastNode == machine_Node_HOME_TOP)
 	{
-		if (targetNode == HOME)
-			return HOME;
-		if (targetNode >= MIN_VIAL_ABOVE && targetNode <= MAX_VIAL_ABOVE && targetNode % 10 == 0)
+		if (targetNode == machine_Node_HOME)
+			return machine_Node_HOME;
+		if (targetNode >= machine_Node_MIN_VIAL_ABOVE && targetNode <= machine_Node_MAX_VIAL_ABOVE && targetNode % 10 == 0)
 			return targetNode;
-		if (targetNode >= MIN_VIAL_INSIDE && targetNode <= MAX_VIAL_INSIDE && targetNode % 10 == 5)
+		if (targetNode >= machine_Node_MIN_VIAL_INSIDE && targetNode <= machine_Node_MAX_VIAL_INSIDE && targetNode % 10 == 5)
 			// go to to correct above vial node
-			return (Node) (targetNode - 5);
-		if (targetNode >= RINSE_CONTAINER_ENTRY)
-			return LOW_ENTRY_POINT;
+			return (machine_Node) (targetNode - 5);
+		if (targetNode >= machine_Node_RINSE_CONTAINER_ENTRY)
+			return machine_Node_LOW_ENTRY_POINT;
 	}
 
-	if (lastNode == LOW_ENTRY_POINT)
+	if (lastNode == machine_Node_LOW_ENTRY_POINT)
 	{
-		if (targetNode <= HOME_TOP)
-			return HOME_TOP;
-		if (targetNode >= RINSE_CONTAINER_ENTRY && targetNode <= RINSE_CONTAINER_LOW)
-			return RINSE_CONTAINER_ENTRY;
-		if (targetNode >= OUTER_HANDOVER)
-			return OUTER_HANDOVER;
+		if (targetNode <= machine_Node_HOME_TOP)
+			return machine_Node_HOME_TOP;
+		if (targetNode >= machine_Node_RINSE_CONTAINER_ENTRY && targetNode <= machine_Node_RINSE_CONTAINER_LOW)
+			return machine_Node_RINSE_CONTAINER_ENTRY;
+		if (targetNode >= machine_Node_OUTER_HANDOVER)
+			return machine_Node_OUTER_HANDOVER;
 	}
 
 	// Movement from positions directly above vials
-	if (lastNode >= MIN_VIAL_ABOVE && lastNode <= MAX_VIAL_ABOVE && lastNode % 10 == 0)
+	if (lastNode >= machine_Node_MIN_VIAL_ABOVE && lastNode <= machine_Node_MAX_VIAL_ABOVE && lastNode % 10 == 0)
 	{
-		if (targetNode <= HOME_TOP)
-			return HOME_TOP;
-		if (targetNode >= RINSE_CONTAINER_ENTRY)
-			return LOW_ENTRY_POINT;
-		if (targetNode >= MIN_VIAL_ABOVE && targetNode <= MAX_VIAL_ABOVE && targetNode % 10 == 0)
+		if (targetNode <= machine_Node_HOME_TOP)
+			return machine_Node_HOME_TOP;
+		if (targetNode >= machine_Node_RINSE_CONTAINER_ENTRY)
+			return machine_Node_LOW_ENTRY_POINT;
+		if (targetNode >= machine_Node_MIN_VIAL_ABOVE && targetNode <= machine_Node_MAX_VIAL_ABOVE && targetNode % 10 == 0)
 			return targetNode;
 		// If going inside a vial
-		if (targetNode >= MIN_VIAL_INSIDE && targetNode <= MAX_VIAL_INSIDE && targetNode % 10 == 5) {
+		if (targetNode >= machine_Node_MIN_VIAL_INSIDE && targetNode <= machine_Node_MAX_VIAL_INSIDE && targetNode % 10 == 5) {
 			// If we're above the correct vial
-			if (lastNode == (Node) (targetNode - 5))
+			if (lastNode == (machine_Node) (targetNode - 5))
 				return targetNode;
 			else
 				// go to to correct above vial node
-				return (Node) (targetNode - 5);
+				return (machine_Node) (targetNode - 5);
 		}
 	}
 
-	if (lastNode >= MIN_VIAL_INSIDE && lastNode <= MAX_VIAL_INSIDE && lastNode % 10 == 5) {
+	if (lastNode >= machine_Node_MIN_VIAL_INSIDE && lastNode <= machine_Node_MAX_VIAL_INSIDE && lastNode % 10 == 5) {
 		// Drop back to above position
 		if (lastNode != targetNode)
-			return (Node) (lastNode - 5);
+			return (machine_Node) (lastNode - 5);
 	}
 
-	if (lastNode == RINSE_CONTAINER_ENTRY) {
-		if (targetNode < RINSE_CONTAINER_ENTRY)
-			return LOW_ENTRY_POINT;
-		if (targetNode >= OUTER_HANDOVER)
-			return OUTER_HANDOVER;
-		if (targetNode == RINSE_CONTAINER_LOW)
-			return RINSE_CONTAINER_LOW;
+	if (lastNode == machine_Node_RINSE_CONTAINER_ENTRY) {
+		if (targetNode < machine_Node_RINSE_CONTAINER_ENTRY)
+			return machine_Node_LOW_ENTRY_POINT;
+		if (targetNode >= machine_Node_OUTER_HANDOVER)
+			return machine_Node_OUTER_HANDOVER;
+		if (targetNode == machine_Node_RINSE_CONTAINER_LOW)
+			return machine_Node_RINSE_CONTAINER_LOW;
 	}
 
-	if (lastNode == RINSE_CONTAINER_LOW) {
-		if (targetNode != RINSE_CONTAINER_LOW)
-			return RINSE_CONTAINER_ENTRY;
+	if (lastNode == machine_Node_RINSE_CONTAINER_LOW) {
+		if (targetNode != machine_Node_RINSE_CONTAINER_LOW)
+			return machine_Node_RINSE_CONTAINER_ENTRY;
 	}
 
-	if (lastNode == OUTER_HANDOVER)
+	if (lastNode == machine_Node_OUTER_HANDOVER)
 	{
-		if (targetNode >= RINSE_CONTAINER_ENTRY && targetNode <= RINSE_CONTAINER_LOW)
-			return RINSE_CONTAINER_ENTRY;
-		if (targetNode < OUTER_HANDOVER)
-			return LOW_ENTRY_POINT;
-		if (targetNode >= INNER_HANDOVER)
-			return INNER_HANDOVER;
+		if (targetNode >= machine_Node_RINSE_CONTAINER_ENTRY && targetNode <= machine_Node_RINSE_CONTAINER_LOW)
+			return machine_Node_RINSE_CONTAINER_ENTRY;
+		if (targetNode < machine_Node_OUTER_HANDOVER)
+			return machine_Node_LOW_ENTRY_POINT;
+		if (targetNode >= machine_Node_INNER_HANDOVER)
+			return machine_Node_INNER_HANDOVER;
 	}
 
-	if (lastNode == INNER_HANDOVER)
+	if (lastNode == machine_Node_INNER_HANDOVER)
 	{
-		if (targetNode <= OUTER_HANDOVER)
-			return OUTER_HANDOVER;
-		if (targetNode == INVERSE_KINEMATICS_POSITION)
-			return INVERSE_KINEMATICS_POSITION;
+		if (targetNode <= machine_Node_OUTER_HANDOVER)
+			return machine_Node_OUTER_HANDOVER;
+		if (targetNode == machine_Node_INVERSE_KINEMATICS_POSITION)
+			return machine_Node_INVERSE_KINEMATICS_POSITION;
 	}
 
-	if (lastNode == INVERSE_KINEMATICS_POSITION) {
-		if (targetNode < INVERSE_KINEMATICS_POSITION)
-			return INNER_HANDOVER;
+	if (lastNode == machine_Node_INVERSE_KINEMATICS_POSITION) {
+		if (targetNode < machine_Node_INVERSE_KINEMATICS_POSITION)
+			return machine_Node_INNER_HANDOVER;
 	}
 
-	return UNDEFINED;
+	return machine_Node_UNDEFINED;
 }
 
 // note this will go directly to the specified node, so ensure it is a safe move!
-void goToNode(State *s, Node node) {
+void goToNode(State *s, machine_Node node) {
 	// define positions for each node
-	if (node == UNDEFINED)
+	if (node == machine_Node_UNDEFINED)
 	{
 		s->zStepper.stop();
 		s->pitchStepper.stop();
@@ -125,14 +125,14 @@ void goToNode(State *s, Node node) {
 		Logger::Error("goToNode UNDEFINED, stopping steppers");
 		return;
 	}
-	else if (node == HOME)
+	else if (node == machine_Node_HOME)
 	{
 		s->zStepper.moveTo(s->zStepper.UnitToPosition(s->zStepper.GetMinUnit()));
 		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(0));
 		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(s->yawStepper.GetMinUnit()));
 		return;
 	}
-	else if (node == HOME_TOP)
+	else if (node == machine_Node_HOME_TOP)
 	{
 		s->zStepper.moveTo(s->zStepper.UnitToPosition(HOME_TOP_Z));
 		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(0));
@@ -141,18 +141,18 @@ void goToNode(State *s, Node node) {
 	}
 
 	// vial nodes (above)
-	if (node >= MIN_VIAL_ABOVE && node <= MAX_VIAL_ABOVE && node % 10 == 0)
+	if (node >= machine_Node_MIN_VIAL_ABOVE && node <= machine_Node_MAX_VIAL_ABOVE && node % 10 == 0)
 	{
 		s->zStepper.moveTo(s->zStepper.UnitToPosition(HOME_TOP_Z));
 		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(VIAL_PITCH));
 
-		int index = (node - MIN_VIAL_ABOVE) / 10;
+		int index = (node - machine_Node_MIN_VIAL_ABOVE) / 10;
 		float yaw = VIAL_YAW_OFFSET + index * VIAL_YAW_INCREMENT;
 		s->yawStepper.moveTo(s->yawStepper.UnitToPosition(yaw));
 		return;
 	}
 
-	if (node >= MIN_VIAL_INSIDE && node <= MAX_VIAL_INSIDE && node % 10 == 5)
+	if (node >= machine_Node_MIN_VIAL_INSIDE && node <= machine_Node_MAX_VIAL_INSIDE && node % 10 == 5)
 	{
 		// nowhere to go, the ABOVE node is inside the region of the inside node.
 		// so we let the above position carry over. Movement within this node
@@ -161,7 +161,7 @@ void goToNode(State *s, Node node) {
 		return;
 	}
 
-	if (node == RINSE_CONTAINER_ENTRY)
+	if (node == machine_Node_RINSE_CONTAINER_ENTRY)
 	{
 		s->zStepper.moveTo(s->zStepper.UnitToPosition(RINSE_CONTAINER_ENTRY_Z));
 		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(RINSE_CONTAINER_PITCH));
@@ -169,7 +169,7 @@ void goToNode(State *s, Node node) {
 		return;
 	}
 
-	if (node == RINSE_CONTAINER_LOW)
+	if (node == machine_Node_RINSE_CONTAINER_LOW)
 	{
 		s->zStepper.moveTo(s->zStepper.UnitToPosition(RINSE_CONTAINER_LOW_Z));
 		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(RINSE_CONTAINER_PITCH));
@@ -177,7 +177,7 @@ void goToNode(State *s, Node node) {
 		return;
 	}
 
-	if (node == OUTER_HANDOVER)
+	if (node == machine_Node_OUTER_HANDOVER)
 	{
 		s->zStepper.moveTo(s->zStepper.UnitToPosition(HANDOVER_Z));
 		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(HANDOVER_PITCH));
@@ -185,7 +185,7 @@ void goToNode(State *s, Node node) {
 		return;
 	}
 
-	if (node == INNER_HANDOVER)
+	if (node == machine_Node_INNER_HANDOVER)
 	{
 		s->zStepper.moveTo(s->zStepper.UnitToPosition(IK_Z));
 		s->pitchStepper.moveTo(s->pitchStepper.UnitToPosition(HANDOVER_PITCH));
@@ -193,7 +193,7 @@ void goToNode(State *s, Node node) {
 		return;
 	}
 
-	if (node == INVERSE_KINEMATICS_POSITION)
+	if (node == machine_Node_INVERSE_KINEMATICS_POSITION)
 	{
 		// nowhere to go, movement is handled outside the navigation system.
 		return;
@@ -206,7 +206,7 @@ bool atGlobalTarget(State *s)
 	return s->lastNode == s->globalTargetNode;
 }
 
-void atGlobalNodeHandler(Node node) {
+void atGlobalNodeHandler(machine_Node node) {
 	//todo: maybe write the node to eeprom so state can be restored.
 }
 
@@ -220,14 +220,14 @@ Status Navigation::UpdateNodeNavigation(State *s)
 	}
 
 	// Don't take action if we're at the global target. But do if localtarget undefined (start)
-	if (s->localTargetNode != UNDEFINED && atGlobalTarget(s)) {
+	if (s->localTargetNode != machine_Node_UNDEFINED && atGlobalTarget(s)) {
 		return SUCCESS;
 	}
 
 	// Calculate next local target
-	Node localTargetNode = calculateNextNode(s->lastNode, s->globalTargetNode);
+	machine_Node localTargetNode = calculateNextNode(s->lastNode, s->globalTargetNode);
 	Logger::Debug("calculateNextNode: last node " + String(s->lastNode) + " -> (" + String(localTargetNode) + ") -> global target " + String(s->globalTargetNode));
-	if (localTargetNode == UNDEFINED) {
+	if (localTargetNode == machine_Node_UNDEFINED) {
 		Logger::Debug("local target undefined, skipping node navigation");
 		return FAILURE;
 	}
@@ -254,23 +254,23 @@ Status Navigation::UpdateNodeNavigation(State *s)
 	return RUNNING;
 }
 
-void Navigation::SetGlobalNavigationTarget(State *s, Node n) {
+void Navigation::SetGlobalNavigationTarget(State *s, machine_Node n) {
 	// nothing to do
 	if (s->globalTargetNode == n) return;
 
 	Logger::Debug("Changing global target " + String(s->globalTargetNode) + " -> " + String(n));
 	s->globalTargetNode = n;
 
-	if (s->lastNode == s->localTargetNode || s->localTargetNode == UNDEFINED) {
+	if (s->lastNode == s->localTargetNode || s->localTargetNode == machine_Node_UNDEFINED) {
 		// no need for fancy checks if we're at our latest target
 		return;
 	}
 
-	Node newLocalTarget = calculateNextNode(s->lastNode, n);
+	machine_Node newLocalTarget = calculateNextNode(s->lastNode, n);
 
 	if (s->localTargetNode != newLocalTarget) {
 		//! local target will change, we must revist lastNode to be safe.
-		Node oldLastNode = s->lastNode;
+		machine_Node oldLastNode = s->lastNode;
 		// This is a reversal of direction. So, we pretend we were coming from 
 		// the old local target through this operation:
 		s->lastNode = s->localTargetNode;

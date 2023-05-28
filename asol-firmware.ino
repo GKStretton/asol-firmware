@@ -22,9 +22,9 @@
 
 State s = {
 	updatesPerSecond: 0,
-	lastNode: HOME,
-	localTargetNode: UNDEFINED,
-	globalTargetNode: HOME,
+	lastNode: machine_Node_HOME,
+	localTargetNode: machine_Node_UNDEFINED,
+	globalTargetNode: machine_Node_HOME,
 	manualRequested: false,
 	lastControlUpdate: 0,
 	lastDataUpdate: 0,
@@ -285,8 +285,8 @@ void topicHandler(String topic, String payload)
 	else if (topic == TOPIC_GOTO_NODE)
 	{
 		long num = payload.toInt();
-		s.forceIdleLocation = num == IDLE_LOCATION;
-		s.SetGlobalNavigationTarget((Node)num);
+		s.forceIdleLocation = num == machine_Node_IDLE_LOCATION;
+		s.SetGlobalNavigationTarget((machine_Node)num);
 		Logger::Debug("Set globalTargetNode to " + String(num));
 	}
 	else if (topic == TOPIC_GOTO_XY) {

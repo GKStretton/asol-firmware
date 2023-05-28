@@ -45,16 +45,16 @@ struct State {
 	float GetPipetteVolumeHeld();
 	// Clears state to begin like new
 	void ClearState();
-	void SetGlobalNavigationTarget(Node n);
+	void SetGlobalNavigationTarget(machine_Node n);
 
 	// stepper ticks
 	int updatesPerSecond;
 	// The most recent node to have been visited
-	Node lastNode;
+	machine_Node lastNode;
 	// Most recent local node being navigated to
-	Node localTargetNode;
+	machine_Node localTargetNode;
 	// The final goal node in a potentially multi-hop movement
-	Node globalTargetNode;
+	machine_Node globalTargetNode;
 	// If true, respect the fs-i6 controller
 	bool manualRequested;
 	// Timing

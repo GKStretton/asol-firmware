@@ -10,6 +10,42 @@
 #endif
 
 /* Enum definitions */
+typedef enum _machine_Node { 
+    machine_Node_UNDEFINED = 0, 
+    machine_Node_HOME = 4, 
+    machine_Node_HOME_TOP = 8, 
+    /* Above and inside test tube positions
+ Note; INSIDE positions are valid for a range of z values, determined outside Navigation. */
+    machine_Node_VIAL_1_ABOVE = 10, 
+    machine_Node_MIN_VIAL_ABOVE = 10, 
+    machine_Node_VIAL_1_INSIDE = 15, 
+    machine_Node_MIN_VIAL_INSIDE = 15, 
+    machine_Node_VIAL_2_ABOVE = 20, 
+    machine_Node_VIAL_2_INSIDE = 25, 
+    machine_Node_VIAL_3_ABOVE = 30, 
+    machine_Node_VIAL_3_INSIDE = 35, 
+    machine_Node_VIAL_4_ABOVE = 40, 
+    machine_Node_VIAL_4_INSIDE = 45, 
+    machine_Node_VIAL_5_ABOVE = 50, 
+    machine_Node_VIAL_5_INSIDE = 55, 
+    machine_Node_VIAL_6_ABOVE = 60, 
+    machine_Node_VIAL_6_INSIDE = 65, 
+    machine_Node_VIAL_7_ABOVE = 70, 
+    machine_Node_MAX_VIAL_ABOVE = 70, 
+    machine_Node_VIAL_7_INSIDE = 75, 
+    machine_Node_MAX_VIAL_INSIDE = 75, 
+    /* The node to enter the lower (vial) regions at */
+    machine_Node_LOW_ENTRY_POINT = 30, 
+    /* High z but otherwise aligned for rinse container */
+    machine_Node_RINSE_CONTAINER_ENTRY = 80, 
+    /* Low z and aligned for rinse container (in water) */
+    machine_Node_RINSE_CONTAINER_LOW = 85, 
+    machine_Node_OUTER_HANDOVER = 90, 
+    machine_Node_INNER_HANDOVER = 110, 
+    machine_Node_INVERSE_KINEMATICS_POSITION = 150, 
+    machine_Node_IDLE_LOCATION = 8 
+} machine_Node;
+
 /* used in requests */
 typedef enum _machine_SolenoidValve { 
     machine_SolenoidValve_VALVE_UNDEFINED = 0, 
@@ -79,6 +115,7 @@ typedef struct _machine_ContentTypeStatus {
 
 typedef struct _machine_ContentTypeStatuses { 
     pb_callback_t content_statuses;
+    pb_callback_t splashtext;
 } machine_ContentTypeStatuses;
 
 typedef struct _machine_DispenseMetadataMap { 
@@ -108,6 +145,7 @@ typedef struct _machine_ContentTypeStatuses_ContentStatusesEntry {
 typedef struct _machine_DispenseMetadata { 
     /* str(ContentType) -> ContentTypeStatus */
     bool failedDispense;
+    /* splashtext for this session */
     uint64_t dispenseDelayMs;
 } machine_DispenseMetadata;
 
@@ -207,6 +245,10 @@ typedef struct _machine_StateReport {
 
 
 /* Helper constants for enums */
+#define _machine_Node_MIN machine_Node_UNDEFINED
+#define _machine_Node_MAX machine_Node_INVERSE_KINEMATICS_POSITION
+#define _machine_Node_ARRAYSIZE ((machine_Node)(machine_Node_INVERSE_KINEMATICS_POSITION+1))
+
 #define _machine_SolenoidValve_MIN machine_SolenoidValve_VALVE_UNDEFINED
 #define _machine_SolenoidValve_MAX machine_SolenoidValve_VALVE_AIR
 #define _machine_SolenoidValve_ARRAYSIZE ((machine_SolenoidValve)(machine_SolenoidValve_VALVE_AIR+1))
@@ -249,7 +291,7 @@ extern "C" {
 #define machine_DispenseMetadataMap_init_default {{{NULL}, NULL}}
 #define machine_DispenseMetadataMap_DispenseMetadataEntry_init_default {{{NULL}, NULL}, false, machine_DispenseMetadata_init_default}
 #define machine_DispenseMetadata_init_default    {0, 0}
-#define machine_ContentTypeStatuses_init_default {{{NULL}, NULL}}
+#define machine_ContentTypeStatuses_init_default {{{NULL}, NULL}, {{NULL}, NULL}}
 #define machine_ContentTypeStatuses_ContentStatusesEntry_init_default {{{NULL}, NULL}, false, machine_ContentTypeStatus_init_default}
 #define machine_ContentTypeStatus_init_default   {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
 #define machine_Post_init_default                {_machine_SocialPlatform_MIN, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, 0, {{NULL}, NULL}, 0, 0}
@@ -265,7 +307,7 @@ extern "C" {
 #define machine_DispenseMetadataMap_init_zero    {{{NULL}, NULL}}
 #define machine_DispenseMetadataMap_DispenseMetadataEntry_init_zero {{{NULL}, NULL}, false, machine_DispenseMetadata_init_zero}
 #define machine_DispenseMetadata_init_zero       {0, 0}
-#define machine_ContentTypeStatuses_init_zero    {{{NULL}, NULL}}
+#define machine_ContentTypeStatuses_init_zero    {{{NULL}, NULL}, {{NULL}, NULL}}
 #define machine_ContentTypeStatuses_ContentStatusesEntry_init_zero {{{NULL}, NULL}, false, machine_ContentTypeStatus_init_zero}
 #define machine_ContentTypeStatus_init_zero      {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
 #define machine_Post_init_zero                   {_machine_SocialPlatform_MIN, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, 0, {{NULL}, NULL}, 0, 0}
@@ -274,8 +316,9 @@ extern "C" {
 #define machine_ContentTypeStatus_raw_title_tag  1
 #define machine_ContentTypeStatus_raw_description_tag 2
 #define machine_ContentTypeStatus_caption_tag    3
-#define machine_ContentTypeStatus_posts_tag      4
+#define machine_ContentTypeStatus_posts_tag      5
 #define machine_ContentTypeStatuses_content_statuses_tag 1
+#define machine_ContentTypeStatuses_splashtext_tag 2
 #define machine_DispenseMetadataMap_dispense_metadata_tag 1
 #define machine_StateReportList_StateReports_tag 1
 #define machine_CollectionRequest_completed_tag  1
@@ -431,7 +474,8 @@ X(a, STATIC,   SINGULAR, UINT64,   dispenseDelayMs,   2)
 #define machine_DispenseMetadata_DEFAULT NULL
 
 #define machine_ContentTypeStatuses_FIELDLIST(X, a) \
-X(a, CALLBACK, REPEATED, MESSAGE,  content_statuses,   1)
+X(a, CALLBACK, REPEATED, MESSAGE,  content_statuses,   1) \
+X(a, CALLBACK, SINGULAR, STRING,   splashtext,        2)
 #define machine_ContentTypeStatuses_CALLBACK pb_default_field_callback
 #define machine_ContentTypeStatuses_DEFAULT NULL
 #define machine_ContentTypeStatuses_content_statuses_MSGTYPE machine_ContentTypeStatuses_ContentStatusesEntry
@@ -447,7 +491,7 @@ X(a, STATIC,   OPTIONAL, MESSAGE,  value,             2)
 X(a, CALLBACK, SINGULAR, STRING,   raw_title,         1) \
 X(a, CALLBACK, SINGULAR, STRING,   raw_description,   2) \
 X(a, CALLBACK, SINGULAR, STRING,   caption,           3) \
-X(a, CALLBACK, REPEATED, MESSAGE,  posts,             4)
+X(a, CALLBACK, REPEATED, MESSAGE,  posts,             5)
 #define machine_ContentTypeStatus_CALLBACK pb_default_field_callback
 #define machine_ContentTypeStatus_DEFAULT NULL
 #define machine_ContentTypeStatus_posts_MSGTYPE machine_Post
