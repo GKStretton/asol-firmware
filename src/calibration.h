@@ -55,8 +55,7 @@
 #define MAX_FLUID_LEVEL 500.0
 
 // Rinse node calibration
-// todo: calibrate
 #define RINSE_CONTAINER_ENTRY_Z 73
-#define RINSE_CONTAINER_LOW_Z 0
+#define RINSE_CONTAINER_LOW_Z 1.1
 #define RINSE_CONTAINER_PITCH 26.2
 #define RINSE_CONTAINER_YAW 63.0
