@@ -15,7 +15,7 @@
 // z level from which to take in liquid. (may become dynamic based on dye level in future.)
 #define PIPETTE_INTAKE_Z 40
 // The amount of backlash / slop in ul when changing from collect to dispense.
-#define PIPETTE_BACKLASH_UL 10
+#define PIPETTE_BACKLASH_UL 5
 
 // Physical calibration of arm positions etc
 #define STAGE_RADIUS_MM 75
@@ -37,7 +37,7 @@
 #define VIAL_YAW_OFFSET -6
 #define VIAL_YAW_INCREMENT 36.38
 
-#define IK_Z 42
+#define IK_Z 43
 #define HANDOVER_Z 50
 #define HANDOVER_PITCH 70
 #define HANDOVER_INNER_YAW 15

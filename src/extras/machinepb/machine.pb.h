@@ -106,6 +106,7 @@ typedef enum _machine_SocialPlatform {
 } machine_SocialPlatform;
 
 /* Struct definitions */
+/* emails used for administration, not intended for audience distribution */
 typedef struct _machine_ContentTypeStatus { 
     pb_callback_t raw_title;
     pb_callback_t raw_description;
@@ -122,6 +123,11 @@ typedef struct _machine_DispenseMetadataMap {
     /* [startupCounter]_[dispenseRequestNumber] */
     pb_callback_t dispense_metadata;
 } machine_DispenseMetadataMap;
+
+typedef struct _machine_Email { 
+    pb_callback_t subject;
+    pb_callback_t body;
+} machine_Email;
 
 typedef struct _machine_StateReportList { 
     pb_callback_t StateReports;
@@ -295,6 +301,7 @@ extern "C" {
 #define machine_ContentTypeStatuses_ContentStatusesEntry_init_default {{{NULL}, NULL}, false, machine_ContentTypeStatus_init_default}
 #define machine_ContentTypeStatus_init_default   {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
 #define machine_Post_init_default                {_machine_SocialPlatform_MIN, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, 0, {{NULL}, NULL}, 0, 0}
+#define machine_Email_init_default               {{{NULL}, NULL}, {{NULL}, NULL}}
 #define machine_PipetteState_init_zero           {0, 0, 0, 0}
 #define machine_CollectionRequest_init_zero      {0, 0, 0, 0}
 #define machine_MovementDetails_init_zero        {0, 0, 0, 0, 0}
@@ -311,6 +318,7 @@ extern "C" {
 #define machine_ContentTypeStatuses_ContentStatusesEntry_init_zero {{{NULL}, NULL}, false, machine_ContentTypeStatus_init_zero}
 #define machine_ContentTypeStatus_init_zero      {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
 #define machine_Post_init_zero                   {_machine_SocialPlatform_MIN, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, 0, {{NULL}, NULL}, 0, 0}
+#define machine_Email_init_zero                  {{{NULL}, NULL}, {{NULL}, NULL}}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define machine_ContentTypeStatus_raw_title_tag  1
@@ -320,6 +328,8 @@ extern "C" {
 #define machine_ContentTypeStatuses_content_statuses_tag 1
 #define machine_ContentTypeStatuses_splashtext_tag 2
 #define machine_DispenseMetadataMap_dispense_metadata_tag 1
+#define machine_Email_subject_tag                1
+#define machine_Email_body_tag                   2
 #define machine_StateReportList_StateReports_tag 1
 #define machine_CollectionRequest_completed_tag  1
 #define machine_CollectionRequest_request_number_tag 2
@@ -508,6 +518,12 @@ X(a, STATIC,   SINGULAR, UINT64,   scheduled_unix_timetamp,   8)
 #define machine_Post_CALLBACK pb_default_field_callback
 #define machine_Post_DEFAULT NULL
 
+#define machine_Email_FIELDLIST(X, a) \
+X(a, CALLBACK, SINGULAR, STRING,   subject,           1) \
+X(a, CALLBACK, SINGULAR, STRING,   body,              2)
+#define machine_Email_CALLBACK pb_default_field_callback
+#define machine_Email_DEFAULT NULL
+
 extern const pb_msgdesc_t machine_PipetteState_msg;
 extern const pb_msgdesc_t machine_CollectionRequest_msg;
 extern const pb_msgdesc_t machine_MovementDetails_msg;
@@ -524,6 +540,7 @@ extern const pb_msgdesc_t machine_ContentTypeStatuses_msg;
 extern const pb_msgdesc_t machine_ContentTypeStatuses_ContentStatusesEntry_msg;
 extern const pb_msgdesc_t machine_ContentTypeStatus_msg;
 extern const pb_msgdesc_t machine_Post_msg;
+extern const pb_msgdesc_t machine_Email_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define machine_PipetteState_fields &machine_PipetteState_msg
@@ -542,6 +559,7 @@ extern const pb_msgdesc_t machine_Post_msg;
 #define machine_ContentTypeStatuses_ContentStatusesEntry_fields &machine_ContentTypeStatuses_ContentStatusesEntry_msg
 #define machine_ContentTypeStatus_fields &machine_ContentTypeStatus_msg
 #define machine_Post_fields &machine_Post_msg
+#define machine_Email_fields &machine_Email_msg
 
 /* Maximum encoded size of messages (where known) */
 /* machine_StateReport_size depends on runtime parameters */
@@ -552,6 +570,7 @@ extern const pb_msgdesc_t machine_Post_msg;
 /* machine_ContentTypeStatuses_ContentStatusesEntry_size depends on runtime parameters */
 /* machine_ContentTypeStatus_size depends on runtime parameters */
 /* machine_Post_size depends on runtime parameters */
+/* machine_Email_size depends on runtime parameters */
 #define machine_CollectionRequest_size           29
 #define machine_DispenseMetadata_size            13
 #define machine_FluidDetails_size                5

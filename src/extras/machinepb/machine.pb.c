@@ -54,6 +54,9 @@ PB_BIND(machine_ContentTypeStatus, machine_ContentTypeStatus, AUTO)
 PB_BIND(machine_Post, machine_Post, AUTO)
 
 
+PB_BIND(machine_Email, machine_Email, AUTO)
+
+
 
 
 

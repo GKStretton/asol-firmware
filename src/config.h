@@ -82,3 +82,8 @@
 // Current measuring
 #define V12_CURRENT A14
 #define V5_CURRENT A15
+
+#define COVER_SERVO_PIN 6
+#define COVER_SERVO_OPEN_US 1600
+#define COVER_SERVO_CLOSED_US 650
+#define COVER_SERVO_RESOLUTION_US 20

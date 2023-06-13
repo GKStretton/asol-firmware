@@ -4,6 +4,7 @@
 #define PAYLOAD_SMART_SWITCH_OFF "OFF"
 #define PAYLOAD_SMART_SWITCH_ON "ON"
 #define TOPIC_CLOSE_BLIND "asol/close_bedroom_blind"
+#define TOPIC_EMAIL_SEND "asol/send-email"
 #define TOPIC_KV_GET "asol/kv/get/"
 #define TOPIC_KV_GET_RESP "asol/kv/get-resp/"
 #define TOPIC_KV_SET "asol/kv/set/"
