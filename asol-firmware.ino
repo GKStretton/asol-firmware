@@ -1,6 +1,5 @@
 #include <AccelStepper.h>
 #include <Wire.h>
-#include <Servo.h>
 #include "src/common/ik_algorithm.h"
 #include "src/drivers/fs-i6.h"
 #include "src/config.h"
@@ -20,6 +19,7 @@
 #include "src/common/mathutil.h"
 #include "src/middleware/fluid_levels.h"
 #include "src/extras/topics_firmware/topics_firmware.h"
+#include "src/drivers/cover_servo.h"
 
 State s = {
 	updatesPerSecond: 0,
@@ -43,15 +43,15 @@ State s = {
 	collectionInProgress: false,
 	shutdownRequested: false,
 	calibrationCleared: false,
-	postCalibrationStopCalled: false,
+	postCalibrationHandlerCalled: false,
 	forceIdleLocation: true,
 	fluidRequest: {FluidType::FLUID_UNDEFINED, false, 0, 0, true},
 	ik_target_z: IK_Z,
-	startup_counter: 0
+	startup_counter: 0,
+	overrideCalibrationBlock: false
 };
 
 Controller controller;
-Servo coverServo;
 
 int updatesInLastSecond;
 unsigned long lastUpdatesPerSecondTime = millis();
@@ -127,6 +127,8 @@ void setup()
 	InitPin(TOP_LIGHT_RGB, HIGH);
 
 	InitPin(STEP_INDICATOR_PIN, LOW);
+
+	CoverServo_Init();
 
 	initSteppers();
 
@@ -357,41 +359,18 @@ void topicHandler(String topic, String payload)
 		s.ik_target_z = z;
 	}
 	else if (topic == TOPIC_MARK_SAFE_TO_CALIBRATE) {
-		Sleep::OverrideLastSleepStatus(Sleep::SAFE);
-		Logger::Info("Set last sleep status to SAFE per mqtt request");
+		s.overrideCalibrationBlock = true;
+		Logger::Info("Set overrideCalibrationBlock true per mqtt request");
 	}
 	else if (topic == TOPIC_SET_COVER_SERVO_US) {
-		if (!coverServo.attached()) coverServo.attach(COVER_SERVO_PIN);
-
-		float pos = payload.toInt();
-		coverServo.writeMicroseconds(pos);
-		Logger::Info("Set cover servo to " + String(pos) + "us.");
-		delay(500);
-		coverServo.detach();
+		int us = payload.toInt();
+		CoverServo_SetMicroseconds(us);
 	}
 	else if (topic == TOPIC_SET_COVER_OPEN) {
-		if (!coverServo.attached()) coverServo.attach(COVER_SERVO_PIN);
-
-		Logger::Info("Moving cover from closed to open");
-		for (int i = COVER_SERVO_CLOSED_US; i <= COVER_SERVO_OPEN_US; i+=COVER_SERVO_RESOLUTION_US) {
-			coverServo.writeMicroseconds(i);
-			Serial.println(i);
-			delay(20);
-		}
-		delay(500);
-		coverServo.detach();
+		CoverServo_Open();
 	}
 	else if (topic == TOPIC_SET_COVER_CLOSE) {
-		if (!coverServo.attached()) coverServo.attach(COVER_SERVO_PIN);
-
-		Logger::Info("Moving cover from open to closed");
-		for (int i = COVER_SERVO_OPEN_US; i >= COVER_SERVO_CLOSED_US; i-=COVER_SERVO_RESOLUTION_US) {
-			coverServo.writeMicroseconds(i);
-			Serial.println(i);
-			delay(20);
-		}
-		delay(500);
-		coverServo.detach();
+		CoverServo_Close();
 	}
 	else
 	{

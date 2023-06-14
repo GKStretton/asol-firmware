@@ -36,7 +36,7 @@ void State::ClearState() {
 	this->collectionInProgress = false;
 	this->shutdownRequested = false;
 	this->calibrationCleared = false;
-	this->postCalibrationStopCalled = false;
+	this->postCalibrationHandlerCalled = false;
 	this->manualRequested = false;
 	this->forceIdleLocation = true;
 
@@ -50,6 +50,7 @@ void State::ClearState() {
 	this->ik_target_z = IK_Z;
 
 	this->fluidRequest = {FLUID_UNDEFINED, false, 0, 0, true};
+	this->overrideCalibrationBlock = false;
 
 	StateReport_SetMode(machine_Mode_UNDEFINED_MODE);
 	StateReport_Update(this);

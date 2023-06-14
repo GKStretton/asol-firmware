@@ -4,7 +4,7 @@
 
 Status Controller::evaluateCalibration(State *s) {
 	// Only auto-calibrate if last shutdown was safe.
-	if (Sleep::GetLastSleepStatus() != Sleep::SAFE) {
+	if (Sleep::GetLastSleepStatus() != Sleep::SAFE && !s->overrideCalibrationBlock) {
 		return FAILURE;
 	}
 

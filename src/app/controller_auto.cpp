@@ -4,6 +4,7 @@
 #include "../middleware/logger.h"
 #include "../middleware/sleep.h"
 #include "../drivers/i2c_eeprom.h"
+#include "../drivers/cover_servo.h"
 #include "state_report.h"
 
 // this structure is like a pseudo behavior tree. Every update, the program
@@ -30,6 +31,7 @@ void Controller::autoUpdate(State *s) {
 			s->shutdownRequested = false;
 			return;
 		} else {
+			CoverServo_Close();
 			// success, safe shutdown
 			Sleep::Sleep(Sleep::SAFE);
 			s->shutdownRequested = false;
@@ -40,7 +42,7 @@ void Controller::autoUpdate(State *s) {
 	// if not calibrated
 	if (!s->IsFullyCalibrated()) {
 		StateReport_SetStatus(machine_Status_CALIBRATING);
-		s->postCalibrationStopCalled = false;
+		s->postCalibrationHandlerCalled = false;
 		Status status = evaluateCalibration(s);
 		if (status == RUNNING) {
 			StateReport_SetMode(machine_Mode_AUTONOMOUS);
@@ -49,19 +51,23 @@ void Controller::autoUpdate(State *s) {
 			manualUpdate(s);
 			return;
 		}
-		// if success, just continue
+		// if success, just continue (success never called though)
 	}
 	StateReport_SetMode(machine_Mode_AUTONOMOUS);
 
 	// set speed to 0 once after calibration so motors don't keep moving
-	if (s->IsFullyCalibrated() && !s->postCalibrationStopCalled) {
+	if (s->IsFullyCalibrated() && !s->postCalibrationHandlerCalled) {
 		s->yawStepper.setSpeed(0);
 		s->pitchStepper.setSpeed(0);
 		s->zStepper.setSpeed(0);
 		s->ringStepper.setSpeed(0);
 		s->pipetteStepper.setSpeed(0);
-		s->postCalibrationStopCalled = true;
+		s->postCalibrationHandlerCalled = true;
 		Logger::Debug("Set all motors to speed 0 after calibration");
+
+		if (Sleep::GetLastSleepStatus() == Sleep::SAFE) {
+			CoverServo_Open();
+		}
 	}
 
 	s->ringStepper.moveTo(s->ringStepper.UnitToPosition(s->target_ring));

@@ -81,7 +81,7 @@ struct State {
 	// True if we've received shutdown request that's not done yet
 	bool shutdownRequested;
 	bool calibrationCleared;
-	bool postCalibrationStopCalled;
+	bool postCalibrationHandlerCalled;
 	// if true, always go to the idle node when idle
 	bool forceIdleLocation;
 
@@ -90,4 +90,6 @@ struct State {
 	float ik_target_z;
 
 	uint8_t startup_counter;
+
+	bool overrideCalibrationBlock;
 };
