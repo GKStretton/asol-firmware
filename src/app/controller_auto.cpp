@@ -87,7 +87,7 @@ void Controller::autoUpdate(State *s) {
 			// Nothing to do. Wait at outer handover
 			if (s->forceIdleLocation) s->SetGlobalNavigationTarget(machine_Node_IDLE_LOCATION);
 			Status status = Navigation::UpdateNodeNavigation(s);
-			if (status == RUNNING) {
+			if (status == RUNNING || !s->ringStepper.AtTarget()) {
 				StateReport_SetStatus(machine_Status_IDLE_MOVING);
 			} else {
 				StateReport_SetStatus(machine_Status_IDLE_STATIONARY);
