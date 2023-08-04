@@ -20,6 +20,10 @@ namespace Sleep {
 		void (*externalSleepHandler)(SleepStatus sleepStatus) = NULL;
 		void (*externalWakeHandler)(SleepStatus lastSleepStatus) = NULL;
 
+		bool eStopActive() {
+			return digitalRead(E_STOP_PIN) == LOW;
+		}
+
 		void onSleep(SleepStatus status) {
 			Logger::Info("Going to sleep with status " + String(status));
 
@@ -47,7 +51,11 @@ namespace Sleep {
 			SerialMQTT::Publish(TOPIC_SMART_SWITCH, PAYLOAD_SMART_SWITCH_OFF);
 			Logger::Info("External power off req sent.");
 
-			StateReport_SetStatus(machine_Status_SLEEPING);
+			if (eStopActive()) {
+				StateReport_SetStatus(machine_Status_E_STOP_ACTIVE);
+			} else {
+				StateReport_SetStatus(machine_Status_SLEEPING);
+			}
 			StateReport_ForceSend();
 		}
 
@@ -75,10 +83,6 @@ namespace Sleep {
 			}
 		}
 
-		bool eStopActive() {
-			return digitalRead(E_STOP_PIN) == LOW;
-		}
-
 		// private version of isSleeping that does the actual checks
 		bool isSleeping() {
 			//! ordered by priority
@@ -102,9 +106,15 @@ namespace Sleep {
 	void Update() {
 		if (isSleeping()) {
 			Sleep(UNKNOWN);
+			if (eStopActive()) {
+				StateReport_SetStatus(machine_Status_E_STOP_ACTIVE);
+			} else {
+				StateReport_SetStatus(machine_Status_SLEEPING);
+			}
 		} else {
 			Wake();
 		}
+		
 		if (millis() - lastPrint > SLEEP_PRINT_INTERVAL) {
 			lastPrint = millis();
 			if (eStopActive()) {

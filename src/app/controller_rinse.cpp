@@ -4,6 +4,15 @@
 #include "../middleware/logger.h"
 
 Status Controller::evaluateRinse(State *s) {
+	// Ensure valid mode	
+	if (
+		s->rinseStatus == machine_RinseStatus_RINSE_UNDEFINED ||
+		s->rinseStatus == machine_RinseStatus_RINSE_COMPLETE
+	) {
+		Logger::Error("rinse status should not be " + String(s->rinseStatus) + " inside rinse controller");
+		return FAILURE;
+	}
+
 	// Ensure buffer 
 	if (s->pipetteState.spent) {
 		// Go to entry

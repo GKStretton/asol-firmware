@@ -421,7 +421,8 @@ void loop()
 	Sleep::Update();
 	if (Sleep::IsSleeping())
 	{
-		delay(50);
+		StateReport_Update(&s);
+		delay(200);
 		return;
 	}
 
