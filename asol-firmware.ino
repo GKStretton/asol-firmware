@@ -21,35 +21,7 @@
 #include "src/extras/topics_firmware/topics_firmware.h"
 #include "src/drivers/cover_servo.h"
 
-State s = {
-	updatesPerSecond: 0,
-	lastNode: machine_Node_HOME,
-	localTargetNode: machine_Node_UNDEFINED,
-	globalTargetNode: machine_Node_HOME,
-	manualRequested: false,
-	lastControlUpdate: 0,
-	lastDataUpdate: 0,
-	pitchStepper: UnitStepper(PITCH_STEPPER_STEP, PITCH_STEPPER_DIR, 16, 0.44, -2.5, 90),
-	yawStepper: UnitStepper(YAW_STEPPER_STEP, YAW_STEPPER_DIR, 8, 0.36, YAW_ZERO_OFFSET, 198),
-	zStepper: UnitStepper(Z_STEPPER_STEP, Z_STEPPER_DIR, 4, 0.04078, 1, 73),
-	ringStepper: UnitStepper(RING_STEPPER_STEP, RING_STEPPER_DIR, 32, 0.4, RING_ZERO_OFFSET, 195),
-	pipetteStepper: UnitStepper(PIPETTE_STEPPER_STEP, PIPETTE_STEPPER_DIR, 2, 0.9, 0, 1000),
-	target_x: 0.0,
-	target_y: 0.0,
-	target_ring: RING_ZERO_OFFSET,
-	target_yaw: 0.0,
-	collectionRequest: {true, 0, 0, 0.0},
-	pipetteState: {true, 0, 0.0, false, 0},
-	collectionInProgress: false,
-	shutdownRequested: false,
-	calibrationCleared: false,
-	postCalibrationHandlerCalled: false,
-	forceIdleLocation: true,
-	fluidRequest: {FluidType::FLUID_UNDEFINED, false, 0, 0, true},
-	ik_target_z: IK_Z,
-	startup_counter: 0,
-	overrideCalibrationBlock: false
-};
+State s = CreateStateObject();
 
 Controller controller;
 
@@ -193,6 +165,15 @@ void initSteppers() {
 	s.pipetteStepper.SetLimitSwitchPin(PIPETTE_LIMIT_SWITCH);
 }
 
+void requestRinse() {
+	if (s.rinseStatus == machine_RinseStatus_RINSE_COMPLETE) {
+		s.rinseStatus = machine_RinseStatus_RINSE_REQUESTED;
+		Logger::Info("requested rinse");
+	} else {
+		Logger::Error("Cannot request rinse because rinseStatus is not complete: " + String(s.rinseStatus));
+	}
+}
+
 void topicHandler(String topic, String payload)
 {
 	Logger::Debug("topic handler start");
@@ -281,7 +262,7 @@ void topicHandler(String topic, String payload)
 		} else {
 			// if we're changing vial, and it's not the first request
 			if (s.collectionRequest.vialNumber != vial && s.collectionRequest.requestNumber > 0) {
-				// todo: request rinse
+				requestRinse();
 			}
 			s.collectionRequest.requestNumber++;
 			s.collectionRequest.requestCompleted = false;
@@ -289,6 +270,9 @@ void topicHandler(String topic, String payload)
 			s.collectionRequest.ulVolume = ul;
 			Logger::Info("created collection request " + String(s.collectionRequest.requestNumber) + " for " + String(ul) + "ul of vial " + String(vial));
 		}
+	}
+	else if (topic == TOPIC_RINSE) {
+		requestRinse();
 	}
 	else if (topic == TOPIC_GOTO_NODE)
 	{

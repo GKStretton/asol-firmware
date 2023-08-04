@@ -1,6 +1,8 @@
 #ifndef MQTT_CONSTANTS_H
 #define MQTT_CONSTANTS_H
 
+#define KV_KEY_ALL_VIAL_PROFILES "vial-profiles"
+#define KV_KEY_SYSTEM_VIAL_PROFILES "system-vial-profiles"
 #define PAYLOAD_SMART_SWITCH_OFF "OFF"
 #define PAYLOAD_SMART_SWITCH_ON "ON"
 #define TOPIC_CLOSE_BLIND "asol/close_bedroom_blind"

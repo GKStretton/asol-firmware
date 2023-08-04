@@ -15,6 +15,7 @@
 #define TOPIC_MARK_SAFE_TO_CALIBRATE "mega/req/safe-to-calibrate"
 #define TOPIC_PIN_OFF "mega/req/pin-off"
 #define TOPIC_PIN_ON "mega/req/pin-on"
+#define TOPIC_RINSE "mega/req/rinse"
 #define TOPIC_SET_COVER_CLOSE "mega/req/cover-close"
 #define TOPIC_SET_COVER_OPEN "mega/req/cover-open"
 #define TOPIC_SET_COVER_SERVO_US "mega/req/cover-servo-us"

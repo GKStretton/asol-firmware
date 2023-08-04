@@ -9,16 +9,21 @@ This is the firmware for [A Study of Light](https://www.youtube.com/@StudyOfLigh
 
 - arduino-cli
 - Additional Arduino libraries
-    - AccelStepper
-    - PPM-reader
+  - AccelStepper
+  - PPM-reader
+  - Servo
 
 ## Instructions
 
 ### Build
 
-- Ensure arduino-cli is installed
+- Ensure [arduino-cli](https://arduino.github.io/arduino-cli/latest/installation/) is installed
 - `arduino-cli core install arduino:avr`
 - `./build.sh`
+
+### VSCODE SETUP - **Important**
+
+Ensure you have arduino extension installed, and run ctrl+shift+p > Arduino: Initialize. This will save many headaches.
 
 ### Upload
 

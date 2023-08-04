@@ -115,6 +115,11 @@ static void updateStateReport(State *s) {
 		stateReport.fluid_details.bowl_fluid_level_ml = bowlLevel;
 		hasChanged = true;
 	}
+
+	if (stateReport.rinse_status != s->rinseStatus) {
+		stateReport.rinse_status = s->rinseStatus;
+		hasChanged = true;
+	}
 }
 
 void StateReport_Update(State *s) {

@@ -37,6 +37,7 @@ struct FluidRequest {
 	bool complete;
 };
 
+
 struct State {
 	// returns true if pitch, yaw and z are calibrated
 	bool IsArmCalibrated();
@@ -92,4 +93,8 @@ struct State {
 	uint8_t startup_counter;
 
 	bool overrideCalibrationBlock;
+
+	machine_RinseStatus rinseStatus;
 };
+
+State CreateStateObject();
