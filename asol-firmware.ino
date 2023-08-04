@@ -260,10 +260,6 @@ void topicHandler(String topic, String payload)
 		if (!s.collectionRequest.requestCompleted) {
 			Logger::Info("cannot collect because collection request " + String(s.collectionRequest.requestNumber) + " is still in progress");
 		} else {
-			// if we're changing vial, and it's not the first request
-			if (s.collectionRequest.vialNumber != vial && s.collectionRequest.requestNumber > 0) {
-				requestRinse();
-			}
 			s.collectionRequest.requestNumber++;
 			s.collectionRequest.requestCompleted = false;
 			s.collectionRequest.vialNumber = vial;

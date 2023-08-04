@@ -53,8 +53,13 @@ Status Controller::evaluatePipetteDispense(State *s) {
 	// mark as spent if at target of 0
 	if (s->pipetteState.ulVolumeHeldTarget <= 0 && !s->pipetteState.spent) {
 		s->pipetteState.spent = true;
+		// trigger rinse after final dispense
+		s->rinseStatus = machine_RinseStatus_RINSE_REQUESTED;
 		// Running here so that we don't get a single report of WAITING_FOR_DISPENSE
+		// after it's spent
 		return RUNNING;
 	}
+
+	// Success if dispensed and not spent
 	return SUCCESS;
 }

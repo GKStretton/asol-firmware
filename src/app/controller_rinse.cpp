@@ -15,6 +15,16 @@ Status Controller::evaluateRinse(State *s) {
 
 	// Ensure buffer 
 	if (s->pipetteState.spent) {
+		// allow cancelling rinse if a collection is requested with same vial
+		// as was held
+		if (
+			!s->collectionRequest.requestCompleted &&
+			s->collectionRequest.vialNumber == s->pipetteState.vialHeld
+		) {
+			s->rinseStatus = machine_RinseStatus_RINSE_COMPLETE;
+			return SUCCESS;
+		}
+
 		// Go to entry
 		s->SetGlobalNavigationTarget(machine_Node_RINSE_CONTAINER_ENTRY);
 		Status status = Navigation::UpdateNodeNavigation(s);
