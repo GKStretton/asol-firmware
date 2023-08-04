@@ -72,11 +72,14 @@ void Controller::autoUpdate(State *s) {
 
 	s->ringStepper.moveTo(s->ringStepper.UnitToPosition(s->target_ring));
 
-	// todo: rinse Request
-	// I think rinse should be triggered upon collection request if
-	// the new collection vial is different to the latest held.
-	if (false /*rinseRequest*/) {
-		//todo: rinse functionality
+	if (s->rinseStatus != machine_RinseStatus_RINSE_COMPLETE) {
+		Logger::Debug("Rinse in progress...");
+		StateReport_SetStatus(machine_Status_RINSING_PIPETTE);
+
+		Status status = evaluateRinse(s);
+		if (status != SUCCESS) {
+			return;
+		}
 	}
 
 	// No dye

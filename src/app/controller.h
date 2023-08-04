@@ -19,4 +19,5 @@ private:
 	Status evaluateIK(State *s);
 	Status evaluateShutdown(State *s);
 	Status evaluateCalibration(State *s);
+	Status evaluateRinse(State *s);
 };
