@@ -388,7 +388,7 @@ void dataUpdate()
 	// stepper units
 	SerialMQTT::Publish("mega/d/R_UNIT", String(s.ringStepper.PositionToUnit(s.ringStepper.currentPosition())));
 	// SerialMQTT::Publish("mega/d/Z_UNIT", String(s.zStepper.PositionToUnit(s.zStepper.currentPosition())));
-	SerialMQTT::Publish("mega/d/Y_UNIT", String(s.yawStepper.PositionToUnit(s.yawStepper.currentPosition())));
+	// SerialMQTT::Publish("mega/d/Y_UNIT", String(s.yawStepper.PositionToUnit(s.yawStepper.currentPosition())));
 	// SerialMQTT::Publish("mega/d/P_UNIT", String(s.pitchStepper.PositionToUnit(s.pitchStepper.currentPosition())));
 	// SerialMQTT::Publish("mega/d/PP_UNIT", String(s.pipetteStepper.PositionToUnit(s.pipetteStepper.currentPosition())));
 

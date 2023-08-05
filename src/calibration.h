@@ -27,7 +27,8 @@
 #define IK_TARGET_RADIUS_FRAC 0.8
 
 #define YAW_ZERO_OFFSET -21.3
-#define RING_ZERO_OFFSET 24.8
+// anticlockwise offset of arm from negative x axis
+#define RING_ZERO_OFFSET 4.8
 
 #define CENTRE_PITCH 48.95
 #define MIN_BOWL_Z 32.5
