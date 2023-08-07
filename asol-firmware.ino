@@ -352,6 +352,9 @@ void topicHandler(String topic, String payload)
 	else if (topic == TOPIC_SET_COVER_CLOSE) {
 		CoverServo_Close();
 	}
+	else if (topic == TOPIC_MAINTENANCE) {
+		s.target_ring = MAINTENANCE_RING_ANGLE;
+	}
 	else
 	{
 		Logger::Debug("no handler for " + topic + " (payload = " + payload + ")");
