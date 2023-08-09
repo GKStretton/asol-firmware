@@ -43,7 +43,7 @@ typedef enum _machine_Node {
     machine_Node_OUTER_HANDOVER = 90, 
     machine_Node_INNER_HANDOVER = 110, 
     machine_Node_INVERSE_KINEMATICS_POSITION = 150, 
-    machine_Node_IDLE_LOCATION = 8 
+    machine_Node_IDLE_LOCATION = 80 
 } machine_Node;
 
 /* used in requests */

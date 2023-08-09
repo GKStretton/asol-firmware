@@ -12,6 +12,7 @@
 #include "src/middleware/serialmqtt.h"
 #include "src/drivers/UnitStepper.h"
 #include "src/app/state.h"
+#include "src/app/navigation.h"
 #include "src/app/controller.h"
 #include "src/drivers/i2c_eeprom.h"
 #include "src/app/state_report.h"
@@ -354,6 +355,8 @@ void topicHandler(String topic, String payload)
 	}
 	else if (topic == TOPIC_MAINTENANCE) {
 		s.target_ring = MAINTENANCE_RING_ANGLE;
+		s.forceIdleLocation = false;
+		Navigation::SetGlobalNavigationTarget(&s, machine_Node_OUTER_HANDOVER);
 	}
 	else
 	{
