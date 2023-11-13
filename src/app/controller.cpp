@@ -16,7 +16,7 @@ void Controller::Update(State *s) {
 
 		bool boardSwitchA = digitalRead(SWITCH_A);
 		if (boardSwitchA || s->manualRequested) {
-			manualUpdate(s);
+			manualUpdate(s, false);
 		} else {
 			autoUpdate(s);
 		}

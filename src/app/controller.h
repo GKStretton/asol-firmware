@@ -11,7 +11,7 @@ private:
 	void fluidInit(State *s);
 
 	void autoUpdate(State *s);
-	void manualUpdate(State *s);
+	void manualUpdate(State *s, bool calibrating);
 	void fluidUpdate(State *s);
 	// Behaviour "node" for fluid collection, without assumptions
 	Status evaluatePipetteCollection(State *s);

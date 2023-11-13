@@ -48,7 +48,7 @@ void Controller::autoUpdate(State *s) {
 			StateReport_SetMode(machine_Mode_AUTONOMOUS);
 			return;
 		} else if (status == FAILURE) {
-			manualUpdate(s);
+			manualUpdate(s, true);
 			return;
 		}
 		// if success, just continue (success never called though)

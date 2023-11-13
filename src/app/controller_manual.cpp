@@ -51,7 +51,7 @@ void ikModeUpdate(State *s)
 	}
 }
 
-void Controller::manualUpdate(State *s)
+void Controller::manualUpdate(State *s, bool calibrating)
 {
 	StateReport_SetMode(machine_Mode_MANUAL);
 	// Get inputs
@@ -73,7 +73,7 @@ void Controller::manualUpdate(State *s)
 
 	// Main control
 
-	float speedMult = 1600.0;
+	float speedMult = 1600.0 * (calibrating ? 0.25 : 1.0); // if calibrating, go slow
 
 	if (sw2 == 0 || sw2 == 1) {
 		// manual + pipette
